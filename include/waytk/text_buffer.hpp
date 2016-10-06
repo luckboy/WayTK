@@ -99,7 +99,7 @@ namespace waytk
   public:
     TextCharIterator() {}
 
-    TextCharIterator(const TextByteIterator &iter);
+    explicit TextCharIterator(const TextByteIterator &iter);
 
     TextByteIterator operator*() const
     { return byte_iter(); }
@@ -159,14 +159,14 @@ namespace waytk
     TextLineIterator(TextBuffer *buffer, std::uintptr_t data1, std::uintptr_t data2) :
       _M_buffer(buffer), _M_data1(data1), _M_data2(data2) {}
   public:
-    TextLineIterator();
+    TextLineIterator() {}
 
-    TextLineIterator(const TextByteIterator &iter);
+    explicit TextLineIterator(const TextByteIterator &iter);
 
-    TextLineIterator(const TextCharIterator &iter);
+    explicit TextLineIterator(const TextCharIterator &iter);
 
     TextCharIterator operator*() const
-    { return byte_iter(); }
+    { return char_iter(); }
 
     TextCharIterator *operator->() const
     { return nullptr; }

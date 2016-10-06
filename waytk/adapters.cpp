@@ -85,7 +85,7 @@ namespace waytk
   // A StringTableAdapter class. 
   //
 
-  StringTableAdapter::StringTableAdapter(initializer_list<initializer_list<std::string>> cells)
+  StringTableAdapter::StringTableAdapter(initializer_list<initializer_list<string>> cells)
   {
     for(auto &row : cells) {
       vector<string> tmp_row;

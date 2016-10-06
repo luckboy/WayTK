@@ -346,7 +346,7 @@ namespace waytk
   void List::on_key(uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state)
   { throw exception(); }
 
-  void List::on_list_selection(const set<std::size_t> &poses)
+  void List::on_list_selection(const set<size_t> &poses)
   { throw exception(); }
 
   //
@@ -355,7 +355,7 @@ namespace waytk
 
   Table::~Table() {}
 
-  void Table::initialize(SelectionMode mode, initializer_list<string> header_labels, const std::shared_ptr<TableAdapter> &adapter)
+  void Table::initialize(SelectionMode mode, initializer_list<string> header_labels, const shared_ptr<TableAdapter> &adapter)
   {
     _M_selection_mode = mode;
     _M_selected_poses.clear();
@@ -407,10 +407,10 @@ namespace waytk
   void Tree::on_touch(const Pointer &pointer, const Point<double> &point, TouchState state)
   { throw exception(); }
 
-  void Tree::on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state)
+  void Tree::on_key(uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state)
   { throw exception(); }
 
-  void Tree::on_table_selection(const std::set<TreePath, TreePathCompare> &paths)
+  void Tree::on_table_selection(const set<TreePath, TreePathCompare> &paths)
   { throw exception(); }
 
   //
@@ -481,7 +481,7 @@ namespace waytk
     this->MenuItem::initialize(label, [](Widget *widget) {});
     _M_menu_items.clear();
     for(auto menu_item : menu_items) {
-      _M_menu_items.push_back(std::unique_ptr<MenuItem>(menu_item));
+      _M_menu_items.push_back(unique_ptr<MenuItem>(menu_item));
     }
   }
 
@@ -506,7 +506,7 @@ namespace waytk
   {
     _M_menus.clear();
     for(auto menu : menus) {
-      _M_menus.push_back(std::unique_ptr<Menu>(menu));
+      _M_menus.push_back(unique_ptr<Menu>(menu));
     }
   }
 
