@@ -33,6 +33,8 @@ namespace waytk
   {
     _T begin, end;
 
+    Range() {}
+
     Range(_T begin, _T end) : begin(begin), end(end) {}
 
     bool operator==(const Range<_T> &range) const
@@ -46,6 +48,8 @@ namespace waytk
   struct Point
   {
     _T x, y;
+
+    Point() {}
 
     Point(_T x, _T y) : x(x), y(x) {}
 
@@ -61,6 +65,8 @@ namespace waytk
   {
     _T width, height;
 
+    Dimension() {}
+
     Dimension(_T width, _T height) : width(width), height(height) {}
 
     bool operator==(const Dimension<_T> &dim) const
@@ -75,6 +81,8 @@ namespace waytk
   {
     _T x, y, width, height;
 
+    Rectangle() {}
+    
     Rectangle(_T x, _T y, _T width, _T height) :
       x(x), y(y), width(width), height(height) {}
 
@@ -89,6 +97,8 @@ namespace waytk
   {
     std::size_t line, column;
 
+    TextPosition() {}
+
     TextPosition(std::size_t line, std::size_t column) :
       line(line), column(column) {}
   };
@@ -96,6 +106,8 @@ namespace waytk
   struct TablePosition
   {
     std::size_t row, column;
+
+    TablePosition() {}
 
     TablePosition(std::size_t row, std::size_t column) :
       row(row), column(column) {}
@@ -107,10 +119,10 @@ namespace waytk
 
     TreePath() {}
 
-    TreePath(const std::initializer_list<std::size_t> nodes) :
+    explicit TreePath(const std::initializer_list<std::size_t> nodes) :
       nodes(nodes) {}
 
-    TreePath(const std::list<std::size_t> &nodes) :
+    explicit TreePath(const std::list<std::size_t> &nodes) :
       nodes(nodes) {}
   };
 }

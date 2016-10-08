@@ -187,7 +187,6 @@ namespace waytk
 
   class StringTreeAdapter : public TreeAdapter
   {
-  protected:
     std::vector<StringTreeNode> _M_nodes;
   public:
     StringTreeAdapter() {}

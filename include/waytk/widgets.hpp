@@ -31,6 +31,7 @@
 #include <string>
 #include <vector>
 #include <waytk/adapters.hpp>
+#include <waytk/canvas.hpp>
 #include <waytk/modifiers.hpp>
 #include <waytk/structs.hpp>
 #include <waytk/text_buffer.hpp>
@@ -38,7 +39,6 @@
 
 namespace waytk
 {
-  class Canvas;
   class MenuItem;
   class RadioButton;
   class Surface;
@@ -121,6 +121,27 @@ namespace waytk
 
     bool operator!=(const Pointer &pointer) const
     { return !(*this == pointer); }
+  };
+
+  class Icon
+  {
+    std::string _M_name;
+  public:
+    Icon() {}
+
+    explicit Icon(const std::string &name) :
+      _M_name(name) {}
+
+    bool operator==(const Icon &icon) const
+    { return _M_name == icon._M_name; }
+
+    bool operator!=(const Icon &icon) const
+    { return !(*this == icon); }
+
+    const std::string &name() const
+    { return _M_name; }
+
+    std::shared_ptr<CanvasImage> image() const;
   };
 
   struct TablePositionCompare
@@ -348,21 +369,40 @@ namespace waytk
 
   class Button : public Widget
   {
+    Icon _M_icon;
     std::string _M_label;
     OnClickListener _M_on_click_listener;
   protected:
     Button() {}
   public:
     explicit Button(const std::string &label)
-    { initialize(label, [](Widget *widget) {}); }
+    { initialize(Icon(), label, [](Widget *widget) {}); }
 
-    Button(const std::string &label, const OnClickListener &listener)
-    { initialize(label, listener); }
-    
+    explicit Button(const std::string &label, const OnClickListener &listener)
+    { initialize(Icon(), label, listener); }
+
+    explicit Button(const Icon &icon)
+    { initialize(icon, "", [](Widget *widget) {}); }
+
+    Button(const Icon &icon, const OnClickListener &listener)
+    { initialize(icon, "", listener); }
+
+    Button(const Icon &icon, const std::string &label)
+    { initialize(icon, label, [](Widget *widget) {}); }
+
+    Button(const Icon &icon, const std::string &label, const OnClickListener &listener)
+    { initialize(icon, label, listener); }
+
     virtual ~Button();
   protected:
-    void initialize(const std::string &label, const OnClickListener &listener);
+    void initialize(const Icon &icon, const std::string &label, const OnClickListener &listener);
   public:
+    const Icon icon() const
+    { return _M_icon; }
+
+    void set_icon(const Icon &icon)
+    { _M_icon = icon; }
+    
     const std::string &label() const
     { return _M_label; }
 
@@ -535,20 +575,20 @@ namespace waytk
     CheckBox(Unused unused) {}
   public:
     CheckBox()
-    { initialize(std::string(), false); }
+    { initialize(Icon(), std::string(), false); }
 
     explicit CheckBox(bool is_checked)
-    { initialize(std::string(), is_checked); }
+    { initialize(Icon(), std::string(), is_checked); }
 
     explicit CheckBox(const std::string &label)
-    { initialize(label, false); }
+    { initialize(Icon(), label, false); }
 
     CheckBox(const std::string &label, bool is_checked)
-    { initialize(label, is_checked); }
+    { initialize(Icon(), label, is_checked); }
 
     virtual ~CheckBox();
   protected:
-    void initialize(const std::string &label, bool is_checked);
+    void initialize(const Icon &icon, const std::string &label, bool is_checked);
   public:
     bool is_checked() const
     { return _M_is_checked; }
@@ -588,39 +628,39 @@ namespace waytk
   public:
     RadioButton() :
       Button(), CheckBox(Unused())
-    { initialize(std::string(), false, std::shared_ptr<RadioGroup>()); }
+    { initialize(Icon(), std::string(), false, std::shared_ptr<RadioGroup>()); }
 
     explicit RadioButton(bool is_checked) :
       Button(), CheckBox(Unused())
-    { initialize(std::string(), is_checked, std::shared_ptr<RadioGroup>()); }
+    { initialize(Icon(), std::string(), is_checked, std::shared_ptr<RadioGroup>()); }
 
     explicit RadioButton(const std::shared_ptr<RadioGroup> &group) :
       Button(), CheckBox(Unused())
-    { initialize(std::string(), false, group); }
+    { initialize(Icon(), std::string(), false, group); }
 
     RadioButton(bool is_checked, const std::shared_ptr<RadioGroup> &group) :
       Button(), CheckBox(Unused())
-    { initialize(std::string(), is_checked, group); }
+    { initialize(Icon(), std::string(), is_checked, group); }
 
     explicit RadioButton(const std::string &label) :
       Button(), CheckBox(Unused())
-    { initialize(label, false, std::shared_ptr<RadioGroup>()); }
+    { initialize(Icon(), label, false, std::shared_ptr<RadioGroup>()); }
 
     RadioButton(const std::string &label, bool is_checked) :
       Button(), CheckBox(Unused())
-    { initialize(label, is_checked, std::shared_ptr<RadioGroup>()); }
+    { initialize(Icon(), label, is_checked, std::shared_ptr<RadioGroup>()); }
 
     RadioButton(const std::string &label, const std::shared_ptr<RadioGroup> &group) :
       Button(), CheckBox(Unused())
-    { initialize(label, false, group); }
+    { initialize(Icon(), label, false, group); }
 
     RadioButton(const std::string &label, bool is_checked, const std::shared_ptr<RadioGroup> &group) :
       Button(), CheckBox(Unused())
-    { initialize(label, is_checked, group); }
+    { initialize(Icon(), label, is_checked, group); }
 
     virtual ~RadioButton();
   protected:
-    void initialize(const std::string &label, bool is_checked, const std::shared_ptr<RadioGroup> &group);
+    void initialize(const Icon &icon, const std::string &label, bool is_checked, const std::shared_ptr<RadioGroup> &group);
   public:
     const std::shared_ptr<RadioGroup> &group() const
     { return _M_group; }
@@ -714,6 +754,61 @@ namespace waytk
 
     void set_value(int value)
     { _M_value = (value < _M_max_value ? value : _M_max_value); }
+  };
+
+  class Image : public Widget
+  {
+    std::shared_ptr<CanvasImage> _M_image;
+  protected:
+    Image() {}
+  public:
+    Image(int width, int height)
+    { initialize(std::shared_ptr<CanvasImage>(new_canvas_image(width, height))); }
+
+    explicit Image(Dimension<int> size)
+    { initialize(std::shared_ptr<CanvasImage>(new_canvas_image(size))); }
+
+    Image(int width, int height, int stride, void *data)
+    { initialize(std::shared_ptr<CanvasImage>(new_canvas_image(width, height, stride, data))); }
+
+    Image(Dimension<int> size, int stride, void *data)
+    { initialize(std::shared_ptr<CanvasImage>(new_canvas_image(size, stride, data))); }
+
+    explicit Image(const std::string &file_name)
+    { initialize(std::shared_ptr<CanvasImage>(load_canvas_image(file_name)));}
+
+    explicit Image(CanvasImage *image)
+    { initialize(std::shared_ptr<CanvasImage>(image)); }
+
+    explicit Image(const std::shared_ptr<CanvasImage> &image)
+    { initialize(image); }
+
+    virtual ~Image();
+  protected:
+    void initialize(const std::shared_ptr<CanvasImage> &image);
+  public:
+    const std::shared_ptr<CanvasImage> &image() const
+    { return _M_image; }
+
+    void set_image(int width, int height)
+    { set_image(new_canvas_image(width, height)); }
+
+    void set_image(Dimension<int> size)
+    { set_image(new_canvas_image(size)); }
+
+    void set_image(int width, int height, int stride, void *data)
+    { set_image(new_canvas_image(width, height)); }
+
+    void set_image(Dimension<int> size, int stride, void *data)
+    { set_image(new_canvas_image(size)); }
+
+    void set_image(CanvasImage *image)
+    { set_image(std::shared_ptr<CanvasImage>(image)); }
+
+    void set_image(const std::shared_ptr<CanvasImage> &image);
+
+    void load(const std::string &file_name)
+    { set_image(std::shared_ptr<CanvasImage>(load_canvas_image(file_name))); }
   };
 
   class Panel : public Container
@@ -1158,11 +1253,16 @@ namespace waytk
     MenuItem() {}
   public:
     explicit MenuItem(const std::string &label)
-    { initialize(label, [](Widget *widget) {}); } 
+    { initialize(Icon(), label, [](Widget *widget) {}); } 
 
     MenuItem(const std::string &label, const OnClickListener &listener)
-    { initialize(label, listener); }
+    { initialize(Icon(), label, listener); }
     
+    MenuItem(const Icon &icon, const std::string &label)
+    { initialize(icon, label, [](Widget *widget) {}); } 
+
+    MenuItem(const Icon &icon, const std::string &label, const OnClickListener &listener)
+    { initialize(icon, label, listener); }
     virtual ~MenuItem();
 
     virtual void draw(Canvas *canvas);
@@ -1176,11 +1276,19 @@ namespace waytk
   public:
     explicit CheckMenuItem(const std::string &label) :
       Button(), MenuItem(), CheckBox(Unused())
-    { this->CheckBox::initialize(label, false); }
+    { this->CheckBox::initialize(Icon(), label, false); }
 
     CheckMenuItem(const std::string &label, bool is_checked) :
       Button(), MenuItem(), CheckBox(Unused())
-    { this->CheckBox::initialize(label, is_checked); }
+    { this->CheckBox::initialize(Icon(), label, is_checked); }
+
+    CheckMenuItem(const Icon &icon, const std::string &label) :
+      Button(), MenuItem(), CheckBox(Unused())
+    { this->CheckBox::initialize(icon, label, false); }
+
+    CheckMenuItem(const Icon &icon, const std::string &label, bool is_checked) :
+      Button(), MenuItem(), CheckBox(Unused())
+    { this->CheckBox::initialize(icon, label, is_checked); }
 
     virtual ~CheckMenuItem();
 
@@ -1195,19 +1303,35 @@ namespace waytk
   public:
     explicit RadioMenuItem(const std::string &label) :
       Button(), MenuItem(), RadioButton(Unused())
-    { this->RadioButton::initialize(label, false, std::shared_ptr<RadioGroup>()); }
+    { this->RadioButton::initialize(Icon(), label, false, std::shared_ptr<RadioGroup>()); }
 
     RadioMenuItem(const std::string &label, bool is_checked) :
       Button(), MenuItem(), RadioButton(Unused())
-    { this->RadioButton::initialize(label, is_checked, std::shared_ptr<RadioGroup>()); }
+    { this->RadioButton::initialize(Icon(), label, is_checked, std::shared_ptr<RadioGroup>()); }
 
     RadioMenuItem(const std::string &label, const std::shared_ptr<RadioGroup> &group) :
       Button(), MenuItem(), RadioButton(Unused())
-    { this->RadioButton::initialize(label, false, group); }
+    { this->RadioButton::initialize(Icon(), label, false, group); }
 
     RadioMenuItem(const std::string &label, bool is_checked, const std::shared_ptr<RadioGroup> &group) :
       Button(), MenuItem(), RadioButton(Unused())
-    { this->RadioButton::initialize(label, false, group); }
+    { this->RadioButton::initialize(Icon(), label, false, group); }
+
+    RadioMenuItem(const Icon &icon, const std::string &label) :
+      Button(), MenuItem(), RadioButton(Unused())
+    { this->RadioButton::initialize(icon, label, false, std::shared_ptr<RadioGroup>()); }
+
+    RadioMenuItem(const Icon &icon, const std::string &label, bool is_checked) :
+      Button(), MenuItem(), RadioButton(Unused())
+    { this->RadioButton::initialize(icon, label, is_checked, std::shared_ptr<RadioGroup>()); }
+
+    RadioMenuItem(const Icon &icon, const std::string &label, const std::shared_ptr<RadioGroup> &group) :
+      Button(), MenuItem(), RadioButton(Unused())
+    { this->RadioButton::initialize(icon,label, false, group); }
+
+    RadioMenuItem(const Icon &icon, const std::string &label, bool is_checked, const std::shared_ptr<RadioGroup> &group) :
+      Button(), MenuItem(), RadioButton(Unused())
+    { this->RadioButton::initialize(icon, label, false, group); }
 
     virtual ~RadioMenuItem();
 
@@ -1222,7 +1346,7 @@ namespace waytk
   public:
     SeparatorMenuItem() :
       Button(), MenuItem()
-    { initialize("", [](Widget *widget) {}); }
+    { initialize(Icon(), "", [](Widget *widget) {}); }
 
     virtual ~SeparatorMenuItem();
 
@@ -1237,15 +1361,23 @@ namespace waytk
   public:
     explicit Menu(const std::string &label) :
       Button(), MenuItem()
-    { initialize(label, {}); }
+    { initialize(Icon(), label, {}); }
 
     Menu(const std::string &label, std::initializer_list<MenuItem *> menu_items) :
       Button(), MenuItem()
-    { initialize(label, menu_items); }
+    { initialize(Icon(), label, menu_items); }
+
+    Menu(const Icon &icon, const std::string &label) :
+      Button(), MenuItem()
+    { initialize(icon, label, {}); }
+
+    Menu(const Icon &icon, const std::string &label, std::initializer_list<MenuItem *> menu_items) :
+      Button(), MenuItem()
+    { initialize(icon, label, menu_items); }
 
     virtual ~Menu();
   protected:
-    void initialize(const std::string &label, std::initializer_list<MenuItem *> menu_items);
+    void initialize(const Icon &icon, const std::string &label, std::initializer_list<MenuItem *> menu_items);
   public:
     const std::list<std::unique_ptr<MenuItem>> &menu_items() const
     { return _M_menu_items; }

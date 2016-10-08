@@ -108,8 +108,9 @@ namespace waytk
 
   Button::~Button() {}
 
-  void Button::initialize(const string &label, const OnClickListener &listener)
+  void Button::initialize(const Icon &icon, const string &label, const OnClickListener &listener)
   {
+    _M_icon = icon;
     normalize_utf8(label, _M_label);
     _M_on_click_listener = listener;
   }
@@ -189,9 +190,9 @@ namespace waytk
 
   CheckBox::~CheckBox() {}
 
-  void CheckBox::initialize(const string &label, bool is_checked)
+  void CheckBox::initialize(const Icon &icon, const string &label, bool is_checked)
   {
-    this->Button::initialize(label, [](Widget *widget) {});
+    this->Button::initialize(icon, label, [](Widget *widget) {});
     _M_is_checked = is_checked;
   }
 
@@ -204,9 +205,9 @@ namespace waytk
 
   RadioButton::~RadioButton() {}
 
-  void RadioButton::initialize(const string &label, bool is_checked, const shared_ptr<RadioGroup> &group)
+  void RadioButton::initialize(const Icon &icon, const string &label, bool is_checked, const shared_ptr<RadioGroup> &group)
   {
-    this->CheckBox::initialize(label, is_checked);
+    this->CheckBox::initialize(icon, label, is_checked);
     _M_group = group;
   }
 
@@ -238,7 +239,7 @@ namespace waytk
 
   void ComboBox::initialize(const shared_ptr<ComboBoxAdapter> &adapter)
   {
-    this->Button::initialize(string(), [](Widget *widget) {});
+    this->Button::initialize(Icon(), string(), [](Widget *widget) {});
     _M_selected_pos = 0;
     _M_adapter = adapter;
     _M_on_selection_listener = [](Widget *widget, size_t pos) {};
@@ -270,6 +271,15 @@ namespace waytk
     _M_max_value = max_value;
     _M_value = 0;
   }
+
+  //
+  // An Image class.
+  //
+
+  Image::~Image() {}
+
+  void Image::initialize(const shared_ptr<CanvasImage> &image)
+  { _M_image = image; }
 
   //
   // A Panel class.
@@ -476,9 +486,9 @@ namespace waytk
 
   Menu::~Menu() {}
 
-  void Menu::initialize(const string &label, initializer_list<MenuItem *> menu_items)
+  void Menu::initialize(const Icon &icon, const string &label, initializer_list<MenuItem *> menu_items)
   {
-    this->MenuItem::initialize(label, [](Widget *widget) {});
+    this->MenuItem::initialize(icon, label, [](Widget *widget) {});
     _M_menu_items.clear();
     for(auto menu_item : menu_items) {
       _M_menu_items.push_back(unique_ptr<MenuItem>(menu_item));
