@@ -64,6 +64,20 @@ namespace waytk
   inline WidgetFlags operator|=(WidgetFlags &flags1, WidgetFlags flags2)
   { flags1 = flags1 | flags2; return flags1; }
 
+  enum class HAlignment
+  {
+    LEFT,
+    CENTER,
+    RIGHT
+  };
+
+  enum class VAlignment
+  {
+    TOP,
+    CENTER,
+    BOTTOM
+  };
+
   enum class TouchState
   {
     DOWN,
@@ -102,7 +116,7 @@ namespace waytk
     SINGLE,
     MULTI
   };
-  
+
   class Pointer
   {
     bool _M_is_touch;
@@ -181,7 +195,7 @@ namespace waytk
     virtual int v_scroll_slider_height(int height) const = 0;
   };
   
-  typedef std::function<void (Widget *, const Pointer &, const Point<double> &, TouchState &)> OnTouchListener;
+  typedef std::function<void (Widget *, const Pointer &, const Point<double> &, TouchState)> OnTouchListener;
   typedef std::function<void (Widget *, const Point<double> &)> OnPointerMotionListener;
   typedef std::function<void (Widget *, Axis, double)> OnPointerAxisListener;
   typedef std::function<void (Widget *, std::uint32_t, Modifiers, const char *, KeyState)> OnKeyListener;
@@ -205,12 +219,13 @@ namespace waytk
     WidgetFlags _M_flags;
     bool _M_has_focus;
     bool _M_is_visible;
+    HAlignment _M_h_align;
+    VAlignment _M_v_align;
     int _M_max_width;
     int _M_max_height;
     int _M_min_width;
     int _M_min_height;
     Rectangle<int> _M_bounds;
-    Surface *_M_surface;
     Widget *_M_parent;
     OnTouchListener _M_on_touch_listener;
     OnPointerMotionListener _M_on_pointer_motion_listener;
@@ -245,6 +260,18 @@ namespace waytk
     void set_visibale(bool is_visible)
     { _M_is_visible = is_visible; }
 
+    HAlignment h_align() const
+    { return _M_h_align; }
+
+    void set_h_align(HAlignment align)
+    { _M_h_align = align; }
+
+    VAlignment v_align() const
+    { return _M_v_align; }
+
+    void set_v_align(VAlignment align)
+    { _M_v_align = align; }
+
     int max_width() const
     { return _M_max_width; }
 
@@ -272,14 +299,16 @@ namespace waytk
     const Rectangle<int> &bounds() const
     { return _M_bounds; }
 
-    void set_bounds(const Rectangle<int> &bounds)
-    { _M_bounds = bounds; }
-
-    Surface *surface() const
-    { return _M_surface; }
-
     Widget *parent() const
     { return _M_parent; }
+  protected:
+    void set_this_as_widget_parent(Widget *widget)
+    { widget->_M_parent = this; }
+
+    void unset_this_as_widget_parent(Widget *widget)
+    { widget->_M_parent = nullptr; }
+  public:
+    Edges<int> margin() const;
 
     const OnTouchListener &on_touch_listener() const
     { return _M_on_touch_listener; }
@@ -311,10 +340,12 @@ namespace waytk
     void set_on_scroll_listener(const OnScrollListener &listener)
     { _M_on_scroll_listener = listener; }
 
+    virtual const char *name() const;
+
     virtual void draw(Canvas *canvas);
 
     virtual Viewport *viewport();
-    
+
     virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
     virtual void on_pointer_motion(const Point<double> &point);
@@ -339,13 +370,11 @@ namespace waytk
     const std::list<std::unique_ptr<Widget>> &widgets() const
     { return _M_widgets; }
 
-    void add_widget(Widget *widget)
-    { _M_widgets.push_back(std::unique_ptr<Widget>(widget)); }
+    void add_widget(Widget *widget);
 
     void delete_widget(Widget *widget);
 
-    void delete_all_widgets()
-    { _M_widgets.clear(); }
+    void delete_all_widgets();
   };
 
   class Label : public Widget
@@ -363,6 +392,8 @@ namespace waytk
     { return _M_text; }
 
     void set_text(const std::string &text);
+
+    virtual const char *name() const;
 
     virtual void draw(Canvas *canvas);
   };
@@ -413,6 +444,8 @@ namespace waytk
 
     void set_on_click_listener(const OnClickListener &listener)
     { _M_on_click_listener = listener; }
+
+    virtual const char *name() const;
 
     virtual void draw(Canvas *canvas);
 
@@ -552,6 +585,8 @@ namespace waytk
     void set_on_text_selection_listener(const OnTextSelectionListener &listener)
     { _M_on_text_selection_listener = listener; }
 
+    virtual const char *name() const;
+
     virtual void draw(Canvas *canvas);
 
     virtual Viewport *viewport();
@@ -600,6 +635,8 @@ namespace waytk
 
     void set_on_check_listener(const OnCheckListener &listener)
     { _M_on_check_listener = listener; }
+
+    virtual const char *name() const;
 
     virtual void draw(Canvas *canvas);
 
@@ -667,6 +704,8 @@ namespace waytk
     
     void set_group(const std::shared_ptr<RadioGroup> &group);
 
+    virtual const char *name() const;
+
     virtual void draw(Canvas *canvas);
 
     virtual void on_check(bool is_checked);
@@ -719,6 +758,8 @@ namespace waytk
     void set_selection_listener(const OnSelectionListener &listener)
     { _M_on_selection_listener = listener; }
 
+    virtual const char *name() const;
+
     virtual void draw(Canvas &canvas);
 
     virtual void on_click();
@@ -754,6 +795,10 @@ namespace waytk
 
     void set_value(int value)
     { _M_value = (value < _M_max_value ? value : _M_max_value); }
+
+    virtual const char *name() const;
+
+    virtual void draw(Canvas &canvas);
   };
 
   class Image : public Widget
@@ -809,6 +854,10 @@ namespace waytk
 
     void load(const std::string &file_name)
     { set_image(std::shared_ptr<CanvasImage>(load_canvas_image(file_name))); }
+
+    virtual const char *name() const;
+
+    virtual void draw(Canvas &canvas);
   };
 
   class Panel : public Container
@@ -847,6 +896,8 @@ namespace waytk
     void set_orientation(Orientation orientation)
     { _M_orientation = orientation; }
 
+    virtual const char *name() const;
+
     virtual void draw(Canvas *canvas);
   };
 
@@ -872,6 +923,8 @@ namespace waytk
     void set_columns(int column_count)
     { _M_column_count = column_count; }
 
+    virtual const char *name() const;
+
     virtual void draw(Canvas *canvas);
   };
 
@@ -890,14 +943,16 @@ namespace waytk
     Widget *first_widget() const
     { return _M_first_widget.get(); }
 
-    void set_first_widget(Widget *widget)
-    { _M_first_widget = std::unique_ptr<Widget>(widget); }
+    void set_first_widget(Widget *widget);
     
     Widget *second_widget() const
     { return _M_second_widget.get(); }
 
-    void set_second_widget(Widget *widget)
-    { _M_second_widget = std::unique_ptr<Widget>(widget); }
+    void set_second_widget(Widget *widget);
+
+    virtual const char *name() const;
+
+    virtual void draw(Canvas *canvas);
   };
 
   class List : public Widget
@@ -981,7 +1036,11 @@ namespace waytk
     void set_on_list_selection_listener(const OnListSelectionListener &listener)
     { _M_on_list_selection_listener = listener; }
 
+    virtual const char *name() const;
+
     virtual void draw(Canvas *canvas);
+
+    virtual Viewport *viewport();
 
     virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
@@ -1108,7 +1167,11 @@ namespace waytk
     void set_on_table_selection_listener(const OnTableSelectionListener &listener)
     { _M_on_table_selection_listener = listener; }
 
+    virtual const char *name() const;
+
     virtual void draw(Canvas *canvas);
+
+    virtual Viewport *viewport();
 
     virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
@@ -1197,7 +1260,11 @@ namespace waytk
     void set_on_tree_selection_listener(const OnTreeSelectionListener &listener)
     { _M_on_tree_selection_listener = listener; }
 
+    virtual const char *name() const;
+
     virtual void draw(Canvas *canvas);
+
+    virtual Viewport *viewport();
 
     virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
@@ -1223,8 +1290,7 @@ namespace waytk
     Widget *widget() const
     { return _M_widget.get(); }
 
-    void set_widget(Widget *widget)
-    { _M_widget = std::unique_ptr<Widget>(widget); }
+    void set_widget(Widget *widget);
 
     bool has_h_scroll_bar() const
     { return _M_has_h_scroll_bar; }
@@ -1238,8 +1304,10 @@ namespace waytk
     void set_v_scroll_bar(bool is_scroll_bar)
     { _M_has_v_scroll_bar = is_scroll_bar; }
 
-    virtual void draw(Canvas *canvas);
+    virtual const char *name() const;
 
+    virtual void draw(Canvas *canvas);
+    
     virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
     virtual void on_pointer_motion(const Point<double> &point);
@@ -1263,7 +1331,10 @@ namespace waytk
 
     MenuItem(const Icon &icon, const std::string &label, const OnClickListener &listener)
     { initialize(icon, label, listener); }
+    
     virtual ~MenuItem();
+
+    virtual const char *name() const;
 
     virtual void draw(Canvas *canvas);
   };
@@ -1291,6 +1362,8 @@ namespace waytk
     { this->CheckBox::initialize(icon, label, is_checked); }
 
     virtual ~CheckMenuItem();
+
+    virtual const char *name() const;
 
     virtual void draw(Canvas *canvas);
   };
@@ -1335,6 +1408,8 @@ namespace waytk
 
     virtual ~RadioMenuItem();
 
+    virtual const char *name() const;
+
     virtual void draw(Canvas *canvas);
   };
 
@@ -1349,6 +1424,8 @@ namespace waytk
     { initialize(Icon(), "", [](Widget *widget) {}); }
 
     virtual ~SeparatorMenuItem();
+
+    virtual const char *name() const;
 
     virtual void draw(Canvas *canvas);
   };
@@ -1382,13 +1459,13 @@ namespace waytk
     const std::list<std::unique_ptr<MenuItem>> &menu_items() const
     { return _M_menu_items; }
 
-    void add_menu_item(MenuItem *menu_item)
-    { _M_menu_items.push_back(std::unique_ptr<MenuItem>(menu_item));}
+    void add_menu_item(MenuItem *menu_item);
 
     void delete_menu_item(MenuItem *menu_item);
 
-    void delete_all_menu_items()
-    { _M_menu_items.clear(); }
+    void delete_all_menu_items();
+
+    virtual const char *name() const;
 
     virtual void draw(Canvas *canvas);
   };
@@ -1412,13 +1489,13 @@ namespace waytk
     const std::list<std::unique_ptr<Menu>> &menus() const
     { return _M_menus; }
 
-    void add_menu(Menu *menu)
-    { _M_menus.push_back(std::unique_ptr<Menu>(menu)); }
+    void add_menu(Menu *menu);
 
     void delete_menu(Menu *menu);
 
-    void delete_all_menus()
-    { _M_menus.clear(); }
+    void delete_all_menus();
+
+    virtual const char *name() const;
 
     virtual void draw(Canvas *canvas);    
   };

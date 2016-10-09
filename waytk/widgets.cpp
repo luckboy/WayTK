@@ -36,14 +36,15 @@ namespace waytk
     _M_flags(WidgetFlags::NONE),
     _M_has_focus(false),
     _M_is_visible(true),
+    _M_h_align(HAlignment::CENTER),
+    _M_v_align(VAlignment::CENTER),
     _M_max_width(0),
     _M_max_height(0),
     _M_min_width(0),
     _M_min_height(0),
     _M_bounds(0, 0, 0, 0),
-    _M_surface(nullptr),
     _M_parent(nullptr),
-    _M_on_touch_listener([](Widget *widget, const Pointer &pointer, const Point<double> &point, TouchState &state) {}),
+    _M_on_touch_listener([](Widget *widget, const Pointer &pointer, const Point<double> &point, TouchState state) {}),
     _M_on_pointer_motion_listener([](Widget *widget, const Point<double> &point) {}),
     _M_on_pointer_axis_listener([](Widget *widget, Axis axis, double value) {}),
     _M_on_key_listener([](Widget *widget, uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state) {}),
@@ -51,10 +52,16 @@ namespace waytk
 
   Widget::~Widget() {}
 
+  Edges<int> Widget::margin() const
+  { throw exception(); }
+
+  const char *Widget::name() const
+  { return "widget"; }
+
   void Widget::draw(Canvas *canvas) {}
 
   Viewport *Widget::viewport() {}
-    
+
   void Widget::on_touch(const Pointer &pointer, const Point<double> &point, TouchState state) {}
 
   void Widget::on_pointer_motion(const Point<double> &point) {}
@@ -75,8 +82,15 @@ namespace waytk
   {
     _M_widgets.clear();
     for(auto widget : widgets) {
+      set_this_as_widget_parent(widget);
       _M_widgets.push_back(unique_ptr<Widget>(widget));
     }
+  }
+
+  void Container::add_widget(Widget *widget)
+  {
+    _M_widgets.push_back(std::unique_ptr<Widget>(widget));
+    set_this_as_widget_parent(widget);
   }
 
   void Container::delete_widget(Widget *widget)
@@ -84,7 +98,16 @@ namespace waytk
     auto iter = find_if(_M_widgets.begin(), _M_widgets.end(), [widget](const unique_ptr<Widget> &tmp_widget) {
       return tmp_widget.get() == widget;
     });
-    if(iter != _M_widgets.end()) _M_widgets.erase(iter);
+    if(iter != _M_widgets.end()) {
+      unset_this_as_widget_parent(iter->get());
+      _M_widgets.erase(iter);
+    }
+  }
+
+  void Container::delete_all_widgets()
+  {
+    for(auto &widget : _M_widgets) unset_this_as_widget_parent(widget.get());
+    _M_widgets.clear();
   }
 
   //
@@ -98,6 +121,9 @@ namespace waytk
 
   void Label::set_text(const string &text)
   { normalize_utf8(text, _M_text); }
+
+  const char *Label::name() const
+  { return "label"; }
 
   void Label::draw(Canvas *canvas)
   { throw exception(); }
@@ -117,6 +143,9 @@ namespace waytk
 
   void Button::set_label(const string &label)
   { normalize_utf8(label, _M_label); }
+
+  const char *Button::name() const
+  { return "button"; }
 
   void Button::draw(Canvas *canvas)
   { throw exception(); }
@@ -163,6 +192,9 @@ namespace waytk
   void Text::paste()
   { throw exception(); }
 
+  const char *Text::name() const
+  { return "text"; }
+
   void Text::draw(Canvas *canvas)
   { throw exception(); }
 
@@ -198,6 +230,12 @@ namespace waytk
 
   void CheckBox::set_checked(bool is_checked)
   { throw exception(); }
+
+  const char *CheckBox::name() const
+  { return "check_box"; }
+
+  void CheckBox::draw(Canvas *canvas)
+  { throw exception(); }  
   
   //
   // A RadioButton class.
@@ -219,6 +257,9 @@ namespace waytk
     }
     _M_group->add_radio_button(this);
   }
+
+  const char *RadioButton::name() const
+  { return "radio_button"; }
 
   void RadioButton::draw(Canvas *canvas)
   { throw exception(); }
@@ -251,6 +292,9 @@ namespace waytk
     on_selection(_M_selected_pos);
   }
 
+  const char *ComboBox::name() const
+  { return "combo_box"; }
+
   void ComboBox::draw(Canvas &canvas)
   { throw exception(); }
 
@@ -272,6 +316,12 @@ namespace waytk
     _M_value = 0;
   }
 
+  const char *ProgressBar::name() const
+  { return "progress_bar"; }
+
+  void ProgressBar::draw(Canvas &canvas)
+  { throw exception(); }
+
   //
   // An Image class.
   //
@@ -280,6 +330,12 @@ namespace waytk
 
   void Image::initialize(const shared_ptr<CanvasImage> &image)
   { _M_image = image; }
+
+  const char *Image::name() const
+  { return "image"; }
+
+  void Image::draw(Canvas &canvas)
+  { throw exception(); }
 
   //
   // A Panel class.
@@ -300,6 +356,9 @@ namespace waytk
   void LinearPanel::draw(Canvas *canvas)
   { throw exception(); }
 
+  const char *LinearPanel::name() const
+  { return "linear_panel"; }
+
   //
   // A GridPanel class.
   //
@@ -312,6 +371,12 @@ namespace waytk
     _M_column_count = column_count;
   }
 
+  const char *GridPanel::name() const
+  { return "grid_panel"; }
+
+  void GridPanel::draw(Canvas *canvas)
+  { throw exception(); }
+
   //
   // A SplitPane class.
   //
@@ -323,6 +388,24 @@ namespace waytk
     _M_first_widget = unique_ptr<Widget>(first_widget);
     _M_second_widget = unique_ptr<Widget>(second_widget);
   }
+
+  void SplitPane::set_first_widget(Widget *widget)
+  {
+    _M_first_widget = std::unique_ptr<Widget>(widget);
+    set_this_as_widget_parent(_M_first_widget.get());
+  }
+
+  void SplitPane::set_second_widget(Widget *widget)
+  {
+    _M_second_widget = std::unique_ptr<Widget>(widget);
+    set_this_as_widget_parent(_M_second_widget.get());
+  }
+
+  const char *SplitPane::name() const
+  { return "split_pane"; }
+
+  void SplitPane::draw(Canvas *canvas)
+  { throw exception(); }
 
   //
   // A List class.
@@ -347,7 +430,13 @@ namespace waytk
   void List::clear_selection()
   { throw exception(); }
 
+  const char *List::name() const
+  { return "list"; }
+
   void List::draw(Canvas *canvas)
+  { throw exception(); }
+
+  Viewport *List::viewport()
   { throw exception(); }
 
   void List::on_touch(const Pointer &pointer, const Point<double> &point, TouchState state)
@@ -382,7 +471,13 @@ namespace waytk
   void Table::clear_selection()
   { throw exception(); }
 
+  const char *Table::name() const
+  { return "table"; }
+
   void Table::draw(Canvas *canvas)
+  { throw exception(); }
+
+  Viewport *Table::viewport()
   { throw exception(); }
 
   void Table::on_touch(const Pointer &pointer, const Point<double> &point, TouchState state)
@@ -411,7 +506,13 @@ namespace waytk
   void Tree::set_selected_paths(const set<TreePath, TreePathCompare> &paths)
   { throw exception(); }
 
+  const char *Tree::name() const
+  { return "tree"; }
+
   void Tree::draw(Canvas *canvas)
+  { throw exception(); }
+
+  Viewport *Tree::viewport()
   { throw exception(); }
 
   void Tree::on_touch(const Pointer &pointer, const Point<double> &point, TouchState state)
@@ -430,7 +531,17 @@ namespace waytk
   Scroll::~Scroll() {}
 
   void Scroll::initialize(Widget *widget)
-  { _M_widget = unique_ptr<Widget>(widget); }
+  { set_this_as_widget_parent(widget); }
+
+  void Scroll::set_widget(Widget *widget)
+  {
+    if(_M_widget.get() != nullptr) unset_this_as_widget_parent(_M_widget.get());
+    _M_widget = std::unique_ptr<Widget>(widget);
+    set_this_as_widget_parent(_M_widget.get());
+  }
+
+  const char *Scroll::name() const
+  { return "scroll"; }
 
   void Scroll::draw(Canvas *canvas)
   { throw exception(); }  
@@ -450,6 +561,9 @@ namespace waytk
 
   MenuItem::~MenuItem() {}
 
+  const char *MenuItem::name() const
+  { return "menu_item"; }
+
   void MenuItem::draw(Canvas *canvas)
   { throw exception(); }
 
@@ -458,6 +572,9 @@ namespace waytk
   //
 
   CheckMenuItem::~CheckMenuItem() {}
+
+  const char *CheckMenuItem::name() const
+  { return "check_menu_item"; }
 
   void CheckMenuItem::draw(Canvas *canvas)
   { throw exception(); }
@@ -468,6 +585,9 @@ namespace waytk
 
   RadioMenuItem::~RadioMenuItem() {}
 
+  const char *RadioMenuItem::name() const
+  { return "radio_menu_item"; }
+
   void RadioMenuItem::draw(Canvas *canvas)
   { throw exception(); }
 
@@ -476,6 +596,9 @@ namespace waytk
   //
 
   SeparatorMenuItem::~SeparatorMenuItem() {}
+
+  const char *SeparatorMenuItem::name() const
+  { return "separator_menu_item"; }
 
   void SeparatorMenuItem::draw(Canvas *canvas)
   { throw exception(); }
@@ -492,7 +615,14 @@ namespace waytk
     _M_menu_items.clear();
     for(auto menu_item : menu_items) {
       _M_menu_items.push_back(unique_ptr<MenuItem>(menu_item));
+      set_this_as_widget_parent(menu_item);
     }
+  }
+
+  void Menu::add_menu_item(MenuItem *menu_item)
+  {
+    _M_menu_items.push_back(std::unique_ptr<MenuItem>(menu_item));
+    set_this_as_widget_parent(menu_item);
   }
 
   void Menu::delete_menu_item(MenuItem *menu_item)
@@ -500,8 +630,20 @@ namespace waytk
     auto iter = find_if(_M_menu_items.begin(), _M_menu_items.end(), [menu_item](const unique_ptr<MenuItem> &tmp_menu_item) {
       return tmp_menu_item.get() == menu_item;
     });
-    if(iter != _M_menu_items.end()) _M_menu_items.erase(iter);
+    if(iter != _M_menu_items.end()) {
+      _M_menu_items.erase(iter);
+      unset_this_as_widget_parent(iter->get());
+    }
   }
+
+  void Menu::delete_all_menu_items()
+  {
+    for(auto &menu_item : _M_menu_items) unset_this_as_widget_parent(menu_item.get());
+    _M_menu_items.clear();
+  }
+
+  const char *Menu::name() const
+  { return "menu"; }
 
   void Menu::draw(Canvas *canvas)
   { throw exception(); }
@@ -517,7 +659,14 @@ namespace waytk
     _M_menus.clear();
     for(auto menu : menus) {
       _M_menus.push_back(unique_ptr<Menu>(menu));
+      set_this_as_widget_parent(menu);
     }
+  }
+
+  void MenuBar::add_menu(Menu *menu)
+  {
+    _M_menus.push_back(std::unique_ptr<Menu>(menu));
+    set_this_as_widget_parent(menu);
   }
 
   void MenuBar::delete_menu(Menu *menu)
@@ -525,8 +674,20 @@ namespace waytk
     auto iter = find_if(_M_menus.begin(), _M_menus.end(), [menu](const unique_ptr<Menu> &tmp_menu) {
       return tmp_menu.get() == menu;
     });
-    if(iter != _M_menus.end()) _M_menus.erase(iter);
+    if(iter != _M_menus.end()) {
+      _M_menus.erase(iter);
+      unset_this_as_widget_parent(iter->get());
+    }
   }
+
+  void MenuBar::delete_all_menus()
+  {
+    for(auto &menu : _M_menus) unset_this_as_widget_parent(menu.get());
+    _M_menus.clear();
+  }
+
+  const char *MenuBar::name() const
+  { return "menu_bar"; }
 
   void MenuBar::draw(Canvas *canvas)
   { throw exception(); }

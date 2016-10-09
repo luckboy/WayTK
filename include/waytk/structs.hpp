@@ -125,6 +125,28 @@ namespace waytk
     explicit TreePath(const std::list<std::size_t> &nodes) :
       nodes(nodes) {}
   };
+
+  template<typename _T>
+  struct Edges
+  {
+    _T top, right, bottom, left;
+
+    Edges() {}
+
+    Edges(_T top, _T right, _T bottom, _T left) :
+      top(top), right(right), bottom(bottom), left(left) {}
+  };
+  
+  template<typename _T>
+  struct Corners
+  {
+    _T top_left, top_right, bottom_right, bottom_left;
+
+    Corners() {}
+
+    Corners(_T top_left, _T top_right, _T bottom_right, _T bottom_left) : 
+      top_left(top_left), top_right(top_right), bottom_right(bottom_right), bottom_left(bottom_left) {}
+  };
 }
 
 #endif

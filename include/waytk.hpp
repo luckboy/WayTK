@@ -23,7 +23,6 @@
 #define _WAYTK_HPP
 
 #include <waytk/adapters.hpp>
-#include <waytk/buffer.hpp>
 #include <waytk/canvas.hpp>
 #include <waytk/modifiers.hpp>
 #include <waytk/structs.hpp>
