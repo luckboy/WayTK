@@ -52,6 +52,9 @@ namespace waytk
 
   Widget::~Widget() {}
 
+  void Widget::set_focus(bool has_focus)
+  { throw exception(); }
+
   Edges<int> Widget::margin() const
   { throw exception(); }
 
@@ -93,7 +96,7 @@ namespace waytk
     set_this_as_widget_parent(widget);
   }
 
-  void Container::delete_widget(Widget *widget)
+  bool Container::delete_widget(Widget *widget)
   {
     auto iter = find_if(_M_widgets.begin(), _M_widgets.end(), [widget](const unique_ptr<Widget> &tmp_widget) {
       return tmp_widget.get() == widget;
@@ -101,7 +104,9 @@ namespace waytk
     if(iter != _M_widgets.end()) {
       unset_this_as_widget_parent(iter->get());
       _M_widgets.erase(iter);
+      return true;
     }
+    return false;
   }
 
   void Container::delete_all_widgets()
@@ -383,8 +388,9 @@ namespace waytk
 
   SplitPane::~SplitPane() {}
 
-  void SplitPane::initialize(Widget *first_widget, Widget *second_widget)
+  void SplitPane::initialize(Orientation orientation, Widget *first_widget, Widget *second_widget)
   {
+    _M_orientation = orientation;
     _M_first_widget = unique_ptr<Widget>(first_widget);
     _M_second_widget = unique_ptr<Widget>(second_widget);
   }
@@ -521,7 +527,7 @@ namespace waytk
   void Tree::on_key(uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state)
   { throw exception(); }
 
-  void Tree::on_table_selection(const set<TreePath, TreePathCompare> &paths)
+  void Tree::on_tree_selection(const set<TreePath, TreePathCompare> &paths)
   { throw exception(); }
 
   //
@@ -625,7 +631,7 @@ namespace waytk
     set_this_as_widget_parent(menu_item);
   }
 
-  void Menu::delete_menu_item(MenuItem *menu_item)
+  bool Menu::delete_menu_item(MenuItem *menu_item)
   {
     auto iter = find_if(_M_menu_items.begin(), _M_menu_items.end(), [menu_item](const unique_ptr<MenuItem> &tmp_menu_item) {
       return tmp_menu_item.get() == menu_item;
@@ -633,7 +639,9 @@ namespace waytk
     if(iter != _M_menu_items.end()) {
       _M_menu_items.erase(iter);
       unset_this_as_widget_parent(iter->get());
+      return true;
     }
+    return false;
   }
 
   void Menu::delete_all_menu_items()
@@ -669,7 +677,7 @@ namespace waytk
     set_this_as_widget_parent(menu);
   }
 
-  void MenuBar::delete_menu(Menu *menu)
+  bool MenuBar::delete_menu(Menu *menu)
   {
     auto iter = find_if(_M_menus.begin(), _M_menus.end(), [menu](const unique_ptr<Menu> &tmp_menu) {
       return tmp_menu.get() == menu;
@@ -677,7 +685,9 @@ namespace waytk
     if(iter != _M_menus.end()) {
       _M_menus.erase(iter);
       unset_this_as_widget_parent(iter->get());
+      return true;
     }
+    return false;
   }
 
   void MenuBar::delete_all_menus()

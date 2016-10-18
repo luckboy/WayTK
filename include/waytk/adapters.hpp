@@ -173,16 +173,16 @@ namespace waytk
   struct StringTreeNode
   {
     std::string value;
-    std::vector<StringTreeNode> childs;
-      
+    std::vector<StringTreeNode> children;
+
     StringTreeNode(const std::string &value) :
       value(value) {}
 
-    StringTreeNode(const std::string &value, std::initializer_list<StringTreeNode> childs) :
-      value(value), childs(childs) {}
+    StringTreeNode(const std::string &value, std::initializer_list<StringTreeNode> children) :
+      value(value), children(children) {}
 
-    StringTreeNode(const std::string &value, const std::vector<StringTreeNode> &childs) :
-      value(value), childs(childs) {}
+    StringTreeNode(const std::string &value, const std::vector<StringTreeNode> &children) :
+      value(value), children(children) {}
   };
 
   class StringTreeAdapter : public TreeAdapter

@@ -44,12 +44,15 @@ namespace waytk
   class Surface;
   class Widget;
 
+  ///
+  /// An enumeration of widget flags.
+  ///
   enum class WidgetFlags
   {
-    NONE = 0,
-    ACTIVE = 1,
-    HOVER = 2,
-    SELECTED = 4
+    NONE = 0,           ///< No flags.
+    ACTIVE = 1,         ///< The widget is clicked.
+    HOVER = 2,          ///< The pointer is on the widget.
+    SELECTED = 4        ///< The widget is selected.
   };
 
   inline WidgetFlags operator&(WidgetFlags flags1, WidgetFlags flags2)
@@ -64,70 +67,103 @@ namespace waytk
   inline WidgetFlags operator|=(WidgetFlags &flags1, WidgetFlags flags2)
   { flags1 = flags1 | flags2; return flags1; }
 
+  ///
+  /// An enumeratin of horizontal alignment.
+  ///
   enum class HAlignment
   {
-    LEFT,
-    CENTER,
-    RIGHT
+    LEFT,               ///< Aligns to left.
+    CENTER,             ///< Aligns to horizontal center.
+    RIGHT               ///< Aligns to right.
   };
 
+  ///
+  /// An enumeration of vertical alignment.
+  ///
   enum class VAlignment
   {
-    TOP,
-    CENTER,
-    BOTTOM
+    TOP,                ///< Aligns to top.
+    CENTER,             ///< Aligns to vertical center.
+    BOTTOM              ///< Aligns to bottom.
   };
 
+  ///
+  /// An enumeration of touch state.
+  ///
   enum class TouchState
   {
-    DOWN,
-    MOTION,
-    UP
+    DOWN,               ///< A touch start or a pointer button is pressed.
+    MOTION,             ///< A touch motion or a pointer motion with pressed
+                        ///  button.
+    UP                  ///< A touch end or a pointer button is released.
   };
 
+  ///
+  /// An enumeration of axis.
+  ///
   enum class Axis
   {
-    HORIZONTAL_SCROLL,
-    VERTICAL_SCROLL
+    HORIZONTAL_SCROLL,  /// Horizontal scroll wheel.
+    VERTICAL_SCROLL     /// Vertical scroll wheel.
   };
 
+  ///
+  /// An enumeration of key state.
+  ///
   enum class KeyState
   {
-    PRESSED,
-    REPEATED,
-    RELEASED
+    PRESSED,            ///< Pressed key.
+    REPEATED,           ///< Pepeated key.
+    RELEASED            ///< Released key.
   };
 
+  ///
+  /// An enumeration of input type.
+  ///
   enum class InputType
   {
-    SINGLE_LINE,
-    MULTI_LINE,
-    PASSWORD
+    SINGLE_LINE,        ///< Single-line text.
+    MULTI_LINE,         ///< Multi-line text.
+    PASSWORD            ///< Password.
   };
 
+  ///
+  /// An orientation enumeration.
+  ///
   enum class Orientation
   {
-    HORIZONTAL,
-    VERTICAL
+    HORIZONTAL,         ///< Horizontal orientation.
+    VERTICAL            ///< Vertical orientation.
   };
 
+  ///
+  /// An enumeration of selection mode.
+  ///
   enum class SelectionMode
   {
-    SINGLE,
-    MULTI
+    SINGLE,             ///< Just one of items can be selected.
+    MULTI               ///< More than one item can be selected.
   };
 
+  ///
+  /// A touch pointer class.
+  ///
   class Pointer
   {
     bool _M_is_touch;
     std::uint32_t _M_touch_id;
   public:
+    /// Creates a new touch pointer.
     Pointer() : _M_is_touch(false) {}
 
+    /// Creates a new touch pointer with a touch identifier.
     explicit Pointer(std::uint32_t touch_id) : _M_is_touch(true), _M_touch_id(touch_id) {}
 
+    /// Returns \c true if the touch pointer concers a touch, otherwise
+    /// \c false.
     bool is_touch() const { return _M_is_touch; }
 
+    /// Returns the touch identifier.
     std::uint32_t touch_id() const { return _M_touch_id; }
 
     bool operator==(const Pointer &pointer) const
@@ -137,12 +173,17 @@ namespace waytk
     { return !(*this == pointer); }
   };
 
+  ///
+  /// An icon class.
+  ///
   class Icon
   {
     std::string _M_name;
   public:
+    /// Default constructor.
     Icon() {}
 
+    /// Creates an icon with a name.
     explicit Icon(const std::string &name) :
       _M_name(name) {}
 
@@ -158,61 +199,203 @@ namespace waytk
     std::shared_ptr<CanvasImage> image() const;
   };
 
+  ///
+  /// A structure to comparing two table positions.
+  ///
   struct TablePositionCompare
   {
     bool operator()(const TablePosition &pos1, const TablePosition &pos2) const
     { return pos1.row == pos2.row ? pos1.column < pos2.column : pos1.column < pos2.column; }
   };
 
+  ///
+  /// A structure to comparing two tree paths.
+  ///
   struct TreePathCompare
   {
     bool operator()(const TreePath &path1, const TreePath &path2);
   };
 
+  ///
+  /// A viewport class that used in a scroll widget.
+  ///
+  /// A viewport object is used by the scroll widget to store information about
+  /// a widget bounds at the viewport and a scroll slider. The part of this
+  /// information is modified by the scroll widget, so that the scroll widget
+  /// inform a widget motion at viewport.
+  ///
   class Viewport
   {
   protected:
+    /// Default constructor.
     Viewport() {}
   public:
+    /// Destructor.
     virtual ~Viewport();
 
+    /// Returns the widget viewport at the viewport.
     virtual Rectangle<int> bounds() const = 0;
 
+    /// Returns the X offset of the horizontal scroll slider.
     virtual int h_scroll_slider_x(int width) const = 0;
 
+    /// Returns the step of the X offset of the horizontal scroll slider.
     virtual int h_scroll_slider_x_step(int width) const = 0;
     
+    /// Sets the X offset of the horizontal scroll slider.
     virtual void set_h_scroll_slider_x(int x, int width) = 0; 
 
+    /// Returns the width of the horizontal scroll slider.
     virtual int h_scroll_slider_width(int width) const = 0;
 
+    /// Returns the Y offset of the vertical scroll slider.
     virtual int v_scroll_slider_y(int height) const = 0;
 
+    /// Returns the step of the Y offset of the vertical scroll slider.
     virtual int v_scroll_slider_y_step(int height) const = 0;
 
+    /// Sets the Y offset of the vertical scroll slider.
     virtual void set_v_scroll_slider_y(int y, int height) = 0; 
 
+    /// Returns the height of the vertical scroll slider.
     virtual int v_scroll_slider_height(int height) const = 0;
   };
+
+  ///
+  /// A listener type for touch events.
+  ///
+  /// \param widget is the widget.
+  /// \param pointer is the pointer that identifies pointer or touch.
+  /// \param point is the point.
+  /// \param state is the touch state.
+  ///
+  typedef std::function<void (Widget *widget, const Pointer &pointer, const Point<double> &point, TouchState state)> OnTouchListener;
+
+  ///
+  /// A listener type for pointer motions.
+  ///
+  /// \param widget is the widget.
+  /// \param point is the point.
+  ///
+  typedef std::function<void (Widget *widget, const Point<double> &point)> OnPointerMotionListener;
+
+  ///
+  /// A listener type for pointer axis events.
+  ///
+  /// \param widget is the widget.
+  /// \param axis is the axis of the pointer wheel.
+  /// \param value is the value.
+  ///
+  typedef std::function<void (Widget *widget, Axis axis, double value)> OnPointerAxisListener;
+
+  ///
+  /// A listener type for key events.
+  ///
+  /// \param widget is the widget.
+  /// \param key_sym is the key symbol.
+  /// \param modifiers are the modifiers.
+  /// \param utf8 is the UTF-8 character sequence.
+  /// \param state is the key state.
+  ///
+  typedef std::function<void (Widget *widget, std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state)> OnKeyListener;
   
-  typedef std::function<void (Widget *, const Pointer &, const Point<double> &, TouchState)> OnTouchListener;
-  typedef std::function<void (Widget *, const Point<double> &)> OnPointerMotionListener;
-  typedef std::function<void (Widget *, Axis, double)> OnPointerAxisListener;
-  typedef std::function<void (Widget *, std::uint32_t, Modifiers, const char *, KeyState)> OnKeyListener;
-  typedef std::function<void (Widget *, Viewport *)> OnScrollListener;
-  typedef std::function<void (Widget *)> OnClickListener;
-  typedef std::function<void (Widget *, bool)> OnCheckListener;
-  typedef std::function<void (Widget *, std::size_t)> OnSelectionListener;
-  typedef std::function<void (Widget *, const Range<TextCharIterator> &)> OnTextChangeListener;
-  typedef std::function<void (Widget *, const TextCharIterator &, const TextPosition &)> OnCursorChangeListener;
-  typedef std::function<void (Widget *, const Range<TextCharIterator> &)> OnTextSelectionListener;
-  typedef std::function<void (Widget *, const std::set<std::size_t> &)> OnListSelectionListener;
-  typedef std::function<void (Widget *, const std::set<TablePosition, TablePositionCompare> &)> OnTableSelectionListener;
-  typedef std::function<void (Widget *, const std::set<TreePath, TreePathCompare> &)> OnTreeSelectionListener;
-  
+  ///
+  /// A listener type for the widget scrolling.
+  ///
+  /// \param widget is the widget.
+  /// \param viewport is the widget viewport.
+  ///
+  typedef std::function<void (Widget *widget, Viewport *viewport)> OnScrollListener;
+
+  ///
+  /// A listener type for clicks.
+  ///
+  /// \param widget is the widget.
+  ///
+  typedef std::function<void (Widget *widget)> OnClickListener;
+
+  ///
+  /// A listener type for text changes.
+  ///
+  /// \param widget is the widget.
+  /// \param range is the iterator ranges of the text.
+  ///
+  typedef std::function<void (Widget *widget, const Range<TextCharIterator> &range)> OnTextChangeListener;
+
+  ///
+  /// A listener type for cursor changes.
+  ///
+  /// \param widget is the widget.
+  /// \param iter is the cursor iterator.
+  /// \param pos is the cursor position.
+  ///
+  typedef std::function<void (Widget *widget, const TextCharIterator &iter, const TextPosition &pos)> OnCursorChangeListener;
+
+  ///
+  /// A listener type for text selection changes.
+  ///
+  /// \param widget is the widget.
+  /// \param range is the iterator range of the selected text.
+  ///
+  typedef std::function<void (Widget *widget, const Range<TextCharIterator> &range)> OnTextSelectionListener;
+
+  ///
+  /// A listener type for changes of the check box state.
+  ///
+  /// \param widget is the widget.
+  /// \param is_checked is \c true if the check box is checked, otherwise
+  ///        \c false.
+  ///
+  typedef std::function<void (Widget *widget, bool is_checked)> OnCheckListener;
+
+  ///
+  /// A listener type for the selection changes.
+  ///
+  /// \param widget is the widget.
+  /// \param pos is the position of the selected item.
+  ///
+  typedef std::function<void (Widget *widget, std::size_t pos)> OnSelectionListener;
+
+  ///
+  /// A listener type for selection changes of list widget.
+  ///
+  /// \param widget is the widget.
+  /// \param poses are the positions of the selected items.
+  ///
+  typedef std::function<void (Widget *widget, const std::set<std::size_t> &poses)> OnListSelectionListener;
+
+  ///
+  /// A listener type for selection changes of table widget.
+  ///
+  /// \param widget is the widget.
+  /// \param poses are the positions of the selected cells.
+  ///
+  typedef std::function<void (Widget *widget, const std::set<TablePosition, TablePositionCompare> &poses)> OnTableSelectionListener;
+
+  ///
+  /// A listener type for selection changes of tree widget.
+  ///
+  /// \param widget is the widget.
+  /// \param paths are the paths of the selected nodes.
+  ///
+  typedef std::function<void (Widget *widget, const std::set<TreePath, TreePathCompare> &paths)> OnTreeSelectionListener;
+
+  ///
+  /// A widget class that is base for all widgets.
+  ///
+  /// Widgets are drawn on a surface and react on an user actions. The widget
+  /// display and the widget behavior are specified by properties of this
+  /// class. The widget reactions can be specified by setting the listeners of
+  /// the widget. The listeners of the widgets are invoked when an appropriate
+  /// event is received. For example, the widget events are: key press, touch,
+  /// and pressing of pointer button. Each widget mustn't be used as child in
+  /// more then one other widget. The widget must be deleted from own parent
+  /// if the widget will be added onto other parent.
+  ///
   class Widget
   {
   protected:
+    /// A class that is used as an unused argument at empty constructors.
     class Unused { char _M_pad; };
   private:
     bool _M_is_enabled;
@@ -233,130 +416,265 @@ namespace waytk
     OnKeyListener _M_on_key_listener;
     OnScrollListener _M_on_scroll_listener;
   public:
+    /// Default constructor.
     Widget();
 
+    /// Destructor.
     virtual ~Widget();
 
+    ///
+    /// Returns \c true if the widget is enabled, otherwise \c false.
+    ///
+    /// If the widget isn't enables, it doesn't react on user actions. By
+    /// default, each widget of WayTK is enabled.
+    ///
     bool is_enabled() const
     { return _M_is_enabled; }
 
+    /// Enables the widget if \p is_enabled is \c true, otherwise disables the
+    /// widget.
     void set_enabled(bool is_enabled)
     { _M_is_enabled = is_enabled; }
 
+    ///
+    /// Returns the widget flags.
+    ///
+    /// The widget flags have affect on drawing the widget, but haven't affect
+    /// on behavior of the widget.
+    ///
     WidgetFlags flags() const
     { return _M_flags; }
 
+    /// Sets the widget flags.
     void set_flags(WidgetFlags flags)
     { _M_flags = flags; }
 
+    ///
+    /// Returns \c true if the widget has focus, otherwise \c false.
+    ///
+    /// If the widget has focus, it also can react on key events; otherwise it
+    /// just can react touch events and pointer.
+    ///
     bool has_focus() const
     { return _M_has_focus; }
 
+    /// Sets the widget focus if \p has_focus is \c true, otherwise unsets the
+    /// widget focus.
     void set_focus(bool has_focus);
 
+    ///
+    /// Returns \c true if the widget is visible, otherwise \c false.
+    ///
+    /// If the widget isn't visible, it isn't displayed. Also, descendants of a
+    /// widget aren't displayed in case their ascendants are invisible. By
+    /// default, each widget of WayTK is visible.
+    ///
     bool is_visible() const
     { return _M_is_visible; }
 
+    /// Sets the widget as visible if \p is_visible is \c true, otherwise sets
+    /// the widget as invisible.
     void set_visibale(bool is_visible)
     { _M_is_visible = is_visible; }
 
+    ///
+    /// Returns the horizontal alignment of the widget.
+    ///
+    /// By default, each widget of WayTK is horizontally aligned to left except
+    /// buttons.
+    ///
     HAlignment h_align() const
     { return _M_h_align; }
 
+    /// Sets the horizontal alignment of the widget.
     void set_h_align(HAlignment align)
     { _M_h_align = align; }
 
+    ///
+    /// Returns the vertical alignment of the widget.
+    ///
+    /// By default, each widget of WayTK is vertically aligned to top except
+    /// buttons.
+    ///
     VAlignment v_align() const
     { return _M_v_align; }
 
+    /// Sets the vertical alignment of the widget.
     void set_v_align(VAlignment align)
     { _M_v_align = align; }
 
+    ///
+    /// Returns the maximal width of the widget.
+    ///
+    /// By default, the maximal width has maximal value of integer.
+    ///
     int max_width() const
     { return _M_max_width; }
 
+    /// Sets the maximal width of the widget. 
     void set_max_width(int max_width)
     { _M_max_width = max_width; }
-    
+
+    ///
+    /// Returns the maximal height of the widget.
+    ///
+    /// By default, the maximal height has maximal value of an integer number.
+    ///
     int max_height() const
     { return _M_max_height; }
 
+    /// Sets the maximal height of the widget.
     void set_max_height(int max_height)
     { _M_max_height = max_height; }
 
+    ///
+    /// Returns the minimal width of the widget.
+    ///
+    /// By default, the minimal width is \c 0.
+    ///
     int min_width() const
     { return _M_min_width; }
 
+    /// Sets the minimal width of the widget.
     void set_min_width(int min_width)
     { _M_min_width = min_width; }
 
+    ///
+    /// Returns the minimal height of the widget.
+    ///
+    /// By default, the minimal height is \c 0.
+    ///
     int min_height() const
     { return _M_min_height; }
 
+    /// Sets the minimal height of the widget.
     void set_min_height(int min_height)
     { _M_min_height = min_height; }
-    
+
+    ///
+    /// Returns the widget bounds.
+    ///
+    /// The widget is drawn on the ractangle that is specified by the widget
+    /// bounds. The widget just react on touch and pointer action at this
+    /// bounds.
+    ///
     const Rectangle<int> &bounds() const
     { return _M_bounds; }
 
+    /// Returns the widget parent.
     Widget *parent() const
     { return _M_parent; }
   protected:
+    /// Sets this widget as a new parent of \p widget.
     void set_this_as_widget_parent(Widget *widget)
     { widget->_M_parent = this; }
 
+    /// Sets the parent of \p widget as \c nullptr.
     void unset_this_as_widget_parent(Widget *widget)
     { widget->_M_parent = nullptr; }
   public:
+    /// Returns the widget margin.
     Edges<int> margin() const;
 
+    /// Returns the listener for touch events.
     const OnTouchListener &on_touch_listener() const
     { return _M_on_touch_listener; }
 
+    ///
+    /// Sets the listener for touch events.
+    ///
+    /// A touch event occurs when:
+    ///
+    /// \li an user starts the widget touch or presses a pointer button
+    ///     (touch state is \ref TouchState::DOWN),
+    /// \li an user moves figer or moves the pointer with a pressed button
+    ///     (touch state is \ref TouchState::MOTION),
+    /// \li an user ends the widget touch or releases a pointer button
+    ///     (touch state is \ref TouchState::UP).
+    ///
+    /// It is possible that more touches can be at same time. Each touch is
+    /// identified by the touch pointer with the touch identifier. If the touch
+    /// pointer hasn't a touch identifier, the widget isn't touched but is
+    /// clicked by the pointer.
+    ///
     void set_on_touch_listener(const OnTouchListener &listener)
     { _M_on_touch_listener = listener; }
 
-    const OnPointerMotionListener &on_pointer_montion_listener() const
+    /// Returns the listener for pointer motions.
+    const OnPointerMotionListener &on_pointer_motion_listener() const
     { return _M_on_pointer_motion_listener; }
 
+    /// Sets the listener for pointer motions.
     void set_on_pointer_motion_listener(const OnPointerMotionListener &listener)
     { _M_on_pointer_motion_listener = listener; }
 
+    /// Returns the listener for pointer axis events.
     const OnPointerAxisListener &on_pointer_axis_listener() const
     { return _M_on_pointer_axis_listener; }
 
+    ///
+    /// Sets the listener for pointer axis events.
+    ///
+    /// A pointer axis event occurs when the scroll wheel of the pointer is
+    /// turned.
+    ///
     void set_on_pointer_axis_listener(const OnPointerAxisListener &listener)
     { _M_on_pointer_axis_listener = listener; }
 
+    /// Returns the listener for key events.
     const OnKeyListener &on_key_listener() const
     { return _M_on_key_listener; }
 
+    ///
+    /// Sets the listener for key events.
+    ///
+    /// A key event occurs when:
+    ///
+    /// \li an user presses a key (key state is \ref KeyState::PRESSED),
+    /// \li an user repeated a key (key stata is \ref KeyState::REPEATED),
+    /// \li an user released a key (key state is \ref KeyState::RELEASED).
+    ///
     void set_on_key_listener(const OnKeyListener &listener)
     { _M_on_key_listener = listener; }
 
+    /// Returns the listener for the widget scrolling.
     const OnScrollListener &on_scroll_listener() const
     { return _M_on_scroll_listener; }
 
+    /// Sets the listener for the widget scrolling.
     void set_on_scroll_listener(const OnScrollListener &listener)
     { _M_on_scroll_listener = listener; }
 
+    /// Returns the widget name.
     virtual const char *name() const;
 
+    /// Draws the widget.
     virtual void draw(Canvas *canvas);
 
+    /// Creates a new viewport of the widget.
     virtual Viewport *viewport();
 
+    /// This method that is invoked when a touch event occurs.
     virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
+    /// This method that is invoked when a pointer is moved.
     virtual void on_pointer_motion(const Point<double> &point);
 
+    /// This method that is invoked when a pointer axis occurs.
     virtual void on_pointer_axis(Axis axis, double value);
 
+    /// This method that is invoked when a key event occurs.
     virtual void on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
 
+    /// This method that is invoked when the widget is scrolled.
     virtual void on_scoll(Viewport *viewport);
   };
 
+  ///
+  /// A container class is base for all containers.
+  ///
+  /// A container is widget that contains other widgets.
+  ///
   class Container : public Widget
   {
     std::list<std::unique_ptr<Widget>> _M_widgets;
@@ -365,32 +683,49 @@ namespace waytk
   public:
     virtual ~Container();
   protected:
+    /// Initializes the container.
     void initialize(std::initializer_list<Widget *> widgets);
   public:
+    /// Returns the widgets of the container.
     const std::list<std::unique_ptr<Widget>> &widgets() const
     { return _M_widgets; }
 
+    /// Adds a new widget.
     void add_widget(Widget *widget);
 
-    void delete_widget(Widget *widget);
+    /// Tries delete the widget and returns \c true if the widget is deleted,
+    /// otherwise \c false.
+    bool delete_widget(Widget *widget);
 
+    /// Deletes all widgets of the container.
     void delete_all_widgets();
   };
 
+  ///
+  /// A label is a widget that displays a text.
+  ///
   class Label : public Widget
   {
     std::string _M_text;
+  protected:
+    /// Default constructor that doesn't invoke an \ref initialize method.
+    Label() {}
   public:
+    /// Constructor.
     explicit Label(const std::string &text)
     { initialize(text); }
 
+    /// Destructor.
     virtual ~Label();
   protected:
+    /// Initializes the label.
     void initialize(const std::string &text);
   public:
+    /// Returns the label text.
     const std::string &text() const
     { return _M_text; }
 
+    /// Sets the label text.
     void set_text(const std::string &text);
 
     virtual const char *name() const;
@@ -398,50 +733,72 @@ namespace waytk
     virtual void draw(Canvas *canvas);
   };
 
+  ///
+  /// A button is a widget that can be clicked by an user.
+  ///
+  /// The button can have an icon and/or a label which are displayed on the
+  /// button. The reaction of the button on a click can be specified by setting
+  /// the listener.
+  ///
   class Button : public Widget
   {
     Icon _M_icon;
     std::string _M_label;
     OnClickListener _M_on_click_listener;
   protected:
+    /// Default constructor that doesn't invoke an \ref initialize method.
     Button() {}
   public:
+    /// Creates a new button with a label.
     explicit Button(const std::string &label)
     { initialize(Icon(), label, [](Widget *widget) {}); }
 
-    explicit Button(const std::string &label, const OnClickListener &listener)
+    /// Creates a new button with a label and a specified action on a click.
+    Button(const std::string &label, const OnClickListener &listener)
     { initialize(Icon(), label, listener); }
 
+    /// Creates a new button with an icon.
     explicit Button(const Icon &icon)
     { initialize(icon, "", [](Widget *widget) {}); }
 
+    /// Creates a new button with an icon and a specified action on a click.
     Button(const Icon &icon, const OnClickListener &listener)
     { initialize(icon, "", listener); }
 
+    /// Creates a new button with an icon and a label.
     Button(const Icon &icon, const std::string &label)
     { initialize(icon, label, [](Widget *widget) {}); }
 
+    /// Creates a new button with an icon, a label, and a specified action on a
+    /// click.
     Button(const Icon &icon, const std::string &label, const OnClickListener &listener)
     { initialize(icon, label, listener); }
 
+    /// Destructor.
     virtual ~Button();
   protected:
     void initialize(const Icon &icon, const std::string &label, const OnClickListener &listener);
   public:
+    /// Returns the button icon.
     const Icon icon() const
     { return _M_icon; }
 
+    /// Sets the icon.
     void set_icon(const Icon &icon)
     { _M_icon = icon; }
-    
+
+    /// Returns the label text of the button.
     const std::string &label() const
     { return _M_label; }
 
+    /// Sets the label text.
     void set_label(const std::string &label);
 
+    /// Returns the listener for clicks.
     const OnClickListener &on_click_listener() const
     { return _M_on_click_listener; }
 
+    /// Sets the listener for clicks.
     void set_on_click_listener(const OnClickListener &listener)
     { _M_on_click_listener = listener; }
 
@@ -453,9 +810,19 @@ namespace waytk
 
     virtual void on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
 
+    /// This method that is invoked when a click occurs.
     virtual void on_click();
   };
 
+  ///
+  /// A text widget that allows to display and edit a text.
+  ///
+  /// The text widget can be a text field or a text area or a password field,
+  /// but a text area just allows to edit a multi-line text. The text of this
+  /// widget can be selected, copied to a clipboard, and a text from clipboard
+  /// can be inserted to this text. This widget also supports basic key
+  /// shortcuts for editing text.
+  ///
   class Text : public Widget
   {
     InputType _M_input_type;
@@ -470,118 +837,201 @@ namespace waytk
     OnCursorChangeListener _M_on_cursor_change_listener;
     OnTextSelectionListener _M_on_text_selection_listener;
   protected:
+    /// Constructor that doesn't invoke the \ref initialize method.
     Text(Unused unused) {}
   public:
+    /// Creates a new text widget.
     Text()
     { initialize(InputType::SINGLE_LINE, std::string()); }
 
+    /// Creates a new text widget with a text.
     explicit Text(const std::string &text)
     { initialize(InputType::SINGLE_LINE, text); }
 
+    /// Creates a new text widget with a specified input type.
     explicit Text(InputType input_type)
     { initialize(input_type, std::string()); }
 
+    /// Creates a new text widget with a specified input type and a text.
     Text(InputType input_type, const std::string &text)
     { initialize(input_type, text); }
 
+    /// Destructor.
     virtual ~Text();
   protected:
+    /// Initializes the text widget.
     void initialize(InputType input_type, const std::string &text);
   public:
+    ///
+    /// Return the input type of the text widget.
+    ///
+    /// The input type determines whether the text widget is a text field or a
+    /// text area or a password field. By default, the text of the text widget
+    /// is the text field.
+    ///
     InputType input_type() const
     { return _M_input_type; }
 
+    /// Sets the input type of the text widget.
     void set_input_type(InputType input_type)
     { _M_input_type = input_type; }
 
+    /// Returns the text of the text widget.
     const std::string text() const
     { return _M_buffer->text(); }
 
+    /// Sets the text of the text widget.
     void set_text(const std::string &text);
 
+    ///
+    /// Returns the text buffer of the text widget.
+    ///
+    /// The text widget uses the text buffer to store the text, the cursor
+    /// position, and the selection range.
+    ///
     const TextBuffer *buffer() const
     { return _M_buffer.get(); }
 
+    /// \copydoc buffer() const
     TextBuffer *buffer()
     { return _M_buffer.get(); }
 
+    /// Returns the text length of the text widget.
     std::size_t length() const
     { return _M_buffer->length(); }
 
+    /// Returns the cursor iterator of the text widget.
     TextCharIterator cursor_iter() const
     { return _M_buffer->cursor_iter(); }
 
+    /// Sets the cursor iterator of the text widget.
     void set_cursor_iter(const TextCharIterator &iter);
 
-    TextPosition cursor_line() const
+    /// Returns the cursor position of the text widget.
+    TextPosition cursor_pos() const
     { return _M_buffer->cursor_pos(); }
 
+    /// Returns the selection range of the text widget.
+    Range<TextCharIterator> selection_range() const
+    { return _M_buffer->selection_range(); }
+ 
+    /// Sets the selection range of the text widget.
     void set_selection_range(const TextCharIterator &begin, const TextCharIterator &end)
     { set_selection_range(Range<TextCharIterator>(begin, end)); }
 
+    /// \copydoc set_selection_range(const TextCharIterator &, const TextCharIterator &)
     void set_selection_range(const Range<TextCharIterator> &range);
 
+    ///
+    /// Inserts a new text into the text of the text widget.
+    ///
+    /// The new text is inserted after the cursor.
+    ///
     void insert_string(const std::string &str);
-    
+
+    ///
+    /// Replaces the text fragment of the text widget.
+    ///
+    /// Indeed, this method deletes characters after the cursor, and then a new
+    /// text is inserted at this same position.
+    /// 
     void replace_string(std::size_t count, const std::string &str);
-    
+
+    ///
+    /// Deletes characters from the text of the text widget.
+    ///
+    /// The characters are deleted from the text after the cursor.
+    ///
     void delete_chars(std::size_t count);
 
+    /// Returns the maximal text length of the text widget.
     std::size_t max_length() const
     { return _M_max_length; }
 
+    /// Sets the maximal text length of the text widget.
     void set_max_length(std::size_t max_length)
     { _M_max_length = max_length; }
 
+    ///
+    /// Returns \c true if the line wrapping is enabled, otherwise \c false.
+    ///
+    /// The line wrapping breaks a text line if this line is too long to
+    /// display. By default, the line wrapping is disabled.
+    ///
     bool has_line_wrap() const
     { return _M_has_line_wrap; }
 
+    /// Enables the line wrapping if \p has_line_wrap is \c true, otherwise
+    /// disables the line wrapping.
     void set_line_wrap(bool has_line_wrap)
     { _M_has_line_wrap = has_line_wrap; }
 
+    ///
+    /// Returns \c true if the word wrapping, otherwise \c false.
+    ///
+    /// If the word wrapping and the line wraping are enabled, the words can
+    /// be breaked. By default, the word wrapping is disabled.
+    ///
     bool has_word_wrap() const
     { return _M_has_word_wrap; }
 
+    /// Enables the word wrapping if \p has_line_wrap is \c true, otherwise
+    /// disables the word wrapping.
     void set_word_wrap(bool has_word_wrap)
     { _M_has_word_wrap = has_word_wrap; }
 
+    /// Returns \c true if the text widget is editable, otherwise \c false.
     bool is_editable() const
     { return _M_is_editable; }
 
+    /// Sets the text widget as editable if \p is_editable is \c true,
+    /// otherwise the widget as uneditable.
     void set_editable(bool is_editable)
     { _M_is_editable = is_editable; }
 
+    /// Returns the selected text of the text widget.
     std::string selected_text() const
     { return _M_buffer->selected_text(); }
 
+    /// Selects all text.
     void all_select()
     { select(_M_buffer->char_begin(), _M_buffer->char_end()); }
 
+    /// Selects the text fragment that is specified by \p begin and \p end.
     void select(const TextCharIterator &begin, const TextCharIterator &end)
     { set_selection_range(Range<TextCharIterator>(begin, end)); }
 
+    /// Clears the text selection.
     void clear_selection()
     { set_selection_range(Range<TextCharIterator>(_M_buffer->char_begin(), _M_buffer->char_begin())); }
 
+    /// Copies a selected text to a clipboard.
     void copy();
 
+    /// Inserts a text from a clipboard.
     void paste();
 
+    /// Returns the listener for text changes.
     const OnTextChangeListener &on_text_change_listener() const
     { return _M_on_text_change_listener; }
 
+    /// Sets the listener for text changes.
     void set_on_text_change_listener(const OnTextChangeListener &listener)
     { _M_on_text_change_listener = listener; }
 
+    /// Returns the listener for cursor position changes.
     const OnCursorChangeListener &on_cursor_change_listener() const
     { return _M_on_cursor_change_listener; }
 
+    /// Sets the listener for cursor position changes.
     void set_on_cursor_change_listener(const OnCursorChangeListener &listener)
     { _M_on_cursor_change_listener = listener; }
 
+    /// Returns the listener for text selection changes.
     const OnTextSelectionListener &on_text_selection_listener() const
     { return _M_on_text_selection_listener; }
 
+    /// Sets the listener for text selection changes.
     void set_on_text_selection_listener(const OnTextSelectionListener &listener)
     { _M_on_text_selection_listener = listener; }
 
@@ -595,44 +1045,65 @@ namespace waytk
 
     virtual void on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
 
+    /// This method is invoked when the text is changed.
     virtual void on_text_change(const Range<TextCharIterator> &range);
 
+    /// This method is invoked when the cursor position is changed.
     virtual void on_cursor_change(const TextCharIterator &iter, const TextPosition &pos);
 
+    /// The method is invoked when the text selection is changed.
     virtual void on_text_selection(const Range<TextCharIterator> &range);
   };
 
+  ///
+  /// A check box is a toggle button.
+  ///
+  /// The check box has a state that is changed by clicking. This state is
+  /// displayd after change.
+  ///
   class CheckBox : public virtual Button
   {
     bool _M_is_checked;
     OnCheckListener _M_on_check_listener;
   protected:
+    /// Constructor that doesn't invoke the \ref initialize method.
     CheckBox(Unused unused) {}
   public:
+    /// Creates a new check box.
     CheckBox()
     { initialize(Icon(), std::string(), false); }
 
+    /// Creates a new check box with a specified state.
     explicit CheckBox(bool is_checked)
     { initialize(Icon(), std::string(), is_checked); }
 
+    /// Creates a new check box with a label.
     explicit CheckBox(const std::string &label)
     { initialize(Icon(), label, false); }
 
+    /// Creates a new check box with a label and a specified state.
     CheckBox(const std::string &label, bool is_checked)
     { initialize(Icon(), label, is_checked); }
 
+    /// Destructor.
     virtual ~CheckBox();
   protected:
+    /// Initializes the check box.
     void initialize(const Icon &icon, const std::string &label, bool is_checked);
   public:
+    /// Returns \c true if the check box is checked, otherwise \c false.
     bool is_checked() const
     { return _M_is_checked; }
 
+    /// Sets the check box as checked if \p is_checked is \c true, otherwise
+    /// sets the checked box as unchecked.
     void set_checked(bool is_checked);
 
+    /// Returns the listener for changes of the check box state.
     const OnCheckListener &on_check_listener() const
     { return _M_on_check_listener; }
 
+    /// Sets the listener for chenges of the check box state.
     void set_on_check_listener(const OnCheckListener &listener)
     { _M_on_check_listener = listener; }
 
@@ -642,66 +1113,96 @@ namespace waytk
 
     virtual void on_click();
 
+    // This method is inovked when the check box state is changed.
     virtual void on_check(bool is_checked);
   };
 
+  ///
+  /// A class is used to grouped radio buttons.
+  ///
   class RadioGroup
   {
     std::list<RadioButton *> _M_radio_buttons;
   public:
+    /// Default constructor.
     RadioGroup() {}
 
+    /// Returns the radio buttons which are grouped.
     const std::list<RadioButton *> &radio_buttons() const
     { return _M_radio_buttons; } 
-    
+
+    /// Adds a new radio button to the group.
     void add_radio_button(RadioButton *radio_button);
   };
-  
+
+  ///
+  /// A radio button is a toggle button that is a option to choose.
+  ///
+  /// Radio buttons can be grouped and if they are grouped, just one of them
+  /// can be checked. If the radio buttons aren't grouped, they behave as check
+  /// boxes.
+  ///
   class RadioButton : public CheckBox
   {
     std::shared_ptr<RadioGroup> _M_group;
   protected:
+    /// Constructor that doesn't invoke the \ref initialize method.
     RadioButton(Unused unused) {}
   public:
+    /// Creates a new radio button.
     RadioButton() :
       Button(), CheckBox(Unused())
     { initialize(Icon(), std::string(), false, std::shared_ptr<RadioGroup>()); }
 
+    /// Creates a new radio button with a specified state.
     explicit RadioButton(bool is_checked) :
       Button(), CheckBox(Unused())
     { initialize(Icon(), std::string(), is_checked, std::shared_ptr<RadioGroup>()); }
 
+    /// Creates a new radio button that belongs to a specified group.
     explicit RadioButton(const std::shared_ptr<RadioGroup> &group) :
       Button(), CheckBox(Unused())
     { initialize(Icon(), std::string(), false, group); }
 
+    /// Creates a new radio button with a specified state that belongs to a
+    /// specified group.
     RadioButton(bool is_checked, const std::shared_ptr<RadioGroup> &group) :
       Button(), CheckBox(Unused())
     { initialize(Icon(), std::string(), is_checked, group); }
 
+    /// Creates a new radio button with a label.
     explicit RadioButton(const std::string &label) :
       Button(), CheckBox(Unused())
     { initialize(Icon(), label, false, std::shared_ptr<RadioGroup>()); }
 
+    /// Creates a new radio button with a label and a specified state.
     RadioButton(const std::string &label, bool is_checked) :
       Button(), CheckBox(Unused())
     { initialize(Icon(), label, is_checked, std::shared_ptr<RadioGroup>()); }
 
+    /// Creates a new radio button with a label that belongs to a specified
+    /// group.
     RadioButton(const std::string &label, const std::shared_ptr<RadioGroup> &group) :
       Button(), CheckBox(Unused())
     { initialize(Icon(), label, false, group); }
 
+    /// Creates a new radio button with a label and a specified stat that
+    /// belongs to a specified group.
     RadioButton(const std::string &label, bool is_checked, const std::shared_ptr<RadioGroup> &group) :
       Button(), CheckBox(Unused())
     { initialize(Icon(), label, is_checked, group); }
 
+    /// Destructor.
     virtual ~RadioButton();
   protected:
+    /// Initializes the radio button.
     void initialize(const Icon &icon, const std::string &label, bool is_checked, const std::shared_ptr<RadioGroup> &group);
   public:
+    /// Returns the group of the radio button.
     const std::shared_ptr<RadioGroup> &group() const
     { return _M_group; }
-    
+
+    /// Sets the group of the radio button.
     void set_group(const std::shared_ptr<RadioGroup> &group);
 
     virtual const char *name() const;
@@ -711,50 +1212,72 @@ namespace waytk
     virtual void on_check(bool is_checked);
   };
 
+  ///
+  /// A combo box is a button with drop-down list.
+  ///
+  /// When this button is clicked, the drop-down list is displayed. This list
+  /// has options, one of them can be selected. The selected option is
+  /// displayed on the combo box.
+  ///
   class ComboBox : public Button
   {
     std::size_t _M_selected_pos;
     std::shared_ptr<ComboBoxAdapter> _M_adapter;
     OnSelectionListener _M_on_selection_listener;
   protected:
+    /// Constructor that doesn't invoke the \ref initialize method.
     ComboBox(Unused unused) {}
   public:
+    /// Creates a new combo box.
     ComboBox()
     { initialize(std::shared_ptr<ComboBoxAdapter>(new StringComboBoxAdapter())); }
 
+    /// Creates a new combo box with items.
     explicit ComboBox(std::initializer_list<std::string> items)
     { initialize(std::shared_ptr<ComboBoxAdapter>(new StringComboBoxAdapter(items))); }
 
+    /// Creates a new combo box with an adapter.
     explicit ComboBox(ComboBoxAdapter *adapter)
     { initialize(std::shared_ptr<ComboBoxAdapter>(adapter)); }
 
+    /// \copydoc ComboBox(ComboBoxAdapter *adapter)
     explicit ComboBox(const std::shared_ptr<ComboBoxAdapter> &adapter)
     { initialize(adapter); }
 
+    /// Destructor.
     virtual ~ComboBox();
   protected:
+    /// Initializes the combo box.
     void initialize(const std::shared_ptr<ComboBoxAdapter> &adapter);
   public:
+    /// Returns the position of the selected item.
     std::size_t selected_pos() const
     { return _M_selected_pos; }
 
+    /// Sets the position of the selcted itme.
     void set_selected_pos(std::size_t pos);
 
+    /// Returns the adatper of the combo box.
     const std::shared_ptr<ComboBoxAdapter> &adapter() const
     { return _M_adapter; }
 
+    /// Sets the adapter of the combo box.
     void set_adapter(ComboBoxAdapter *adapter)
     { _M_adapter = std::shared_ptr<ComboBoxAdapter>(adapter); }
 
+    /// \copydoc set_adapter
     void set_adapter(const std::shared_ptr<ComboBoxAdapter> &adapter)
     { _M_adapter = adapter; }
 
+    /// Selects the one item of the combo box.
     void select(std::size_t pos)
     { set_selected_pos(pos); }
 
+    /// Returns the listener for selection changes.
     const OnSelectionListener &on_selection_listener() const
     { return _M_on_selection_listener; }
 
+    /// Sets the listener for selection changes.
     void set_selection_listener(const OnSelectionListener &listener)
     { _M_on_selection_listener = listener; }
 
@@ -764,35 +1287,53 @@ namespace waytk
 
     virtual void on_click();
 
+    /// This method is invoked when the selection is changed.
     virtual void on_selection(std::size_t pos);
   };
 
+  ///
+  /// A progress bar displays a progress.
+  ///
   class ProgressBar : public Widget
   {
     int _M_max_value;
     int _M_value;
   protected:
+    /// Constructor that doesn't invoke the \ref initialize method.
     ProgressBar(Unused unused) {}
   public:
+    /// Creates a new progress bar with a maximal value that is \c 100.
     ProgressBar()
     { initialize(100); }
 
+    /// Creates a new progress bar with a specified maximal value.
     explicit ProgressBar(int max_value)
     { initialize(max_value); }
 
+    /// Destructor.
     virtual ~ProgressBar();
   protected:
+    /// Initializes the progress bar.
     void initialize(int max_value);
   public:
+    /// Returns the maximal value of the progress bar.
     int max_value() const
     { return _M_max_value; }
 
+    /// Sets the maximal value of the progress bar.
     void set_max_value(int max_value)
     { _M_max_value = max_value; }
 
+    ///
+    /// Returns the value of the progress bar.
+    ///
+    /// The value of the progress bar indicates a progress. By default,
+    /// the value is \c 0.
+    ///
     int value() const
     { return _M_value; }
 
+    /// Sets the value of the progress bar.
     void set_value(int value)
     { _M_value = (value < _M_max_value ? value : _M_max_value); }
 
@@ -801,57 +1342,78 @@ namespace waytk
     virtual void draw(Canvas &canvas);
   };
 
+  ///
+  /// An image widget displays an image.
+  ///
   class Image : public Widget
   {
     std::shared_ptr<CanvasImage> _M_image;
   protected:
+    /// Default constructor that doesn't invoke the \ref initialize method.
     Image() {}
   public:
+    /// Creates a new image widget.
     Image(int width, int height)
     { initialize(std::shared_ptr<CanvasImage>(new_canvas_image(width, height))); }
 
+    /// \copydoc Image(int, int)
     explicit Image(Dimension<int> size)
     { initialize(std::shared_ptr<CanvasImage>(new_canvas_image(size))); }
 
+    /// Creates a new image widget with an image from \p data.
     Image(int width, int height, int stride, void *data)
     { initialize(std::shared_ptr<CanvasImage>(new_canvas_image(width, height, stride, data))); }
 
+    /// \copydoc Image(int, int, int, void *)
     Image(Dimension<int> size, int stride, void *data)
     { initialize(std::shared_ptr<CanvasImage>(new_canvas_image(size, stride, data))); }
 
+    /// Creates a new image widget with a image from the file.
     explicit Image(const std::string &file_name)
     { initialize(std::shared_ptr<CanvasImage>(load_canvas_image(file_name)));}
 
+    /// Creates a new image widget with an image.
     explicit Image(CanvasImage *image)
     { initialize(std::shared_ptr<CanvasImage>(image)); }
 
+    /// \copydoc Image(CanvasImage *)
     explicit Image(const std::shared_ptr<CanvasImage> &image)
     { initialize(image); }
 
+    /// Destructor.
     virtual ~Image();
   protected:
+    /// Initializes the image widget.
     void initialize(const std::shared_ptr<CanvasImage> &image);
   public:
+    /// Returns the image of the image widget.
     const std::shared_ptr<CanvasImage> &image() const
     { return _M_image; }
 
+    /// Sets an empty image.
     void set_image(int width, int height)
     { set_image(new_canvas_image(width, height)); }
 
+    /// \copydoc set_image(int, int)
     void set_image(Dimension<int> size)
     { set_image(new_canvas_image(size)); }
 
+    /// Sets an image from \p data.
     void set_image(int width, int height, int stride, void *data)
     { set_image(new_canvas_image(width, height)); }
 
+    /// \copydoc set_image(int, int, int, void *)
     void set_image(Dimension<int> size, int stride, void *data)
     { set_image(new_canvas_image(size)); }
 
+    /// Sets the image of the image widget.
     void set_image(CanvasImage *image)
     { set_image(std::shared_ptr<CanvasImage>(image)); }
 
+    /// \copydoc set_image(CanvasImage *)
     void set_image(const std::shared_ptr<CanvasImage> &image);
 
+    /// Loads an image from the file.
     void load(const std::string &file_name)
     { set_image(std::shared_ptr<CanvasImage>(load_canvas_image(file_name))); }
 
@@ -860,39 +1422,61 @@ namespace waytk
     virtual void draw(Canvas &canvas);
   };
 
+  ///
+  /// A panel is container that displays widgets.
+  ///
   class Panel : public Container
   {
   protected:
+    /// Default constructor.
     Panel() {}
   public:
+    /// Destructor.
     virtual ~Panel();
   };
 
+  ///
+  /// A linear panel displays widgets in one line.
+  ///
   class LinearPanel : public Panel
   {
     Orientation _M_orientation;
   protected:
+    /// Constructor that doesn't invoke the \ref initialize method.
     LinearPanel(Unused unused) {}
   public:
+    /// Creates a new horizontal linear panel.
     LinearPanel()
     { initialize(Orientation::HORIZONTAL, {}); }
 
+    /// Creates a new horizontal linear panel with widgets.
     explicit LinearPanel(std::initializer_list<Widget *> widgets)
     { initialize(Orientation::HORIZONTAL, widgets); }
 
+    /// Creates a new linear panel with a specified orientation.
     explicit LinearPanel(Orientation orientation)
     { initialize(orientation, {}); }
 
+    /// Creates a new linear panel with a specified orientation and widgets.
     LinearPanel(Orientation orientation, std::initializer_list<Widget *> widgets)
     { initialize(orientation, widgets); }
 
+    /// Destructor.
     virtual ~LinearPanel();
   protected:
+    /// Initializes the linear panel.
     void initialize(Orientation orientation, std::initializer_list<Widget *> widgets);
   public:
+    ///
+    /// Returns the orientation of the linear panel.
+    ///
+    /// The orientation of the linear panel determines whether widgets are
+    /// displayed in horizontal line or vertical line.
+    ///
     Orientation orientation() const
     { return _M_orientation; }
 
+    /// Sets the orientation of the linear panel.
     void set_orientation(Orientation orientation)
     { _M_orientation = orientation; }
 
@@ -901,25 +1485,36 @@ namespace waytk
     virtual void draw(Canvas *canvas);
   };
 
+  ///
+  /// A grid panel displays widgets in grid cells.
+  ///
   class GridPanel : public Panel
   {
     int _M_column_count;
   protected:
+    /// Default constructor that doesn't invoke the \ref initialize method.
     GridPanel() {}
   public:
+    /// Creates a new grid panel with a specified number of columns.
     explicit GridPanel(int column_count)
     { initialize(column_count, {}); }
 
+    /// Creates a new grid panel with a specified number of columns and
+    /// widgets.
     GridPanel(int column_count, std::initializer_list<Widget *> widgets)
     { initialize(column_count, widgets); }
 
+    /// Destructor.
     virtual ~GridPanel();
   protected:
+    /// Initializes the grid panel.
     void initialize(int column_count, std::initializer_list<Widget *> widgets);
   public:
+    /// Returns the number of columns.
     int column_count() const
     { return _M_column_count; }
 
+    /// Sets the number of columns.
     void set_columns(int column_count)
     { _M_column_count = column_count; }
 
@@ -928,26 +1523,61 @@ namespace waytk
     virtual void draw(Canvas *canvas);
   };
 
+  ///
+  /// A split pane contains two widgets.
+  ///
+  /// Two widgets of the split pane display as left and right or top and
+  /// bottom. Widths of two widgets or heights of two widgets can be adjusted
+  /// by an user.
+  ///
   class SplitPane : public Widget
   {
+    Orientation _M_orientation;
     std::unique_ptr<Widget> _M_first_widget;
     std::unique_ptr<Widget> _M_second_widget;
+  protected:
+    /// Default constructor that doesn't invoke the \ref initialize method.
+    SplitPane() {}
   public:
+    /// Creates a new horizontal split pane with two widgets.
     SplitPane(Widget *first_widget, Widget *second_widget)
-    { initialize(first_widget, second_widget); }
+    { initialize(Orientation::HORIZONTAL, first_widget, second_widget); }
 
+    /// Creates a new split pane with two widgets and a specified orientation.
+    SplitPane(Orientation orientation, Widget *first_widget, Widget *second_widget)
+    { initialize(orientation, first_widget, second_widget); }
+
+    /// Destructor.
     virtual ~SplitPane();
   protected:
-    void initialize(Widget *first_widget, Widget *second_widget);
+    /// Initializes the split pane.
+    void initialize(Orientation orientation, Widget *first_widget, Widget *second_widget);
   public:
+    ///
+    /// Returns the orientation of the split pane.
+    ///
+    /// The orientation of the split pnae determines whether two widget of the
+    /// split pane are left and right or top and bottom.
+    ///
+    Orientation orientation() const
+    { return _M_orientation; }
+
+    /// Sets the orientation of the split pane.
+    void set_orientation(Orientation orientation)
+    { _M_orientation = orientation; }
+
+    /// Returns the first widget of the split pane.
     Widget *first_widget() const
     { return _M_first_widget.get(); }
 
+    /// Sets the first widget of the split pane.
     void set_first_widget(Widget *widget);
     
+    /// Returns the second widget of the split pane.
     Widget *second_widget() const
     { return _M_second_widget.get(); }
 
+    /// Sets the second widget of the split pane.
     void set_second_widget(Widget *widget);
 
     virtual const char *name() const;
@@ -955,6 +1585,15 @@ namespace waytk
     virtual void draw(Canvas *canvas);
   };
 
+  ///
+  /// A list widget displays items of a list.
+  ///
+  /// The list widget allows to select a single item or more items. If more
+  /// than one item can be selected, an user can use shortcuts for a selection.
+  /// Each item is displayed as a new widget that was created by a list adapter
+  /// of the list widget. The item widgets are created for visible items and
+  /// destroyed if these items are invisible.
+  ///
   class List : public Widget
   {
     SelectionMode _M_selection_mode;
@@ -962,77 +1601,112 @@ namespace waytk
     std::shared_ptr<ListAdapter> _M_adapter;
     OnListSelectionListener _M_on_list_selection_listener;
   protected:
+    /// Constructor that doesn't invoke the \ref initialize method.
     List(Unused unused) {}
   public:
+    /// Creates a new list widget.
     List()
     { initialize(SelectionMode::SINGLE, std::shared_ptr<ListAdapter>(new StringListAdapter())); }
 
+    /// Creates a new list widget with items.
     explicit List(std::initializer_list<std::string> items)
     { initialize(SelectionMode::SINGLE, std::shared_ptr<ListAdapter>(new StringListAdapter(items))); }
 
+    /// Creates a new list widget with an adapter.
     explicit List(ListAdapter *adapter)
     { initialize(SelectionMode::SINGLE, std::shared_ptr<ListAdapter>(adapter)); }
 
+    /// \copydoc List(ListAdapter *adapter)
     explicit List(const std::shared_ptr<ListAdapter> &adapter)
     { initialize(SelectionMode::SINGLE, adapter); }
 
+    /// Creates a new list widget with a specified mode of selection.
     explicit List(SelectionMode mode)
     { initialize(mode, std::shared_ptr<ListAdapter>(new StringListAdapter())); }
 
+    /// Creates a new list widget with a specified mode of selection and items.
     List(SelectionMode mode, std::initializer_list<std::string> items)
     { initialize(mode, std::shared_ptr<ListAdapter>(new StringListAdapter(items))); }
 
+    /// Creates a new list widget with a specified mode of selection and an
+    /// adapter.
     List(SelectionMode mode, ListAdapter *adapter)
     { initialize(mode, std::shared_ptr<ListAdapter>(adapter)); }
 
+    /// \copydoc List(SelectionMode mode, ListAdapter *adapter)
     List(SelectionMode mode, const std::shared_ptr<ListAdapter> &adapter)
     { initialize(mode, adapter); }
 
+    /// Destructor.
     virtual ~List();
   protected:
+    /// Initializes the list widget.
     void initialize(SelectionMode mode, const std::shared_ptr<ListAdapter> &adapter);
   public:
+    ///
+    /// Returns the selection mode of the list widget.
+    ///
+    /// The selection mode of the list widget is determines whether a single
+    /// item or more items can be selected. By default, a single item just can
+    /// be selected.
+    ///
     SelectionMode selection_mode() const
     { return _M_selection_mode; }
 
+    /// Sets the selection mode of the list widget.
     void set_selection_mode(SelectionMode mode)
     { _M_selection_mode = mode; }
 
+    /// Returns the positions of the selected items.
     const std::set<std::size_t> &selected_poses() const
     { return _M_selected_poses; }
 
+    /// Sets the positions of the selected items.
     void set_selected_poses(std::initializer_list<std::size_t> poses)
     { set_selected_poses(std::set<std::size_t>(poses)); }
-    
+
+    /// \copydoc set_selected_poses(std::initializer_list<std::size_t> poses)
     void set_selected_poses(const std::list<std::size_t> &poses)
     { set_selected_poses(std::set<std::size_t>(poses.begin(), poses.end())); }
 
+    /// \copydoc set_selected_poses(std::initializer_list<std::size_t> poses)
     void set_selected_poses(const std::vector<std::size_t> &poses)
     { set_selected_poses(std::set<std::size_t>(poses.begin(), poses.end())); }
 
+    /// \copydoc set_selected_poses(std::initializer_list<std::size_t> poses)
     void set_selected_poses(const std::set<std::size_t> &poses);
 
+    /// Returns the list adapter of the list widget.
     const std::shared_ptr<ListAdapter> &adapter() const
     { return _M_adapter; }
 
+    /// Sets the list adapter of the list widget.
     void set_adapter(ListAdapter *adapter)
     { _M_adapter = std::shared_ptr<ListAdapter>(adapter); }
 
+    /// \copydoc set_adapter(ListAdapter *adapter)
     void set_adapter(const std::shared_ptr<ListAdapter> &adapter)
     { _M_adapter = adapter; }
 
+    /// Selects all items of the list widget.
     void select_all();
-    
+
+    /// Selects the item if this item is deselected, otherwise deselects the
+    /// item.
     void change_selection(std::size_t pos)
     { change_selection(Range<std::size_t>(pos, pos + 1)); }
 
+    /// Selects the deslected items and deselects the selected items.
     void change_selection(const Range<std::size_t> &range);
 
+    /// Clears the item selection.
     void clear_selection();
 
+    /// Returns the listener for the selection changes.
     const OnListSelectionListener &on_list_selection_listener() const
     { return _M_on_list_selection_listener; }
 
+    /// Sets the listener for the selection changes.
     void set_on_list_selection_listener(const OnListSelectionListener &listener)
     { _M_on_list_selection_listener = listener; }
 
@@ -1046,9 +1720,19 @@ namespace waytk
 
     virtual void on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
 
+    /// This method is invoked when the selection is changes.
     virtual void on_list_selection(const std::set<std::size_t> &poses);
   };
 
+  ///
+  /// A table widget displays cells of a table.
+  ///
+  /// The table widget displays cells on grid. Also, headers with labels can be
+  /// displayed on top of the table widget. One of the cells or more cells can
+  /// be selected. The table widget allows to use shortcuts for a selection if
+  /// more than one cells can be selected. The table adapter of the table
+  /// widget creates cell widgets which are creates for visible cells.
+  ///
   class Table : public Widget
   {
     SelectionMode _M_selection_mode;
@@ -1057,113 +1741,161 @@ namespace waytk
     std::shared_ptr<TableAdapter> _M_adapter;
     OnTableSelectionListener _M_on_table_selection_listener;
   protected:
+    /// Constructor that doesn't invoke the \ref initialize method.
     Table(Unused unused) {}
   public:
+    /// Creates a new table widget with a specified number of columns.
     explicit Table(std::size_t column_count)
     { initialize(SelectionMode::SINGLE, {}, std::shared_ptr<TableAdapter>(new StringTableAdapter(column_count))); }
 
+    /// Creates a new table widget with cells.
     explicit Table(std::initializer_list<std::initializer_list<std::string>> cells)
     { initialize(SelectionMode::SINGLE, {}, std::shared_ptr<TableAdapter>(new StringTableAdapter(cells))); }
 
+    /// Creates a new table widget with an adapter.
     explicit Table(TableAdapter *adapter)
     { initialize(SelectionMode::SINGLE, {}, std::shared_ptr<TableAdapter>(adapter)); }
 
+    /// \copydoc Table(TableAdapter *adapter)
     explicit Table(const std::shared_ptr<TableAdapter> &adapter)
     { initialize(SelectionMode::SINGLE, {}, adapter); }
 
+    /// Creates a new table widget with headers.
     explicit Table(std::initializer_list<std::string> header_labels)
     { initialize(SelectionMode::SINGLE, header_labels, std::shared_ptr<TableAdapter>(new StringTableAdapter(header_labels.size()))); }
 
+    /// Creates a new table widget with headers and cells.
     Table(std::initializer_list<std::string> header_labels, std::initializer_list<std::initializer_list<std::string>> cells)
     { initialize(SelectionMode::SINGLE, header_labels, std::shared_ptr<TableAdapter>(new StringTableAdapter(cells))); }
 
+    /// Creates a new table widget with headers and an adapter.
     Table(std::initializer_list<std::string> header_labels, TableAdapter *adapter)
     { initialize(SelectionMode::SINGLE, header_labels, std::shared_ptr<TableAdapter>(adapter)); }
 
+    /// \copydoc Table(std::initializer_list<std::string> header_labels, TableAdapter *adapter)
     Table(std::initializer_list<std::string> header_labels, const std::shared_ptr<TableAdapter> &adapter)
     { initialize(SelectionMode::SINGLE, header_labels, adapter); }
 
+    /// Creates a new table widget with a selection mode and a specified number
+    /// of columns.
     Table(SelectionMode mode, std::size_t column_count)
     { initialize(mode, {}, std::shared_ptr<TableAdapter>(new StringTableAdapter(column_count))); }
 
+    /// Creates a new table widget with a selection mode and cells.
     Table(SelectionMode mode, std::initializer_list<std::initializer_list<std::string>> cells)
     { initialize(mode, {}, std::shared_ptr<TableAdapter>(new StringTableAdapter(cells))); }
 
+    /// Creates a new table widget with a selection mode and an adatper.
     Table(SelectionMode mode, TableAdapter *adapter)
     { initialize(mode, {}, std::shared_ptr<TableAdapter>(adapter)); }
 
+    /// \copydoc Table(SelectionMode mode, TableAdapter *adapter)
     Table(SelectionMode mode, const std::shared_ptr<TableAdapter> &adapter)
     { initialize(mode, {}, adapter); }
 
+    /// Creates a new table widget with a selection mode and headers.
     Table(SelectionMode mode, std::initializer_list<std::string> header_labels)
     { initialize(mode, header_labels, std::shared_ptr<TableAdapter>(new StringTableAdapter(header_labels.size()))); }
 
+    /// Creates a new table widget with a selection mode, headers, and cells.
     Table(SelectionMode mode, std::initializer_list<std::string> header_labels, std::initializer_list<std::initializer_list<std::string>> cells)
     { initialize(mode, header_labels, std::shared_ptr<TableAdapter>(new StringTableAdapter(cells))); }
 
+    /// Creates a new table widget with a selection mode, headers, and an
+    /// adapter.
     Table(SelectionMode mode, std::initializer_list<std::string> header_labels, TableAdapter *adapter)
     { initialize(mode, header_labels, std::shared_ptr<TableAdapter>(adapter)); }
 
+    /// \copydoc Table(SelectionMode mode, std::initializer_list<std::string> header_labels, TableAdapter *adapter)
     Table(SelectionMode mode, std::initializer_list<std::string> header_labels, const std::shared_ptr<TableAdapter> &adapter)
     { initialize(mode, header_labels, adapter); }
-    
+
+    /// Destructor.
     virtual ~Table();
   protected:
+    /// Initializes the table widget.
     void initialize(SelectionMode selection_mode, std::initializer_list<std::string> header_labels, const std::shared_ptr<TableAdapter> &adapter);
   public:
+    ///
+    /// Returns the selection mode of the table widget.
+    ///
+    /// The selection mode of the table widget is determines whether a single
+    /// item or more items can be selected. By default, a single item just can be
+    /// selected.
+    ///
     SelectionMode selection_mode() const
     { return _M_selection_mode; }
 
+    /// Sets the selection mode of the table widget.
     void set_selection_mode(SelectionMode mode)
     { _M_selection_mode = mode; }
 
+    /// Returns the header labels of the table widget.
     const std::vector<std::string> &header_labels() const
     { return _M_header_labels; }
 
+    /// Sets the header labels of the table widget.
     void set_header_labels(std::initializer_list<std::string> header_labels)
     { set_header_labels(std::vector<std::string>(header_labels)); }
 
+    /// \copydoc set_header_labels(std::initializer_list<std::string> header_labels)
     void set_header_labels(const std::list<std::string> &header_labels)
     { set_header_labels(std::vector<std::string>(header_labels.begin(), header_labels.end())); }
 
+    /// \copydoc set_header_labels(std::initializer_list<std::string> header_labels)
     void set_header_labels(const std::vector<std::string> &header_labels)
     { _M_header_labels = header_labels; }
 
+    /// Returns the position of the selected cells.
     const std::set<TablePosition, TablePositionCompare> &selected_poses() const
     { return _M_selected_poses; }
 
+    /// Sets the position of the selected cells.
     void set_selected_poses(std::initializer_list<TablePosition> poses)
     { set_selected_poses(std::set<TablePosition, TablePositionCompare>(poses)); }
 
+    /// \copydoc set_selected_poses(std::initializer_list<TablePosition> poses)
     void set_selected_poses(const std::list<TablePosition> &poses)
     { set_selected_poses(std::set<TablePosition, TablePositionCompare>(poses.begin(), poses.end())); }
     
+    /// \copydoc set_selected_poses(std::initializer_list<TablePosition> poses)
     void set_selected_poses(const std::vector<TablePosition> &poses)
     { set_selected_poses(std::set<TablePosition, TablePositionCompare>(poses.begin(), poses.end())); }
 
+    /// \copydoc set_selected_poses(std::initializer_list<TablePosition> poses)
     void set_selected_poses(const std::set<TablePosition, TablePositionCompare> &poses);
 
+    /// Returns the table adapter of the table widget.
     const std::shared_ptr<TableAdapter> &adapter() const
     { return _M_adapter; }
 
+    /// Sets the table adapter of the table widget.
     void set_adapter(TableAdapter *adapter)
     { _M_adapter = std::shared_ptr<TableAdapter>(adapter); }
 
+    /// \copydoc set_adapter(TableAdapter *adapter)
     void set_adapter(const std::shared_ptr<TableAdapter> &adapter)
     { _M_adapter = adapter; }
 
+    /// Selects all cells.
     void select_all();
-    
+
+    /// Selects the cell if this cell is deselected, otherwise deselects the
+    /// cell.
     void change_selection(std::size_t row, std::size_t column)
     { change_selection(Range<std::size_t>(row, row + 1), Range<std::size_t>(column, column + 1)); }
 
+    /// Selects the deslected cells and deselects the selected cells.
     void change_selection(const Range<std::size_t> &row_range, const Range<std::size_t> &column_range);
 
+    /// Clears the item selection.
     void clear_selection();
 
+    /// Returns the listener for the selection changes.
     const OnTableSelectionListener &on_table_selection_listener() const
     { return _M_on_table_selection_listener; }
 
+    /// Sets the listener for the selection changes.
     void set_on_table_selection_listener(const OnTableSelectionListener &listener)
     { _M_on_table_selection_listener = listener; }
 
@@ -1177,9 +1909,20 @@ namespace waytk
 
     virtual void on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
 
+    /// This method is invoked when the selection is changes.
     virtual void on_table_selection(const std::set<TablePosition, TablePositionCompare> &poses);
   };
 
+  ///
+  /// A tree widget displays trees.
+  ///
+  /// Branch of trees can be expanded or unexpended. Descendants of a branch
+  /// are displayed if branches are expanded, otherwise is hidden. One of the
+  /// nodes of tree or more notes of tree can be selected by an user. If more
+  /// than on node of the tree widget can be selected, an user can use
+  /// shortcuts for a selection. Nodes of trees are displayed by displaying the
+  /// widgets and these widgets are which are creates by the tree adapter.
+  ///
   class Tree : public Widget
   {
     struct ExtendedNode
@@ -1195,68 +1938,105 @@ namespace waytk
     std::size_t _M_row_count;
     OnTreeSelectionListener _M_on_tree_selection_listener;
   protected:
+    /// Constructor that doesn't invoke the \ref initialize method.
     Tree(Unused unused) {}
   public:
+    /// Creates a new tree widget.
     Tree()
     { initialize(SelectionMode::SINGLE, std::shared_ptr<TreeAdapter>(new StringTreeAdapter())); }
 
+    /// Creates a new tree widget with nodes.
     explicit Tree(std::initializer_list<StringTreeNode> nodes)
     { initialize(SelectionMode::SINGLE, std::shared_ptr<TreeAdapter>(new StringTreeAdapter(nodes))); }
 
+    /// Creates a new tree widget with an adapter.
     explicit Tree(TreeAdapter *adapter)
     { initialize(SelectionMode::SINGLE, std::shared_ptr<TreeAdapter>(adapter)); }
 
+    /// \copydoc Tree(TreeAdapter *adapter)
     explicit Tree(const std::shared_ptr<TreeAdapter> &adapter)
     { initialize(SelectionMode::SINGLE, adapter); }
 
+    /// Creates a new tree widget with a seletion mode.
     explicit Tree(SelectionMode selection_mode)
     { initialize(selection_mode, std::shared_ptr<TreeAdapter>(new StringTreeAdapter())); }
 
+    /// Creates a new tree widget with a selection mode with nodes.
     Tree(SelectionMode selection_mode, std::initializer_list<StringTreeNode> nodes)
     { initialize(selection_mode, std::shared_ptr<TreeAdapter>(new StringTreeAdapter(nodes))); }
 
+    /// Creates a new tree widget with a selection mode with an adapter.
     Tree(SelectionMode selection_mode, TreeAdapter *adapter)
     { initialize(selection_mode, std::shared_ptr<TreeAdapter>(adapter)); }
 
+    /// \copydoc Tree(SelectionMode selection_mode, TreeAdapter *adapter)
     Tree(SelectionMode selection_mode, const std::shared_ptr<TreeAdapter> &adapter)
     { initialize(selection_mode, adapter); }
 
+    /// Destructor.
     virtual ~Tree();
   protected:
+    /// Initializes the tree widget.
     void initialize(SelectionMode selection_mode, const std::shared_ptr<TreeAdapter> &adapter);
   public:
+    /// Returns the selection mode of the tree widget.
     SelectionMode selection_mode() const
     { return _M_selection_mode; }
 
+    /// Sets the selection mode of the tree widget.
     void set_selection_mode(SelectionMode mode)
     { _M_selection_mode = mode; }
 
+    /// Returns the selected paths of the tree widget.
     const std::set<TreePath, TreePathCompare> &selected_paths() const
     { return _M_selected_paths; }
 
+    /// Sets the selected paths of the tree widget.
     void set_selected_paths(std::initializer_list<TreePath> paths)
     { set_selected_paths(std::set<TreePath, TreePathCompare>(paths)); }
-    
+
+    /// \copydoc set_selected_paths(std::initializer_list<TreePath> paths)
     void set_selected_paths(const std::list<TreePath> &paths)
     { set_selected_paths(std::set<TreePath, TreePathCompare>(paths.begin(), paths.end())); }
     
+    /// \copydoc set_selected_paths(std::initializer_list<TreePath> paths)
     void set_selected_paths(const std::vector<TreePath> &paths)
     { set_selected_paths(std::set<TreePath, TreePathCompare>(paths.begin(), paths.end())); }
 
+    /// \copydoc set_selected_paths(std::initializer_list<TreePath> paths)
     void set_selected_paths(const std::set<TreePath, TreePathCompare> &paths);
 
+    /// Returns the adapter of the tree widget.
     const std::shared_ptr<TreeAdapter> &adapter() const
     { return _M_adapter; }
 
+    /// Sets the adapter of the tree widget.
     void set_adapter(TreeAdapter *adapter)
     { _M_adapter = std::shared_ptr<TreeAdapter>(adapter); }
 
+    /// \copydoc set_adapter(TreeAdapter *adapter)
     void set_adapter(const std::shared_ptr<TreeAdapter> &adapter)
     { _M_adapter = adapter; }
-    
+
+    /// Selects all nodes of the list widget.
+    void select_all();
+
+    /// Selects the node if this node is deselected, otherwise deselects the
+    /// node.
+    void change_selection(std::size_t item_pos)
+    { change_selection(Range<std::size_t>(item_pos, item_pos + 1)); }
+
+    /// Selects the deslected nodes and deselects the selected nodes.
+    void change_selection(const Range<std::size_t> &item_pos_range);
+
+    /// Clears the node selection.
+    void clear_selection();
+
+    /// Returns the listener for the node selection.
     const OnTreeSelectionListener &on_tree_selection_listener() const
     { return _M_on_tree_selection_listener; }
 
+    /// Sets the listener for the node selection.
     void set_on_tree_selection_listener(const OnTreeSelectionListener &listener)
     { _M_on_tree_selection_listener = listener; }
 
@@ -1270,37 +2050,59 @@ namespace waytk
 
     virtual void on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
 
-    virtual void on_table_selection(const std::set<TreePath, TreePathCompare> &paths);
+     /// This method is invoked when the selection is changes.
+     virtual void on_tree_selection(const std::set<TreePath, TreePathCompare> &paths);
   };
 
+  ///
+  /// A scroll widget allows to move a widget at inside.
+  ///
+  /// The scroll widget uses a viewport object of the widget at inside to get
+  /// and set offset at the viewport. This offset is used to display this
+  /// widget at inside.
+  ///
   class Scroll : public Widget
   {
     std::unique_ptr<Widget> _M_widget;
     bool _M_has_h_scroll_bar;
     bool _M_has_v_scroll_bar;
   protected:
+    /// Default constructor that doesn't invoke the \ref initialize method.
     Scroll() {}
   public:
+    /// Creates a new scroll widget with a widget.
     explicit Scroll(Widget *widget);
 
+    /// Destructor.
     virtual ~Scroll();
   protected:
+    /// Initializes the scroll widget.
     void initialize(Widget *widget);
   public:
+    /// Returns the widget of the scroll widget.
     Widget *widget() const
     { return _M_widget.get(); }
 
+    /// Sets the widget of the scroll widget.
     void set_widget(Widget *widget);
 
+    /// Returns \c true if the horizontal scroll bar is enable, otherwise \c
+    /// false.
     bool has_h_scroll_bar() const
     { return _M_has_h_scroll_bar; }
 
+    /// Enables the horizontal scroll bar if \p is_scroll_bar is \c true,
+    /// otherwise disable the horizontal scroll bar.
     void set_h_scroll_bar(bool is_scroll_bar)
     { _M_has_h_scroll_bar = is_scroll_bar; }
 
+    /// Returns \c true if the vertical scroll bar is enable, otherwise \c
+    /// false.
     bool has_v_scroll_bar() const
     { return _M_has_v_scroll_bar; }
 
+    /// Enables the vertical scroll bar if \p is_scroll_bar is \c true,
+    /// otherwise disable the veritical scroll bar.
     void set_v_scroll_bar(bool is_scroll_bar)
     { _M_has_v_scroll_bar = is_scroll_bar; }
 
@@ -1315,23 +2117,36 @@ namespace waytk
     virtual void on_pointer_axis(Axis axis, double value);
   };
 
+  ///
+  /// A menu item is a similar widget to button for a menu.
+  ///
+  /// The menu item like the button can be clicked by an user and reacts this
+  /// clicks.
+  ///
   class MenuItem : public virtual Button
   {
   protected:
+    /// Default constructor that doesn't invoke the \ref initialize method.
     MenuItem() {}
   public:
+    /// Creates a new menu item with a label.
     explicit MenuItem(const std::string &label)
     { initialize(Icon(), label, [](Widget *widget) {}); } 
 
+    /// Creates a new menu item with a label and a specified action on a click.
     MenuItem(const std::string &label, const OnClickListener &listener)
     { initialize(Icon(), label, listener); }
     
+    /// Creates a new menu item with an icon and a label.
     MenuItem(const Icon &icon, const std::string &label)
     { initialize(icon, label, [](Widget *widget) {}); } 
 
+    /// Creates a new menu item with an icon, a label, and a specified action
+    /// on a click.
     MenuItem(const Icon &icon, const std::string &label, const OnClickListener &listener)
     { initialize(icon, label, listener); }
-    
+
+    /// Destructor.
     virtual ~MenuItem();
 
     virtual const char *name() const;
@@ -1339,28 +2154,38 @@ namespace waytk
     virtual void draw(Canvas *canvas);
   };
 
+  ///
+  /// A check menu item is a check box for a menu.
+  ///
   class CheckMenuItem : public MenuItem, public CheckBox
   {
   protected:
+    /// Default constructor that doesn't invoke the \ref initialize method.
     CheckMenuItem() :
       Button(), MenuItem(), CheckBox(Unused()) {}
   public:
+    /// Creates a new check menu item with a label.
     explicit CheckMenuItem(const std::string &label) :
       Button(), MenuItem(), CheckBox(Unused())
     { this->CheckBox::initialize(Icon(), label, false); }
 
+    /// Creates a new check menu item with a label and a specified state.
     CheckMenuItem(const std::string &label, bool is_checked) :
       Button(), MenuItem(), CheckBox(Unused())
     { this->CheckBox::initialize(Icon(), label, is_checked); }
 
+    /// Creates a new check menu item with an icon and a label.
     CheckMenuItem(const Icon &icon, const std::string &label) :
       Button(), MenuItem(), CheckBox(Unused())
     { this->CheckBox::initialize(icon, label, false); }
 
+    /// Creates a new check menu item with an icon, a label, and a specified
+    /// state.
     CheckMenuItem(const Icon &icon, const std::string &label, bool is_checked) :
       Button(), MenuItem(), CheckBox(Unused())
     { this->CheckBox::initialize(icon, label, is_checked); }
 
+    /// Destructor.
     virtual ~CheckMenuItem();
 
     virtual const char *name() const;
@@ -1368,44 +2193,61 @@ namespace waytk
     virtual void draw(Canvas *canvas);
   };
 
+  ///
+  /// A radio menu item is a radio button for a menu.
+  ///
   class RadioMenuItem : public MenuItem, public RadioButton
   {
   protected:
+    /// Default constructor that doesn't invoke the \ref initialize method.
     RadioMenuItem() :
       Button(), MenuItem(), RadioButton(Unused()) {}
   public:
+    /// Creates a new radio menu item with a label.
     explicit RadioMenuItem(const std::string &label) :
       Button(), MenuItem(), RadioButton(Unused())
     { this->RadioButton::initialize(Icon(), label, false, std::shared_ptr<RadioGroup>()); }
 
+    /// Creates a new radio menu item with a label and a specified state.
     RadioMenuItem(const std::string &label, bool is_checked) :
       Button(), MenuItem(), RadioButton(Unused())
     { this->RadioButton::initialize(Icon(), label, is_checked, std::shared_ptr<RadioGroup>()); }
 
+    /// Creates a new radio menu item with a label and a specified state.
     RadioMenuItem(const std::string &label, const std::shared_ptr<RadioGroup> &group) :
       Button(), MenuItem(), RadioButton(Unused())
     { this->RadioButton::initialize(Icon(), label, false, group); }
 
+    /// Creates a new radio menu item with a label and a specified state that
+    /// belongs a specified group.
     RadioMenuItem(const std::string &label, bool is_checked, const std::shared_ptr<RadioGroup> &group) :
       Button(), MenuItem(), RadioButton(Unused())
     { this->RadioButton::initialize(Icon(), label, false, group); }
 
+    /// Creates a new radio menu item with an icon and a label.
     RadioMenuItem(const Icon &icon, const std::string &label) :
       Button(), MenuItem(), RadioButton(Unused())
     { this->RadioButton::initialize(icon, label, false, std::shared_ptr<RadioGroup>()); }
 
+    /// Creates a new radio menu item with an icon, a label, and a specified
+    /// state.
     RadioMenuItem(const Icon &icon, const std::string &label, bool is_checked) :
       Button(), MenuItem(), RadioButton(Unused())
     { this->RadioButton::initialize(icon, label, is_checked, std::shared_ptr<RadioGroup>()); }
 
+    /// Creates a new radio menu item with an icon and a label that belongs to
+    /// a specified group.
     RadioMenuItem(const Icon &icon, const std::string &label, const std::shared_ptr<RadioGroup> &group) :
       Button(), MenuItem(), RadioButton(Unused())
     { this->RadioButton::initialize(icon,label, false, group); }
 
+    /// Creates a new radio menu item with an icon, a label, a specified state
+    /// that belongs to a specified group.
     RadioMenuItem(const Icon &icon, const std::string &label, bool is_checked, const std::shared_ptr<RadioGroup> &group) :
       Button(), MenuItem(), RadioButton(Unused())
     { this->RadioButton::initialize(icon, label, false, group); }
 
+    /// Destructor.
     virtual ~RadioMenuItem();
 
     virtual const char *name() const;
@@ -1413,16 +2255,22 @@ namespace waytk
     virtual void draw(Canvas *canvas);
   };
 
+  ///
+  /// A separator menu item  is a separator for a menu.
+  ///
   class SeparatorMenuItem : public MenuItem
   {
   protected:
+    /// Default constructor that doesn't invoke the \ref initialize method.
     SeparatorMenuItem(Unused unused) :
       Button(), MenuItem() {}
   public:
+    /// Creates a new sepeperator menu item.
     SeparatorMenuItem() :
       Button(), MenuItem()
     { initialize(Icon(), "", [](Widget *widget) {}); }
 
+    /// Destructor.
     virtual ~SeparatorMenuItem();
 
     virtual const char *name() const;
@@ -1430,39 +2278,60 @@ namespace waytk
     virtual void draw(Canvas *canvas);
   };
 
+  ///
+  /// A menu is a menu item that contains menu items.
+  ///
+  /// The menu is a widget that is clickeble and if it is clicked, a popup
+  /// surface pops up with menu items. The menu can be added to other menu or
+  /// a menu bar. If the menu is added onto other menu, the menu is displayed
+  /// as a menu item of other menu.
+  ///
   class Menu : public MenuItem
   {
     std::list<std::unique_ptr<MenuItem>> _M_menu_items;
+  protected:
+    /// Default constructor that doesn't invoke the \ref initialize method.
     Menu() :
       Button(), MenuItem() {}
   public:
+    /// Creates a new menu with a lebel.
     explicit Menu(const std::string &label) :
       Button(), MenuItem()
     { initialize(Icon(), label, {}); }
 
+    /// Creates a new menu with a label and menu items.
     Menu(const std::string &label, std::initializer_list<MenuItem *> menu_items) :
       Button(), MenuItem()
     { initialize(Icon(), label, menu_items); }
 
+    /// Creates a new menu with an icon and a label.
     Menu(const Icon &icon, const std::string &label) :
       Button(), MenuItem()
     { initialize(icon, label, {}); }
 
+    /// Creates a new menu with a label, menu items, and menu items.
     Menu(const Icon &icon, const std::string &label, std::initializer_list<MenuItem *> menu_items) :
       Button(), MenuItem()
     { initialize(icon, label, menu_items); }
 
+    /// Destructor.
     virtual ~Menu();
   protected:
+    /// Initializes the menu.
     void initialize(const Icon &icon, const std::string &label, std::initializer_list<MenuItem *> menu_items);
   public:
+    /// Returns the menu items.
     const std::list<std::unique_ptr<MenuItem>> &menu_items() const
     { return _M_menu_items; }
 
+    /// Adds a new menu item.
     void add_menu_item(MenuItem *menu_item);
 
-    void delete_menu_item(MenuItem *menu_item);
+    /// Tries delete the menu item and returns \c true if the menu item is
+    /// deleted, otherwise \c false.
+    bool delete_menu_item(MenuItem *menu_item);
 
+    /// Deletes all menu items.
     void delete_all_menu_items();
 
     virtual const char *name() const;
@@ -1470,29 +2339,42 @@ namespace waytk
     virtual void draw(Canvas *canvas);
   };
 
+  ///
+  /// A menu bar contains menus. 
+  ///
   class MenuBar : public Widget
   {
     std::list<std::unique_ptr<Menu>> _M_menus;
   protected:
+    /// Constructor that doesn't invoke the \ref initialize method.
     MenuBar(Unused unused) {}
   public:
+    /// Creates a new menu bar.
     MenuBar()
     { initialize({}); }
 
+    /// Creates a new menu bar with menus.
     explicit MenuBar(std::initializer_list<Menu *> menus)
     { initialize(menus); }
 
+    /// Destructor.
     virtual ~MenuBar();
   protected:
+    /// Initializes the menu bar.
     void initialize(std::initializer_list<Menu *> menus);
   public:
+    /// Returns the menus of the menu var.
     const std::list<std::unique_ptr<Menu>> &menus() const
     { return _M_menus; }
 
+    /// Adds a new menu.
     void add_menu(Menu *menu);
 
-    void delete_menu(Menu *menu);
+    /// Tries delete the menu and returns \c true if the menu is deleted,
+    /// otherwise \c false.
+    bool delete_menu(Menu *menu);
 
+    /// Deletes all menus.
     void delete_all_menus();
 
     virtual const char *name() const;

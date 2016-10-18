@@ -28,6 +28,9 @@
 
 namespace waytk
 {
+  ///
+  /// A range structure.
+  ///
   template<typename _T>
   struct Range
   {
@@ -44,6 +47,9 @@ namespace waytk
     { return !(*this == range); }
   };
 
+  ///
+  /// A point structure.
+  ///
   template<typename _T>
   struct Point
   {
@@ -60,6 +66,9 @@ namespace waytk
     { return !(*this == point); }
   };
 
+  ///
+  /// A dimenstion strucure.
+  ///
   template<typename _T>
   struct Dimension
   {
@@ -76,6 +85,9 @@ namespace waytk
     { return !(*this == dim); }
   };
 
+  ///
+  /// A rectangle structure.
+  ///
   template<typename _T>
   struct Rectangle
   {
@@ -93,6 +105,9 @@ namespace waytk
     { return !(*this == rect); }
   };
 
+  ///
+  /// A text position structure.
+  ///
   struct TextPosition
   {
     std::size_t line, column;
@@ -103,6 +118,9 @@ namespace waytk
       line(line), column(column) {}
   };
 
+  ///
+  /// A table position structure.
+  ///
   struct TablePosition
   {
     std::size_t row, column;
@@ -113,6 +131,9 @@ namespace waytk
       row(row), column(column) {}
   };
 
+  ///
+  /// A tree path structure.
+  ///
   struct TreePath
   {
     std::list<std::size_t> nodes;
@@ -126,6 +147,9 @@ namespace waytk
       nodes(nodes) {}
   };
 
+  ///
+  /// A structure that has values of edges.
+  ///
   template<typename _T>
   struct Edges
   {
@@ -137,6 +161,9 @@ namespace waytk
       top(top), right(right), bottom(bottom), left(left) {}
   };
   
+  ///
+  /// A structure that has values of corners.
+  ///
   template<typename _T>
   struct Corners
   {

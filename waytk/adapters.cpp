@@ -129,14 +129,14 @@ namespace waytk
   { return new Label(node(path).value); }
 
   size_t StringTreeAdapter::child_count(const TreePath &path) const
-  { return node(path).childs.size(); }
+  { return node(path).children.size(); }
 
   const StringTreeNode &StringTreeAdapter::node(const TreePath &path) const
   {
     const vector<StringTreeNode> *tmp_nodes = &_M_nodes;
     vector<StringTreeNode>::const_iterator tmp_node_iter;
     for(auto &node_idx : path.nodes) {
-      tmp_nodes = &((*tmp_nodes)[node_idx].childs);
+      tmp_nodes = &((*tmp_nodes)[node_idx].children);
       tmp_node_iter = (*tmp_nodes).begin() + node_idx;
     }
     return *tmp_node_iter;
