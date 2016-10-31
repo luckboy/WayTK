@@ -382,13 +382,13 @@ namespace waytk
   /// A widget class that is base for all widgets.
   ///
   /// Widgets are drawn on a surface and react on an user actions. The widget
-  /// display and the widget behavior are specified by properties of this
-  /// class. The widget reactions can be specified by setting the listeners of
-  /// the widget. The listeners of the widgets are invoked when an appropriate
-  /// event is received. For example, the widget events are: key press, touch,
-  /// and pressing of pointer button. Each widget mustn't be used as child in
-  /// more then one other widget. The widget must be deleted from own parent
-  /// if the widget will be added onto other parent.
+  /// display and the widget behavior are specified by properties of this class
+  /// The widget reactions can be specified by setting the listeners of the
+  /// widget. The listeners of the widgets are invoked when an appropriate event
+  /// is received. For example, the widget events are: key press, touch, and
+  /// pressing of pointer button. Each widget mustn't be used as child in more
+  /// then one other widget. The widget must be deleted from own parent if the
+  /// widget will be added onto other parent.
   ///
   class Widget
   {
@@ -583,12 +583,12 @@ namespace waytk
     ///
     /// A touch event occurs when:
     ///
-    /// \li an user starts the widget touch or presses a pointer button
-    ///     (touch state is \ref TouchState::DOWN),
+    /// \li an user starts the widget touch or presses a pointer button (touch
+    ///     state is \ref TouchState::DOWN),
     /// \li an user moves figer or moves the pointer with a pressed button
     ///     (touch state is \ref TouchState::MOTION),
-    /// \li an user ends the widget touch or releases a pointer button
-    ///     (touch state is \ref TouchState::UP).
+    /// \li an user ends the widget touch or releases a pointer button (touch
+    ///     state is \ref TouchState::UP).
     ///
     /// It is possible that more touches can be at same time. Each touch is
     /// identified by the touch pointer with the touch identifier. If the touch
@@ -923,8 +923,8 @@ namespace waytk
     ///
     /// Inserts a new text into the text of the text widget.
     ///
-    /// The new text is inserted after the cursor. The cursor is moved after
-    /// the last inserted character.
+    /// The new text is inserted after the cursor. The cursor is moved after the
+    /// last inserted character.
     ///
     void insert_string(const std::string &str);
 
@@ -974,8 +974,8 @@ namespace waytk
     ///
     /// Returns \c true if the word wrapping, otherwise \c false.
     ///
-    /// If the word wrapping and the line wraping are enabled, the words can
-    /// be breaked. By default, the word wrapping is disabled.
+    /// If the word wrapping and the line wraping are enabled, the words can be
+    /// breaked. By default, the word wrapping is disabled.
     ///
     bool has_word_wrap() const
     { return _M_has_word_wrap; }
@@ -989,8 +989,8 @@ namespace waytk
     bool is_editable() const
     { return _M_is_editable; }
 
-    /// Sets the text widget as editable if \p is_editable is \c true,
-    /// otherwise the widget as uneditable.
+    /// Sets the text widget as editable if \p is_editable is \c true, otherwise
+    /// the widget as uneditable.
     void set_editable(bool is_editable)
     { _M_is_editable = is_editable; }
 
@@ -1143,8 +1143,8 @@ namespace waytk
   ///
   /// A radio button is a toggle button that is a option to choose.
   ///
-  /// Radio buttons can be grouped and if they are grouped, just one of them
-  /// can be checked. If the radio buttons aren't grouped, they behave as check
+  /// Radio buttons can be grouped and if they are grouped, just one of them can
+  /// be checked. If the radio buttons aren't grouped, they behave as check
   /// boxes.
   ///
   class RadioButton : public CheckBox
@@ -1221,8 +1221,8 @@ namespace waytk
   /// A combo box is a button with drop-down list.
   ///
   /// When this button is clicked, the drop-down list is displayed. This list
-  /// has options, one of them can be selected. The selected option is
-  /// displayed on the combo box.
+  /// has options, one of them can be selected. The selected option is displayed
+  /// on the combo box.
   ///
   class ComboBox : public Button
   {
@@ -1332,8 +1332,8 @@ namespace waytk
     ///
     /// Returns the value of the progress bar.
     ///
-    /// The value of the progress bar indicates a progress. By default,
-    /// the value is \c 0.
+    /// The value of the progress bar indicates a progress. By default, the
+    /// value is \c 0.
     ///
     int value() const
     { return _M_value; }
@@ -1504,8 +1504,7 @@ namespace waytk
     explicit GridPanel(int column_count)
     { initialize(column_count, {}); }
 
-    /// Creates a new grid panel with a specified number of columns and
-    /// widgets.
+    /// Creates a new grid panel with a specified number of columns and widgets.
     GridPanel(int column_count, std::initializer_list<Widget *> widgets)
     { initialize(column_count, widgets); }
 
@@ -1531,9 +1530,9 @@ namespace waytk
   ///
   /// A split pane contains two widgets.
   ///
-  /// Two widgets of the split pane display as left and right or top and
-  /// bottom. Widths of two widgets or heights of two widgets can be adjusted
-  /// by an user.
+  /// Two widgets of the split pane display as left and right or top and bottom
+  /// Widths of two widgets or heights of two widgets can be adjusted by an
+  /// user.
   ///
   class SplitPane : public Widget
   {
@@ -1593,10 +1592,10 @@ namespace waytk
   ///
   /// A list widget displays items of a list.
   ///
-  /// The list widget allows to select a single item or more items. If more
-  /// than one item can be selected, an user can use shortcuts for a selection.
-  /// Each item is displayed as a new widget that was created by a list adapter
-  /// of the list widget. The item widgets are created for visible items and
+  /// The list widget allows to select a single item or more items. If more than
+  /// one item can be selected, an user can use shortcuts for a selection. Each
+  /// item is displayed as a new widget that was created by a list adapter of
+  /// the list widget. The item widgets are created for visible items and
   /// destroyed if these items are invisible.
   ///
   class List : public Widget
@@ -1735,8 +1734,8 @@ namespace waytk
   /// The table widget displays cells on grid. Also, headers with labels can be
   /// displayed on top of the table widget. One of the cells or more cells can
   /// be selected. The table widget allows to use shortcuts for a selection if
-  /// more than one cells can be selected. The table adapter of the table
-  /// widget creates cell widgets which are creates for visible cells.
+  /// more than one cells can be selected. The table adapter of the table widget
+  /// creates cell widgets which are creates for visible cells.
   ///
   class Table : public Widget
   {
@@ -1825,8 +1824,8 @@ namespace waytk
     /// Returns the selection mode of the table widget.
     ///
     /// The selection mode of the table widget is determines whether a single
-    /// item or more items can be selected. By default, a single item just can be
-    /// selected.
+    /// item or more items can be selected. By default, a single item just can
+    /// be selected.
     ///
     SelectionMode selection_mode() const
     { return _M_selection_mode; }
@@ -1921,12 +1920,12 @@ namespace waytk
   ///
   /// A tree widget displays trees.
   ///
-  /// Branch of trees can be expanded or unexpended. Descendants of a branch
-  /// are displayed if branches are expanded, otherwise is hidden. One of the
-  /// nodes of tree or more notes of tree can be selected by an user. If more
-  /// than on node of the tree widget can be selected, an user can use
-  /// shortcuts for a selection. Nodes of trees are displayed by displaying the
-  /// widgets and these widgets are which are creates by the tree adapter.
+  /// Branch of trees can be expanded or unexpended. Descendants of a branch are
+  /// displayed if branches are expanded, otherwise is hidden. One of the nodes
+  /// of tree or more notes of tree can be selected by an user. If more than on
+  /// node of the tree widget can be selected, an user can use shortcuts for a
+  /// selection. Nodes of trees are displayed by displaying the widgets and
+  /// these widgets are which are creates by the tree adapter.
   ///
   class Tree : public Widget
   {
@@ -2063,8 +2062,8 @@ namespace waytk
   /// A scroll widget allows to move a widget at inside.
   ///
   /// The scroll widget uses a viewport object of the widget at inside to get
-  /// and set offset at the viewport. This offset is used to display this
-  /// widget at inside.
+  /// and set offset at the viewport. This offset is used to display this widget
+  /// at inside.
   ///
   class Scroll : public Widget
   {
@@ -2091,8 +2090,8 @@ namespace waytk
     /// Sets the widget of the scroll widget.
     void set_widget(Widget *widget);
 
-    /// Returns \c true if the horizontal scroll bar is enable, otherwise \c
-    /// false.
+    /// Returns \c true if the horizontal scroll bar is enable, otherwise
+    /// \c false.
     bool has_h_scroll_bar() const
     { return _M_has_h_scroll_bar; }
 
@@ -2101,8 +2100,8 @@ namespace waytk
     void set_h_scroll_bar(bool is_scroll_bar)
     { _M_has_h_scroll_bar = is_scroll_bar; }
 
-    /// Returns \c true if the vertical scroll bar is enable, otherwise \c
-    /// false.
+    /// Returns \c true if the vertical scroll bar is enable, otherwise
+    /// \c false.
     bool has_v_scroll_bar() const
     { return _M_has_v_scroll_bar; }
 
@@ -2240,8 +2239,8 @@ namespace waytk
       Button(), MenuItem(), RadioButton(Unused())
     { this->RadioButton::initialize(icon, label, is_checked, std::shared_ptr<RadioGroup>()); }
 
-    /// Creates a new radio menu item with an icon and a label that belongs to
-    /// a specified group.
+    /// Creates a new radio menu item with an icon and a label that belongs to a
+    /// specified group.
     RadioMenuItem(const Icon &icon, const std::string &label, const std::shared_ptr<RadioGroup> &group) :
       Button(), MenuItem(), RadioButton(Unused())
     { this->RadioButton::initialize(icon,label, false, group); }
@@ -2287,9 +2286,9 @@ namespace waytk
   /// A menu is a menu item that contains menu items.
   ///
   /// The menu is a widget that is clickeble and if it is clicked, a popup
-  /// surface pops up with menu items. The menu can be added to other menu or
-  /// a menu bar. If the menu is added onto other menu, the menu is displayed
-  /// as a menu item of other menu.
+  /// surface pops up with menu items. The menu can be added to other menu or a
+  /// menu bar. If the menu is added onto other menu, the menu is displayed as a
+  /// menu item of other menu.
   ///
   class Menu : public MenuItem
   {
