@@ -31,6 +31,7 @@
 namespace waytk
 {
   class Canvas;
+  class CanvasModifiableImage;
 
   enum class Antialias
   {
@@ -166,50 +167,116 @@ namespace waytk
   class CanvasPattern
   {
   protected:
+    class Native { char _M_pad; Native() {} };
+
     CanvasPattern() {}
   public:
     virtual ~CanvasPattern();
+  protected:
+    virtual Native *native() = 0;
+
+    friend class Canvas;
   };
 
   class CanvasImage
   {
   protected:
-    CanvasImage();
+    class Native { char _M_pad; Native() {} };
+
+    CanvasImage() {}
   public:
     virtual ~CanvasImage();
 
-    virtual Canvas *canvas() = 0;
-
     virtual Dimension<int> size() = 0;
+
+    virtual bool is_modifiable() const;
+
+    virtual Canvas *canvas();
+
+    virtual bool is_scalable() const;
+    
+    CanvasImage *scale(double x)
+    { return scale(Point<double>(x, x)); }
+
+    CanvasImage *scale(double x, double y)
+    { return scale(Point<double>(x, y)); }
+
+    virtual CanvasImage *scale(const Point<double> &sp);
+
+    virtual CanvasModifiableImage *modifiable_image();
+  protected:
+    virtual Native *native() = 0;
+
+    friend class Canvas;
   };
-  
+
+  class CanvasModifiableImage : public virtual CanvasImage
+  {
+  protected:
+    CanvasModifiableImage() {}
+  public:
+    virtual ~CanvasModifiableImage();
+
+    virtual bool is_modifiable() const;
+  };
+
+  class CanvasScalableImage : public virtual CanvasImage
+  {
+  protected:
+    CanvasScalableImage() {}
+  public:
+    virtual ~CanvasScalableImage();
+
+    virtual bool is_scalable() const;
+  };
+
   class CanvasPath
   {
   protected:
+    class Native { char _M_pad; Native() {} };
+
     CanvasPath() {}
   public:
     virtual ~CanvasPath();
+  protected:
+    virtual Native *native() = 0;
+
+    friend class Canvas;
   };
 
   class CanvasTransformation
   {
   protected:
+    class Native { char _M_pad; Native() {} };
+
     CanvasTransformation() {}
   public:
     virtual ~CanvasTransformation();
+  protected:
+    virtual Native *native() = 0;
+
+    friend class Canvas;
   };
 
   class CanvasFontFace
   {
   protected:
+    class Native { char _M_pad; Native() {} };
+
     CanvasFontFace() {}
   public:
     virtual ~CanvasFontFace();
+  protected:
+    virtual Native *native() = 0;
+
+    friend class Canvas;
   };
 
   class Canvas
   {
   protected:
+    class Native { char _M_pad; Native() {} };
+
     Canvas() {}
   public:
     virtual ~Canvas();
@@ -240,19 +307,22 @@ namespace waytk
 
     virtual void set_linear_gradient(const Point<double> &p1, const Point<double> &p2, const std::vector<ColorStop> &color_stops) = 0;
 
-    void set_radial_gradient(double x1, double y1, double angle1, double x2, double y2, double angle2, std::initializer_list<ColorStop> color_stops)
-    { set_radial_gradient(Point<double>(x1, y1), angle1, Point<double>(x2, y2), angle2, color_stops); }
+    void set_radial_gradient(double x1, double y1, double radius1, double x2, double y2, double radius2, std::initializer_list<ColorStop> color_stops)
+    { set_radial_gradient(Point<double>(x1, y1), radius1, Point<double>(x2, y2), radius2, color_stops); }
 
-    virtual void set_radial_gradient(const Point<double> &p1, double angle1, const Point<double> &p2, double angle2, std::initializer_list<ColorStop> color_stops) = 0;
+    virtual void set_radial_gradient(const Point<double> &p1, double radius1, const Point<double> &p2, double radius2, std::initializer_list<ColorStop> color_stops) = 0;
 
-    void set_radial_gradient(double x1, double y1, double angle1, double x2, double y2, double angle2, const std::vector<ColorStop> &color_stops)
-    { set_radial_gradient(Point<double>(x1, y1), angle1, Point<double>(x2, y2), angle2, color_stops); }
+    void set_radial_gradient(double x1, double y1, double radius1, double x2, double y2, double radius2, const std::vector<ColorStop> &color_stops)
+    { set_radial_gradient(Point<double>(x1, y1), radius1, Point<double>(x2, y2), radius2, color_stops); }
 
-    virtual void set_radial_gradient(const Point<double> &p1, double angle1, const Point<double> &p2, double angle2, const std::vector<ColorStop> &color_stops) = 0;
+    virtual void set_radial_gradient(const Point<double> &p1, double radius1, const Point<double> &p2, double radius2, const std::vector<ColorStop> &color_stops) = 0;
 
-    virtual void set_image(CanvasImage *image) = 0;
+    void set_image(CanvasImage *image, double x, double y)
+    { set_image(image, x, y); }
+
+    virtual void set_image(CanvasImage *image, const Point<double> &p) = 0;
     
-    virtual Antialias set_antialias() = 0;
+    virtual Antialias antialias() = 0;
 
     virtual void set_antialias(Antialias antialias) = 0;
     
@@ -420,17 +490,32 @@ namespace waytk
     virtual void get_text_matrics(const char *utf8, TextMetrics &text_metrics) = 0;
 
     virtual void get_text_matrics(const std::string &utf8, TextMetrics &text_metrics) = 0;
+  protected:
+    CanvasPattern::Native *native_pattern(CanvasPattern *pattern) const
+    { return pattern->native(); }
+
+    CanvasImage::Native *native_image(CanvasImage *image) const
+    { return image->native(); }
+
+    CanvasPath::Native *native_path(CanvasPath *path) const
+    { return path->native(); }
+
+    CanvasTransformation::Native *native_transformation(CanvasTransformation *transformation) const
+    { return transformation->native(); }
+
+    CanvasFontFace::Native *native_font_face(CanvasFontFace *font_face) const
+    { return font_face->native(); }
   };
 
-  CanvasImage *new_canvas_image(const Dimension<int> &size);
+  CanvasModifiableImage *new_canvas_modifiable_image(const Dimension<int> &size);
 
-  inline CanvasImage *new_canvas_image(int width, int height)
-  { return new_canvas_image(Dimension<int>(width, height)); }
+  inline CanvasModifiableImage *new_canvas_modifiable_image(int width, int height)
+  { return new_canvas_modifiable_image(Dimension<int>(width, height)); }
 
-  CanvasImage *new_canvas_image(const Dimension<int> &size, int stride, void *data);
+  CanvasModifiableImage *new_canvas_modifiable_image(const Dimension<int> &size, int stride, void *data);
 
-  inline CanvasImage *new_canvas_image(int width, int height, int stride, void *data)
-  { return new_canvas_image(Dimension<int>(width, height), stride, data); }
+  inline CanvasModifiableImage *new_canvas_modifiable_image(int width, int height, int stride, void *data)
+  { return new_canvas_modifiable_image(Dimension<int>(width, height), stride, data); }
 
   CanvasImage *load_canvas_image(const std::string &file_name);
 }

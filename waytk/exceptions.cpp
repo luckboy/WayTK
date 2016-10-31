@@ -19,21 +19,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _WAYTK_HPP
-#define _WAYTK_HPP
-
-#include <waytk/adapters.hpp>
-#include <waytk/canvas.hpp>
-#include <waytk/exceptions.hpp>
-#include <waytk/modifiers.hpp>
-#include <waytk/structs.hpp>
-#include <waytk/surface.hpp>
-#include <waytk/text_buffer.hpp>
-#include <waytk/util.hpp>
-#include <waytk/widgets.hpp>
+#include <waytk.hpp>
 
 namespace waytk
 {
-}
+  //
+  // An Exception class.
+  //
+  
+  Exception::~Exception() throw() {}
 
-#endif
+  const char *Exception::what() const throw()
+  { return _M_msg; }
+
+  //
+  // A RuntimeException class.
+  //
+
+  RuntimeException::~RuntimeException() throw() {}
+
+  //
+  // An IOException class.
+  //
+
+  IOException::~IOException() throw() {}
+
+  //
+  // A FileFormatException class.
+  //
+
+  FileFormatException::~FileFormatException() throw() {}
+
+  //
+  // A CanvasException class.
+  //
+
+  CanvasException::~CanvasException() throw() {}
+}

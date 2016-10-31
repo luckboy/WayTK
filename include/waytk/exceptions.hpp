@@ -19,21 +19,60 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _WAYTK_HPP
-#define _WAYTK_HPP
+#ifndef _WAYTK_EXCEPTIONS_HPP
+#define _WAYTK_EXCEPTIONS_HPP
 
-#include <waytk/adapters.hpp>
-#include <waytk/canvas.hpp>
-#include <waytk/exceptions.hpp>
-#include <waytk/modifiers.hpp>
-#include <waytk/structs.hpp>
-#include <waytk/surface.hpp>
-#include <waytk/text_buffer.hpp>
-#include <waytk/util.hpp>
-#include <waytk/widgets.hpp>
+#include <exception>
 
 namespace waytk
 {
+  class Exception : public std::exception
+  {
+    const char *_M_msg;
+  public:
+    Exception(const char *msg) throw() :
+      _M_msg(msg) {}
+
+    virtual ~Exception() throw();
+
+    virtual const char *what() const throw();
+  };
+
+  class RuntimeException : public Exception
+  {
+  public:
+    RuntimeException(const char *msg) throw() :
+      Exception(msg) {}
+
+    virtual ~RuntimeException() throw();
+  };
+
+  class IOException : public Exception
+  {
+  public:
+    IOException(const char *msg) throw() :
+      Exception(msg) {}
+
+    virtual ~IOException() throw();
+  };
+
+  class FileFormatException : public Exception
+  {
+  public:
+    FileFormatException(const char *msg) throw() :
+      Exception(msg) {}
+
+    virtual ~FileFormatException() throw();
+  };
+
+  class CanvasException : public Exception
+  {
+  public:
+    CanvasException(const char *msg) throw() :
+      Exception(msg) {}
+
+    virtual ~CanvasException() throw();
+  };
 }
 
 #endif

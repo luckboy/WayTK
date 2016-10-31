@@ -28,6 +28,29 @@ using namespace std;
 namespace waytk
 {
   //
+  // An Icon class.
+  //
+
+  shared_ptr<CanvasImage> Icon::image() const
+  { throw exception(); }
+
+  //
+  // A TreePathCompare structure.
+  //
+
+  bool TreePathCompare::operator()(const TreePath &path1, const TreePath &path2) const
+  {
+    size_t node_count = min(path1.nodes.size(), path2.nodes.size());
+    auto iter1 = path1.nodes.begin();
+    auto iter2 = path2.nodes.begin();
+    for(size_t i = 0; i < node_count; i++, iter1++, iter2++) {
+      if(*iter1 < *iter2) return true;
+      if(*iter1 > *iter2) return false;
+    }
+    return path1.nodes.size() < path2.nodes.size();
+  }
+
+  //
   // A Widget class.
   //
 
@@ -189,6 +212,9 @@ namespace waytk
   { throw exception(); }
 
   void Text::delete_chars(size_t count)
+  { throw exception(); }
+
+  void Text::append_string(const std::string *str)
   { throw exception(); }
 
   void Text::copy()

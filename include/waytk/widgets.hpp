@@ -212,9 +212,7 @@ namespace waytk
   /// A structure to comparing two tree paths.
   ///
   struct TreePathCompare
-  {
-    bool operator()(const TreePath &path1, const TreePath &path2);
-  };
+  { bool operator()(const TreePath &path1, const TreePath &path2) const; };
 
   ///
   /// A viewport class that used in a scroll widget.
@@ -925,7 +923,8 @@ namespace waytk
     ///
     /// Inserts a new text into the text of the text widget.
     ///
-    /// The new text is inserted after the cursor.
+    /// The new text is inserted after the cursor. The cursor is moved after
+    /// the last inserted character.
     ///
     void insert_string(const std::string &str);
 
@@ -943,6 +942,12 @@ namespace waytk
     /// The characters are deleted from the text after the cursor.
     ///
     void delete_chars(std::size_t count);
+
+    ///
+    /// Appends a new text to the text of the text widget at end of the text of
+    /// the text widget.
+    ///
+    void append_string(const std::string *str);
 
     /// Returns the maximal text length of the text widget.
     std::size_t max_length() const
@@ -1354,19 +1359,19 @@ namespace waytk
   public:
     /// Creates a new image widget.
     Image(int width, int height)
-    { initialize(std::shared_ptr<CanvasImage>(new_canvas_image(width, height))); }
+    { initialize(std::shared_ptr<CanvasImage>(new_canvas_modifiable_image(width, height))); }
 
     /// \copydoc Image(int, int)
     explicit Image(Dimension<int> size)
-    { initialize(std::shared_ptr<CanvasImage>(new_canvas_image(size))); }
+    { initialize(std::shared_ptr<CanvasImage>(new_canvas_modifiable_image(size))); }
 
     /// Creates a new image widget with an image from \p data.
     Image(int width, int height, int stride, void *data)
-    { initialize(std::shared_ptr<CanvasImage>(new_canvas_image(width, height, stride, data))); }
+    { initialize(std::shared_ptr<CanvasImage>(new_canvas_modifiable_image(width, height, stride, data))); }
 
     /// \copydoc Image(int, int, int, void *)
     Image(Dimension<int> size, int stride, void *data)
-    { initialize(std::shared_ptr<CanvasImage>(new_canvas_image(size, stride, data))); }
+    { initialize(std::shared_ptr<CanvasImage>(new_canvas_modifiable_image(size, stride, data))); }
 
     /// Creates a new image widget with a image from the file.
     explicit Image(const std::string &file_name)
@@ -1392,19 +1397,19 @@ namespace waytk
 
     /// Sets an empty image.
     void set_image(int width, int height)
-    { set_image(new_canvas_image(width, height)); }
+    { set_image(new_canvas_modifiable_image(width, height)); }
 
     /// \copydoc set_image(int, int)
     void set_image(Dimension<int> size)
-    { set_image(new_canvas_image(size)); }
+    { set_image(new_canvas_modifiable_image(size)); }
 
     /// Sets an image from \p data.
     void set_image(int width, int height, int stride, void *data)
-    { set_image(new_canvas_image(width, height)); }
+    { set_image(new_canvas_modifiable_image(width, height)); }
 
     /// \copydoc set_image(int, int, int, void *)
     void set_image(Dimension<int> size, int stride, void *data)
-    { set_image(new_canvas_image(size)); }
+    { set_image(new_canvas_modifiable_image(size)); }
 
     /// Sets the image of the image widget.
     void set_image(CanvasImage *image)

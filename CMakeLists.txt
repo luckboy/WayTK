@@ -12,6 +12,7 @@ find_package(PkgConfig REQUIRED)
 find_package(Threads REQUIRED)
 
 pkg_search_module(CAIRO REQUIRED cairo)
+pkg_search_module(LIBRSVG REQUIRED librsvg-2.0)
 pkg_search_module(WAYLAND_CLIENT REQUIRED wayland-client)
 pkg_search_module(WAYLAND_CURSOR REQUIRED wayland-cursor)
 pkg_search_module(XKBCOMMON REQUIRED xkbcommon)
