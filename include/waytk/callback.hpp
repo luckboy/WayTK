@@ -19,34 +19,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _WAYTK_HPP
-#define _WAYTK_HPP
+#ifndef _WAYTK_CALLBACK_HPP
+#define _WAYTK_CALLBACK_HPP
 
-#include <memory>
-#include <waytk/adapters.hpp>
-#include <waytk/callback.hpp>
-#include <waytk/canvas.hpp>
-#include <waytk/exceptions.hpp>
-#include <waytk/modifiers.hpp>
-#include <waytk/structs.hpp>
-#include <waytk/surface.hpp>
-#include <waytk/text_buffer.hpp>
-#include <waytk/util.hpp>
-#include <waytk/widgets.hpp>
+#include <functional>
 
 namespace waytk
 {
-  void add_surface(const std::shared_ptr<Surface> &surface);
+  template<typename... _Ts>
+  class Callback
+  {
+    std::function<void (_Ts...)> _M_listener;
+    bool _M_can_invoke_listener;
+  public:
+    Callback() :
+      _M_can_invoke_listener(true) {}
 
-  inline void add_surface(Surface *surface)
-  { add_surface(std::shared_ptr<Surface>(surface)); }
+    explicit Callback(const std::function<void (_Ts...)> &listener) :
+      _M_listener(listener), _M_can_invoke_listener(true) {}
 
-  bool delete_surface(const std::shared_ptr<Surface> &surface);
+    void operator()(_Ts... args)
+    {
+      if(_M_can_invoke_listener) {
+        _M_can_invoke_listener = false;
+        try {
+          _M_listener(args...);
+        } catch(...) {
+          _M_can_invoke_listener = true;
+          throw;
+        }
+        _M_can_invoke_listener = true;
+      }
+    }
 
-  inline bool delete_surface(Surface *surface)
-  { return delete_surface(std::shared_ptr<Surface>(surface)); }
+    const std::function<void (_Ts...)> &listener() const
+    { return _M_listener; }
 
-  int run_loop_main();
+    void set_listener(const std::function<void (_Ts...)> &listener)
+    { _M_listener = listener; }
+  };
 }
 
 #endif

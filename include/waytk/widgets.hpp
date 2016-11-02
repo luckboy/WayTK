@@ -31,6 +31,7 @@
 #include <string>
 #include <vector>
 #include <waytk/adapters.hpp>
+#include <waytk/callback.hpp>
 #include <waytk/canvas.hpp>
 #include <waytk/modifiers.hpp>
 #include <waytk/structs.hpp>
@@ -39,6 +40,7 @@
 
 namespace waytk
 {
+  class ComboBox;
   class MenuItem;
   class RadioButton;
   class Surface;
@@ -55,6 +57,9 @@ namespace waytk
     SELECTED = 4        ///< The widget is selected.
   };
 
+  inline WidgetFlags operator~(WidgetFlags flags)
+  { return static_cast<WidgetFlags>(static_cast<int>(flags) ^ 7); }
+
   inline WidgetFlags operator&(WidgetFlags flags1, WidgetFlags flags2)
   { return static_cast<WidgetFlags>(static_cast<int>(flags1) & static_cast<int>(flags2)); }
 
@@ -66,6 +71,12 @@ namespace waytk
 
   inline WidgetFlags operator|=(WidgetFlags &flags1, WidgetFlags flags2)
   { flags1 = flags1 | flags2; return flags1; }
+
+  inline WidgetFlags operator^(WidgetFlags flags1, WidgetFlags flags2)
+  { return static_cast<WidgetFlags>(static_cast<int>(flags1) ^ static_cast<int>(flags2)); }
+
+  inline WidgetFlags operator^=(WidgetFlags &flags1, WidgetFlags flags2)
+  { flags1 = flags1 ^ flags2; return flags1; }
 
   ///
   /// An enumeratin of horizontal alignment.
@@ -269,6 +280,15 @@ namespace waytk
   ///
   typedef std::function<void (Widget *widget, const Pointer &pointer, const Point<double> &point, TouchState state)> OnTouchListener;
 
+  
+  ///
+  /// A listener type for touch leaves.
+  ///
+  /// \param widget is the widget.
+  /// \param pointer is the pointer that identifies pointer or touch.
+  ///
+  typedef std::function<void (Widget *widget, const Pointer &pointer)> OnTouchLeaveListener;
+  
   ///
   /// A listener type for pointer motions.
   ///
@@ -276,6 +296,13 @@ namespace waytk
   /// \param point is the point.
   ///
   typedef std::function<void (Widget *widget, const Point<double> &point)> OnPointerMotionListener;
+
+  ///
+  /// A listener type for pointer leaves.
+  ///
+  /// \param widget is the widget.
+  ///
+  typedef std::function<void (Widget *widget)> OnPointerLeaveListener;
 
   ///
   /// A listener type for pointer axis events.
@@ -347,7 +374,7 @@ namespace waytk
   typedef std::function<void (Widget *widget, bool is_checked)> OnCheckListener;
 
   ///
-  /// A listener type for the selection changes.
+  /// A listener type for selection changes.
   ///
   /// \param widget is the widget.
   /// \param pos is the position of the selected item.
@@ -378,6 +405,54 @@ namespace waytk
   ///
   typedef std::function<void (Widget *widget, const std::set<TreePath, TreePathCompare> &paths)> OnTreeSelectionListener;
 
+  /// A callback type for touch events.
+  typedef Callback<Widget *, const Pointer &, const Point<double> &, TouchState> OnTouchCallback;
+
+  /// A callback type for touch leaves.
+  typedef Callback<Widget *, const Pointer &> OnTouchLeaveCallback;
+  
+  /// A callback type for pointer motions.
+  typedef Callback<Widget *, const Point<double> &> OnPointerMotionCallback;
+
+  /// A callback type for pointer leaves.
+  typedef Callback<Widget *> OnPointerLeaveCallback;
+
+  /// A callback type for pointer axis events.
+  typedef Callback<Widget *, Axis, double> OnPointerAxisCallback;
+
+  /// A callback type for key events.
+  typedef Callback<Widget *, std::uint32_t, Modifiers, const char *, KeyState> OnKeyCallback;
+
+  /// A callback type for the widget scrolling.
+  typedef Callback<Widget *, Viewport *> OnScrollCallback;
+
+  /// A callback type for clicks.
+  typedef Callback<Widget *> OnClickCallback;
+
+  /// A callback type for text changes.
+  typedef Callback<Widget *, const Range<TextCharIterator> &> OnTextChangeCallback;
+
+  /// A callback type for cursor changes.
+  typedef Callback<Widget *, const TextCharIterator &, const TextPosition &> OnCursorChangeCallback;
+
+  /// A callback type for text selection changes.
+  typedef Callback<Widget *, const Range<TextCharIterator> &> OnTextSelectionCallback;
+
+  /// A callback type for changes of the check box state.
+  typedef Callback<Widget *, bool> OnCheckCallback;
+
+  /// A callback type for selection changes.
+  typedef Callback<Widget *, std::size_t> OnSelectionCallback;
+
+  /// A callback type for selection changes of list widget.
+  typedef Callback<Widget *, const std::set<std::size_t> &> OnListSelectionCallback;
+
+  /// A callback type for selection changes of table widget.
+  typedef Callback<Widget *, const std::set<TablePosition, TablePositionCompare> &> OnTableSelectionCallback;
+
+  /// A callback type for selection changes of tree widget.
+  typedef Callback<Widget *, const std::set<TreePath, TreePathCompare> &> OnTreeSelectionCallback;
+
   ///
   /// A widget class that is base for all widgets.
   ///
@@ -385,10 +460,10 @@ namespace waytk
   /// display and the widget behavior are specified by properties of this class
   /// The widget reactions can be specified by setting the listeners of the
   /// widget. The listeners of the widgets are invoked when an appropriate event
-  /// is received. For example, the widget events are: key press, touch, and
-  /// pressing of pointer button. Each widget mustn't be used as child in more
-  /// then one other widget. The widget must be deleted from own parent if the
-  /// widget will be added onto other parent.
+  /// occurs. For example, the widget events are: key press, touch, and pressing
+  /// of pointer button. Each widget mustn't be used as child in more then one
+  /// other widget. The widget must be deleted from own parent if the widget
+  /// will be added onto other parent.
   ///
   class Widget
   {
@@ -407,12 +482,15 @@ namespace waytk
     int _M_min_width;
     int _M_min_height;
     Rectangle<int> _M_bounds;
+    std::weak_ptr<Surface> _M_surface;
     Widget *_M_parent;
-    OnTouchListener _M_on_touch_listener;
-    OnPointerMotionListener _M_on_pointer_motion_listener;
-    OnPointerAxisListener _M_on_pointer_axis_listener;
-    OnKeyListener _M_on_key_listener;
-    OnScrollListener _M_on_scroll_listener;
+    OnTouchCallback _M_on_touch_callback;
+    OnTouchLeaveCallback _M_on_touch_leave_callback;
+    OnPointerMotionCallback _M_on_pointer_motion_callback;
+    OnPointerLeaveCallback _M_on_pointer_leave_callback;
+    OnPointerAxisCallback _M_on_pointer_axis_callback;
+    OnKeyCallback _M_on_key_callback;
+    OnScrollCallback _M_on_scroll_callback;
   public:
     /// Default constructor.
     Widget();
@@ -423,7 +501,7 @@ namespace waytk
     ///
     /// Returns \c true if the widget is enabled, otherwise \c false.
     ///
-    /// If the widget isn't enables, it doesn't react on user actions. By
+    /// If the widget isn't enabled, it doesn't react on user actions. By
     /// default, each widget of WayTK is enabled.
     ///
     bool is_enabled() const
@@ -511,7 +589,7 @@ namespace waytk
 
     /// Sets the maximal width of the widget. 
     void set_max_width(int max_width)
-    { _M_max_width = max_width; }
+    { _M_max_width = max_width >= 1 ? max_width : 1; }
 
     ///
     /// Returns the maximal height of the widget.
@@ -523,7 +601,7 @@ namespace waytk
 
     /// Sets the maximal height of the widget.
     void set_max_height(int max_height)
-    { _M_max_height = max_height; }
+    { _M_max_height = max_height >= 1 ? max_height : 1; }
 
     ///
     /// Returns the minimal width of the widget.
@@ -535,7 +613,7 @@ namespace waytk
 
     /// Sets the minimal width of the widget.
     void set_min_width(int min_width)
-    { _M_min_width = min_width; }
+    { _M_min_width = min_width >= 0 ? min_width : 0; }
 
     ///
     /// Returns the minimal height of the widget.
@@ -547,7 +625,7 @@ namespace waytk
 
     /// Sets the minimal height of the widget.
     void set_min_height(int min_height)
-    { _M_min_height = min_height; }
+    { _M_min_height = min_height >= 0 ? min_height : 0; }
 
     ///
     /// Returns the widget bounds.
@@ -558,6 +636,9 @@ namespace waytk
     ///
     const Rectangle<int> &bounds() const
     { return _M_bounds; }
+
+    // Returns the widget surface.
+    const std::weak_ptr<Surface> &surface();
 
     /// Returns the widget parent.
     Widget *parent() const
@@ -570,13 +651,20 @@ namespace waytk
     /// Sets the parent of \p widget as \c nullptr.
     void unset_this_as_widget_parent(Widget *widget)
     { widget->_M_parent = nullptr; }
+  protected:
+    /// Returns \c true if a touch pointer is in the widget, otherwise \c false.
+    bool has_pointer(const Pointer &pointer) const;
+  private:
+    void add_pointer(const Pointer &pointer);
+
+    bool delete_pointer(const Pointer &pointer);
   public:
     /// Returns the widget margin.
     Edges<int> margin() const;
 
     /// Returns the listener for touch events.
     const OnTouchListener &on_touch_listener() const
-    { return _M_on_touch_listener; }
+    { return _M_on_touch_callback.listener(); }
 
     ///
     /// Sets the listener for touch events.
@@ -596,19 +684,35 @@ namespace waytk
     /// clicked by the pointer.
     ///
     void set_on_touch_listener(const OnTouchListener &listener)
-    { _M_on_touch_listener = listener; }
+    { _M_on_touch_callback.set_listener(listener); }
+
+    /// Returns the listener for touch leaves.
+    const OnTouchLeaveListener &on_touch_leave_listener() const
+    { return _M_on_touch_leave_callback.listener(); }
+
+    /// Sets the listener for touch leaves.
+    void set_on_touch_leave_listener(const OnTouchLeaveListener &listener)
+    { _M_on_touch_leave_callback.set_listener(listener); }
 
     /// Returns the listener for pointer motions.
     const OnPointerMotionListener &on_pointer_motion_listener() const
-    { return _M_on_pointer_motion_listener; }
+    { return _M_on_pointer_motion_callback.listener(); }
 
     /// Sets the listener for pointer motions.
     void set_on_pointer_motion_listener(const OnPointerMotionListener &listener)
-    { _M_on_pointer_motion_listener = listener; }
+    { _M_on_pointer_motion_callback.set_listener(listener); }
+
+    /// Returns the listener for pointer leaves.
+    const OnPointerLeaveListener &on_pointer_leave_listener() const
+    { return _M_on_pointer_leave_callback.listener(); }
+
+    /// Sets the listener for pointer leaves.
+    void set_on_pointer_leave_listener(const OnPointerLeaveListener &listener)
+    { _M_on_pointer_leave_callback.set_listener(listener); }
 
     /// Returns the listener for pointer axis events.
     const OnPointerAxisListener &on_pointer_axis_listener() const
-    { return _M_on_pointer_axis_listener; }
+    { return _M_on_pointer_axis_callback.listener(); }
 
     ///
     /// Sets the listener for pointer axis events.
@@ -617,11 +721,11 @@ namespace waytk
     /// turned.
     ///
     void set_on_pointer_axis_listener(const OnPointerAxisListener &listener)
-    { _M_on_pointer_axis_listener = listener; }
+    { _M_on_pointer_axis_callback.set_listener(listener); }
 
     /// Returns the listener for key events.
     const OnKeyListener &on_key_listener() const
-    { return _M_on_key_listener; }
+    { return _M_on_key_callback.listener(); }
 
     ///
     /// Sets the listener for key events.
@@ -633,15 +737,15 @@ namespace waytk
     /// \li an user released a key (key state is \ref KeyState::RELEASED).
     ///
     void set_on_key_listener(const OnKeyListener &listener)
-    { _M_on_key_listener = listener; }
+    { _M_on_key_callback.set_listener(listener); }
 
     /// Returns the listener for the widget scrolling.
     const OnScrollListener &on_scroll_listener() const
-    { return _M_on_scroll_listener; }
+    { return _M_on_scroll_callback.listener(); }
 
     /// Sets the listener for the widget scrolling.
     void set_on_scroll_listener(const OnScrollListener &listener)
-    { _M_on_scroll_listener = listener; }
+    { _M_on_scroll_callback.set_listener(listener); }
 
     /// Returns the widget name.
     virtual const char *name() const;
@@ -652,17 +756,43 @@ namespace waytk
     /// Creates a new viewport of the widget.
     virtual Viewport *viewport();
 
+    ///
     /// This method that is invoked when a touch event occurs.
-    virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
+    ///
+    /// If this method returns \c false, this method is invoked for the widget
+    /// parent.
+    ///
+    virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
-    /// This method that is invoked when a pointer is moved.
-    virtual void on_pointer_motion(const Point<double> &point);
+    /// This method that is invoked when a touch leaves from the widget.
+    virtual void on_touch_leave(const Pointer &pointer);
 
+    ///
+    /// This method that is invoked when a pointer moves.
+    ///
+    /// If this method returns \c false, this method is invoked for the widget
+    /// parent.
+    ///
+    virtual bool on_pointer_motion(const Point<double> &point);
+
+    /// This method that is invoked when a pointer leaves from the widget.
+    virtual void on_pointer_leave();
+
+    ///
     /// This method that is invoked when a pointer axis occurs.
-    virtual void on_pointer_axis(Axis axis, double value);
+    ///
+    /// If this method returns \c false, this method is invoked for the widget
+    /// parent.
+    ///
+    virtual bool on_pointer_axis(Axis axis, double value);
 
+    ///
     /// This method that is invoked when a key event occurs.
-    virtual void on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
+    ///
+    /// If this method returns \c false, this method is invoked for the widget
+    /// parent.
+    ///
+    virtual bool on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
 
     /// This method that is invoked when the widget is scrolled.
     virtual void on_scoll(Viewport *viewport);
@@ -742,7 +872,8 @@ namespace waytk
   {
     Icon _M_icon;
     std::string _M_label;
-    OnClickListener _M_on_click_listener;
+    OnClickCallback _M_on_click_callback;
+    std::size_t _M_touch_count;
   protected:
     /// Default constructor that doesn't invoke an \ref initialize method.
     Button() {}
@@ -794,20 +925,22 @@ namespace waytk
 
     /// Returns the listener for clicks.
     const OnClickListener &on_click_listener() const
-    { return _M_on_click_listener; }
+    { return _M_on_click_callback.listener(); }
 
     /// Sets the listener for clicks.
     void set_on_click_listener(const OnClickListener &listener)
-    { _M_on_click_listener = listener; }
+    { _M_on_click_callback.set_listener(listener); }
 
     virtual const char *name() const;
 
     virtual void draw(Canvas *canvas);
 
-    virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
+    virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
-    virtual void on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
+    virtual void on_touch_leave(const Pointer &pointer);
 
+    virtual bool on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
+  protected:
     /// This method that is invoked when a click occurs.
     virtual void on_click();
   };
@@ -831,9 +964,9 @@ namespace waytk
     bool _M_has_line_wrap;
     bool _M_has_word_wrap;
     bool _M_is_editable;
-    OnTextChangeListener _M_on_text_change_listener;
-    OnCursorChangeListener _M_on_cursor_change_listener;
-    OnTextSelectionListener _M_on_text_selection_listener;
+    OnTextChangeCallback _M_on_text_change_callback;
+    OnCursorChangeCallback _M_on_cursor_change_callback;
+    OnTextSelectionCallback _M_on_text_selection_callback;
   protected:
     /// Constructor that doesn't invoke the \ref initialize method.
     Text(Unused unused) {}
@@ -947,7 +1080,7 @@ namespace waytk
     /// Appends a new text to the text of the text widget at end of the text of
     /// the text widget.
     ///
-    void append_string(const std::string *str);
+    void append_string(const std::string &str);
 
     /// Returns the maximal text length of the text widget.
     std::size_t max_length() const
@@ -1018,27 +1151,27 @@ namespace waytk
 
     /// Returns the listener for text changes.
     const OnTextChangeListener &on_text_change_listener() const
-    { return _M_on_text_change_listener; }
+    { return _M_on_text_change_callback.listener(); }
 
     /// Sets the listener for text changes.
     void set_on_text_change_listener(const OnTextChangeListener &listener)
-    { _M_on_text_change_listener = listener; }
+    { _M_on_text_change_callback.set_listener(listener); }
 
     /// Returns the listener for cursor position changes.
     const OnCursorChangeListener &on_cursor_change_listener() const
-    { return _M_on_cursor_change_listener; }
+    { return _M_on_cursor_change_callback.listener(); }
 
     /// Sets the listener for cursor position changes.
     void set_on_cursor_change_listener(const OnCursorChangeListener &listener)
-    { _M_on_cursor_change_listener = listener; }
+    { _M_on_cursor_change_callback.set_listener(listener); }
 
     /// Returns the listener for text selection changes.
     const OnTextSelectionListener &on_text_selection_listener() const
-    { return _M_on_text_selection_listener; }
+    { return _M_on_text_selection_callback.listener(); }
 
     /// Sets the listener for text selection changes.
     void set_on_text_selection_listener(const OnTextSelectionListener &listener)
-    { _M_on_text_selection_listener = listener; }
+    { _M_on_text_selection_callback.set_listener(listener); }
 
     virtual const char *name() const;
 
@@ -1046,10 +1179,12 @@ namespace waytk
 
     virtual Viewport *viewport();
 
-    virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
+    virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
-    virtual void on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
+    virtual void on_touch_leave(const Pointer &pointer);
 
+    virtual bool on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
+  protected:
     /// This method is invoked when the text is changed.
     virtual void on_text_change(const Range<TextCharIterator> &range);
 
@@ -1069,7 +1204,7 @@ namespace waytk
   class CheckBox : public virtual Button
   {
     bool _M_is_checked;
-    OnCheckListener _M_on_check_listener;
+    OnCheckCallback _M_on_check_callback;
   protected:
     /// Constructor that doesn't invoke the \ref initialize method.
     CheckBox(Unused unused) {}
@@ -1106,16 +1241,16 @@ namespace waytk
 
     /// Returns the listener for changes of the check box state.
     const OnCheckListener &on_check_listener() const
-    { return _M_on_check_listener; }
+    { return _M_on_check_callback.listener(); }
 
     /// Sets the listener for chenges of the check box state.
     void set_on_check_listener(const OnCheckListener &listener)
-    { _M_on_check_listener = listener; }
+    { _M_on_check_callback.set_listener(listener); }
 
     virtual const char *name() const;
 
     virtual void draw(Canvas *canvas);
-
+  protected:
     virtual void on_click();
 
     // This method is inovked when the check box state is changed.
@@ -1213,10 +1348,57 @@ namespace waytk
     virtual const char *name() const;
 
     virtual void draw(Canvas *canvas);
-
+  protected:
     virtual void on_check(bool is_checked);
   };
 
+  namespace priv
+  {
+    class ComboBoxListBase;
+    
+    class ComboBoxFields
+    {
+      std::size_t _M_selected_pos;
+      std::shared_ptr<ComboBoxAdapter> _M_adapter;
+      OnSelectionCallback _M_on_selection_callback;
+      std::shared_ptr<Surface> _M_popup_surface;
+      int _M_selected_item_y;
+      std::function<void (std::size_t)> _M_on_selection;
+
+      friend class ComboBoxListBase;
+      friend class waytk::ComboBox;
+    };
+
+    class ComboBoxListBase
+    {
+    protected:
+      std::shared_ptr<ComboBoxFields> _M_fields;
+
+      ComboBoxListBase(const std::shared_ptr<ComboBoxFields> &fields) :
+        _M_fields(fields) {}
+    public:
+      virtual ~ComboBoxListBase();
+    protected:
+      std::size_t &selected_pos()
+      { return _M_fields->_M_selected_pos; }
+
+      std::shared_ptr<ComboBoxAdapter> &adapter()
+      { return _M_fields->_M_adapter; }
+
+      OnSelectionCallback &on_selection_callback()
+      { return _M_fields->_M_on_selection_callback; }
+
+      std::shared_ptr<Surface> &popup_surface()
+      { return _M_fields->_M_popup_surface; }
+      
+      int &selected_item_y()
+      { return _M_fields->_M_selected_item_y; }
+
+      void on_selection(std::size_t pos)
+      { return _M_fields->_M_on_selection(pos); }
+    };
+  }
+  
   ///
   /// A combo box is a button with drop-down list.
   ///
@@ -1226,9 +1408,7 @@ namespace waytk
   ///
   class ComboBox : public Button
   {
-    std::size_t _M_selected_pos;
-    std::shared_ptr<ComboBoxAdapter> _M_adapter;
-    OnSelectionListener _M_on_selection_listener;
+    std::shared_ptr<priv::ComboBoxFields> _M_fields;
   protected:
     /// Constructor that doesn't invoke the \ref initialize method.
     ComboBox(Unused unused) {}
@@ -1257,22 +1437,22 @@ namespace waytk
   public:
     /// Returns the position of the selected item.
     std::size_t selected_pos() const
-    { return _M_selected_pos; }
+    { return _M_fields->_M_selected_pos; }
 
     /// Sets the position of the selcted itme.
     void set_selected_pos(std::size_t pos);
 
     /// Returns the adatper of the combo box.
     const std::shared_ptr<ComboBoxAdapter> &adapter() const
-    { return _M_adapter; }
+    { return _M_fields->_M_adapter; }
 
     /// Sets the adapter of the combo box.
     void set_adapter(ComboBoxAdapter *adapter)
-    { _M_adapter = std::shared_ptr<ComboBoxAdapter>(adapter); }
+    { _M_fields->_M_adapter = std::shared_ptr<ComboBoxAdapter>(adapter); }
 
     /// \copydoc set_adapter
     void set_adapter(const std::shared_ptr<ComboBoxAdapter> &adapter)
-    { _M_adapter = adapter; }
+    { _M_fields->_M_adapter = adapter; }
 
     /// Selects the one item of the combo box.
     void select(std::size_t pos)
@@ -1280,18 +1460,18 @@ namespace waytk
 
     /// Returns the listener for selection changes.
     const OnSelectionListener &on_selection_listener() const
-    { return _M_on_selection_listener; }
+    { return _M_fields->_M_on_selection_callback.listener(); }
 
     /// Sets the listener for selection changes.
     void set_selection_listener(const OnSelectionListener &listener)
-    { _M_on_selection_listener = listener; }
+    { _M_fields->_M_on_selection_callback.set_listener(listener); }
 
     virtual const char *name() const;
 
     virtual void draw(Canvas &canvas);
-
+  protected:
     virtual void on_click();
-
+  public:
     /// This method is invoked when the selection is changed.
     virtual void on_selection(std::size_t pos);
   };
@@ -1603,7 +1783,7 @@ namespace waytk
     SelectionMode _M_selection_mode;
     std::set<std::size_t> _M_selected_poses;
     std::shared_ptr<ListAdapter> _M_adapter;
-    OnListSelectionListener _M_on_list_selection_listener;
+    OnListSelectionCallback _M_on_list_selection_callback;
   protected:
     /// Constructor that doesn't invoke the \ref initialize method.
     List(Unused unused) {}
@@ -1708,11 +1888,11 @@ namespace waytk
 
     /// Returns the listener for the selection changes.
     const OnListSelectionListener &on_list_selection_listener() const
-    { return _M_on_list_selection_listener; }
+    { return _M_on_list_selection_callback.listener(); }
 
     /// Sets the listener for the selection changes.
     void set_on_list_selection_listener(const OnListSelectionListener &listener)
-    { _M_on_list_selection_listener = listener; }
+    { _M_on_list_selection_callback.set_listener(listener); }
 
     virtual const char *name() const;
 
@@ -1720,10 +1900,12 @@ namespace waytk
 
     virtual Viewport *viewport();
 
-    virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
+    virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
-    virtual void on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
+    virtual void on_touch_leave(const Pointer &pointer);
 
+    virtual bool on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
+  protected:
     /// This method is invoked when the selection is changes.
     virtual void on_list_selection(const std::set<std::size_t> &poses);
   };
@@ -1743,7 +1925,7 @@ namespace waytk
     std::vector<std::string> _M_header_labels;
     std::set<TablePosition, TablePositionCompare> _M_selected_poses;
     std::shared_ptr<TableAdapter> _M_adapter;
-    OnTableSelectionListener _M_on_table_selection_listener;
+    OnTableSelectionCallback _M_on_table_selection_callback;
   protected:
     /// Constructor that doesn't invoke the \ref initialize method.
     Table(Unused unused) {}
@@ -1897,11 +2079,11 @@ namespace waytk
 
     /// Returns the listener for the selection changes.
     const OnTableSelectionListener &on_table_selection_listener() const
-    { return _M_on_table_selection_listener; }
+    { return _M_on_table_selection_callback.listener(); }
 
     /// Sets the listener for the selection changes.
     void set_on_table_selection_listener(const OnTableSelectionListener &listener)
-    { _M_on_table_selection_listener = listener; }
+    { _M_on_table_selection_callback.set_listener(listener); }
 
     virtual const char *name() const;
 
@@ -1909,10 +2091,12 @@ namespace waytk
 
     virtual Viewport *viewport();
 
-    virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
+    virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
-    virtual void on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
+    virtual void on_touch_leave(const Pointer &pointer);
 
+    virtual bool on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
+  protected:
     /// This method is invoked when the selection is changes.
     virtual void on_table_selection(const std::set<TablePosition, TablePositionCompare> &poses);
   };
@@ -1932,15 +2116,15 @@ namespace waytk
     struct ExtendedNode
     {
       std::size_t index;
-      std::list<ExtendedNode> extended_childs;
+      std::list<ExtendedNode> extended_children;
     };
 
     SelectionMode _M_selection_mode;
     std::set<TreePath, TreePathCompare> _M_selected_paths;
     std::shared_ptr<TreeAdapter> _M_adapter;
     std::list<ExtendedNode> _M_extended_nodes;
-    std::size_t _M_row_count;
-    OnTreeSelectionListener _M_on_tree_selection_listener;
+    std::size_t _M_item_count;
+    OnTreeSelectionCallback _M_on_tree_selection_callback;
   protected:
     /// Constructor that doesn't invoke the \ref initialize method.
     Tree(Unused unused) {}
@@ -2035,14 +2219,18 @@ namespace waytk
 
     /// Clears the node selection.
     void clear_selection();
+  private:
+    bool select_branch(TreePath &path);
 
+    void change_selection_for_branch(const Range<std::size_t> &item_pos_range, const ExtendedNode &extended_node, TreePath &path, std::size_t &pos);
+  public:
     /// Returns the listener for the node selection.
     const OnTreeSelectionListener &on_tree_selection_listener() const
-    { return _M_on_tree_selection_listener; }
+    { return _M_on_tree_selection_callback.listener(); }
 
     /// Sets the listener for the node selection.
     void set_on_tree_selection_listener(const OnTreeSelectionListener &listener)
-    { _M_on_tree_selection_listener = listener; }
+    { _M_on_tree_selection_callback.set_listener(listener); }
 
     virtual const char *name() const;
 
@@ -2050,12 +2238,14 @@ namespace waytk
 
     virtual Viewport *viewport();
 
-    virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
+    virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
-    virtual void on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
+    virtual void on_touch_leave(const Pointer &pointer);
 
-     /// This method is invoked when the selection is changes.
-     virtual void on_tree_selection(const std::set<TreePath, TreePathCompare> &paths);
+    virtual bool on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
+  protected:
+    /// This method is invoked when the selection is changes.
+    virtual void on_tree_selection(const std::set<TreePath, TreePathCompare> &paths);
   };
 
   ///
@@ -2069,7 +2259,9 @@ namespace waytk
   {
     std::unique_ptr<Widget> _M_widget;
     bool _M_has_h_scroll_bar;
+    bool _M_has_auto_h_scroll_bar;
     bool _M_has_v_scroll_bar;
+    bool _M_has_auto_v_scroll_bar;
   protected:
     /// Default constructor that doesn't invoke the \ref initialize method.
     Scroll() {}
@@ -2095,30 +2287,54 @@ namespace waytk
     bool has_h_scroll_bar() const
     { return _M_has_h_scroll_bar; }
 
-    /// Enables the horizontal scroll bar if \p is_scroll_bar is \c true,
+    /// Enables the horizontal scroll bar if \p has_scroll_bar is \c true,
     /// otherwise disable the horizontal scroll bar.
-    void set_h_scroll_bar(bool is_scroll_bar)
-    { _M_has_h_scroll_bar = is_scroll_bar; }
+    void set_h_scroll_bar(bool has_scroll_bar)
+    { _M_has_h_scroll_bar = has_scroll_bar; }
 
+    /// Returns \c true if the horizontal scroll bar can be automatically
+    /// enabled, otherwise \c false.
+    bool has_auto_h_scroll_bar() const
+    { return _M_has_auto_h_scroll_bar; }
+
+    /// Allows to automatically enable the horizontal scroll bar if
+    /// \c has_auto_h_scroll_bar is \c true, otherwise denies to automatically
+    /// enable the horizontal scroll bar.
+    void set_auto_h_scroll_bar(bool has_auto_h_scroll_bar)
+    { _M_has_auto_h_scroll_bar = has_auto_h_scroll_bar; }
+    
     /// Returns \c true if the vertical scroll bar is enable, otherwise
     /// \c false.
     bool has_v_scroll_bar() const
     { return _M_has_v_scroll_bar; }
 
-    /// Enables the vertical scroll bar if \p is_scroll_bar is \c true,
+    /// Enables the vertical scroll bar if \p has_scroll_bar is \c true,
     /// otherwise disable the veritical scroll bar.
-    void set_v_scroll_bar(bool is_scroll_bar)
-    { _M_has_v_scroll_bar = is_scroll_bar; }
+    void set_v_scroll_bar(bool has_scroll_bar)
+    { _M_has_v_scroll_bar = has_scroll_bar; }
+
+    /// Returns \c true if the vertical scroll bar can be automatically
+    /// enabled, otherwise \c false.
+    bool has_auto_v_scroll_bar() const
+    { return _M_has_auto_v_scroll_bar; }
+
+    /// Allows to automatically enable the vertical scroll bar if
+    /// \c has_auto_v_scroll_bar is \c true, otherwise denies to automatically
+    /// enable the vertical scroll bar.
+    void set_auto_v_scroll_bar(bool has_auto_v_scroll_bar)
+    { _M_has_auto_v_scroll_bar = has_auto_v_scroll_bar; }
 
     virtual const char *name() const;
 
     virtual void draw(Canvas *canvas);
     
-    virtual void on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
+    virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
-    virtual void on_pointer_motion(const Point<double> &point);
+    virtual void on_touch_leave(const Pointer &pointer);
 
-    virtual void on_pointer_axis(Axis axis, double value);
+    virtual bool on_pointer_axis(Axis axis, double value);
+
+    virtual bool on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
   };
 
   ///

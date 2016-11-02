@@ -58,11 +58,13 @@ namespace waytk
     OnSizeChangeListener _M_on_size_change_listener;
     OnTouchCancelListener _M_on_touch_cancel_listener;
   public:
+    Surface(Widget *widget);
+
     Surface(const std::string &title, Widget *widget);
 
-    Surface(const std::shared_ptr<Surface> &parent, const std::string &title, Widget *widget);
+    Surface(const std::shared_ptr<Surface> &parent, const std::string &title, Widget *widget, const Point<int> &point);
 
-    Surface(const std::shared_ptr<Surface> &parent, Widget *widget);
+    Surface(const std::shared_ptr<Surface> &parent, Widget *widget, const Point<int> &point);
 
     virtual ~Surface();
 

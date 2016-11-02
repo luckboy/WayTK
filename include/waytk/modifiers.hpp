@@ -34,6 +34,9 @@ namespace waytk
     LOGO = 16
   };
 
+  inline Modifiers operator~(Modifiers modifiers)
+  { return static_cast<Modifiers>(static_cast<int>(modifiers) ^ 31); }
+
   inline Modifiers operator&(Modifiers modifiers1, Modifiers modifiers2)
   { return static_cast<Modifiers>(static_cast<int>(modifiers1) & static_cast<int>(modifiers2)); }
 
@@ -45,6 +48,12 @@ namespace waytk
 
   inline Modifiers operator|=(Modifiers &modifiers1, Modifiers modifiers2)
   { modifiers1 = modifiers1 | modifiers2; return modifiers1; }
+
+  inline Modifiers operator^(Modifiers modifiers1, Modifiers modifiers2)
+  { return static_cast<Modifiers>(static_cast<int>(modifiers1) ^ static_cast<int>(modifiers2)); }
+
+  inline Modifiers operator^=(Modifiers &modifiers1, Modifiers modifiers2)
+  { modifiers1 = modifiers1 ^ modifiers2; return modifiers1; }
 }
 
 #endif

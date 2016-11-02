@@ -168,6 +168,8 @@ namespace waytk
 
     std::size_t root_count() const
     { return child_count(TreePath()); }
+
+    virtual bool has_node(const TreePath &path) const = 0;
   };
 
   struct StringTreeNode
@@ -202,6 +204,8 @@ namespace waytk
     virtual Widget *widget(const TreePath &path) const;
 
     virtual std::size_t child_count(const TreePath &path) const;
+
+    virtual bool has_node(const TreePath &path) const;
 
     const std::vector<StringTreeNode> &nodes() const
     { return _M_nodes; }

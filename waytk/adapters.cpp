@@ -131,11 +131,21 @@ namespace waytk
   size_t StringTreeAdapter::child_count(const TreePath &path) const
   { return node(path).children.size(); }
 
+  bool StringTreeAdapter::has_node(const TreePath &path) const
+  {
+    const vector<StringTreeNode> *tmp_nodes = &_M_nodes;
+    for(auto node_idx : path.nodes) {
+      if(node_idx >= tmp_nodes->size()) return false;
+      tmp_nodes = &((*tmp_nodes)[node_idx].children);
+    }
+    return true;
+  }
+
   const StringTreeNode &StringTreeAdapter::node(const TreePath &path) const
   {
     const vector<StringTreeNode> *tmp_nodes = &_M_nodes;
     vector<StringTreeNode>::const_iterator tmp_node_iter;
-    for(auto &node_idx : path.nodes) {
+    for(auto node_idx : path.nodes) {
       tmp_nodes = &((*tmp_nodes)[node_idx].children);
       tmp_node_iter = (*tmp_nodes).begin() + node_idx;
     }
