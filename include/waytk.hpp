@@ -29,6 +29,7 @@
 #include <waytk/exceptions.hpp>
 #include <waytk/modifiers.hpp>
 #include <waytk/structs.hpp>
+#include <waytk/styles.hpp>
 #include <waytk/surface.hpp>
 #include <waytk/text_buffer.hpp>
 #include <waytk/util.hpp>

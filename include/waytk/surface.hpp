@@ -83,6 +83,8 @@ namespace waytk
     const std::shared_ptr<Surface> &perent() const
     { return _M_parent; }
 
+    bool is_active() const;
+    
     bool is_modal() const
     { return _M_is_modal; }
 

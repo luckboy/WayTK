@@ -157,12 +157,12 @@ namespace waytk
         normalize_utf8_char(iter, str.end(), char_bytes, char_length);
         for(size_t i = 0; i < char_length; i++) {
           if(_M_gap_begin_index >= _M_cursor_index) {
-            _M_bytes.resize(_M_bytes.size() + _M_gap_size);
-            copy_backward(_M_bytes.begin() + _M_gap_begin_index, _M_bytes.end() - _M_gap_size, _M_bytes.begin() + _M_gap_begin_index + _M_gap_size);
+            _M_bytes.resize(_M_bytes.size() + _M_gap_size + 1);
+            copy_backward(_M_bytes.begin() + _M_gap_begin_index, _M_bytes.end() - (_M_gap_size + 1), _M_bytes.begin() + _M_gap_begin_index + (_M_gap_size + 1));
             if(_M_selection_index_range.begin >= _M_gap_begin_index)
-              _M_selection_index_range.begin += _M_gap_size;
+              _M_selection_index_range.begin += _M_gap_size + 1;
             if(_M_selection_index_range.end >= _M_gap_begin_index)
-              _M_selection_index_range.end += _M_gap_size;
+              _M_selection_index_range.end += _M_gap_size + 1;
           }
           _M_bytes[_M_gap_begin_index] = char_bytes[i];
           _M_gap_begin_index++;
@@ -354,4 +354,10 @@ namespace waytk
     iter = TextLineIterator(char_iter);
     return iter;
   }
+
+  size_t TextBuffer::default_single_line_gap_size()
+  { return 0; }
+
+  size_t TextBuffer::default_multi_line_gap_size()
+  { return 16384; }
 }

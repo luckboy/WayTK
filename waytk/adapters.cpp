@@ -51,8 +51,8 @@ namespace waytk
 
   Widget *ListAdapter::udpate_widget(Widget *widget, size_t pos, bool is_selected) const
   {
-    WidgetFlags flags = widget->flags();
-    widget->set_flags(flags | (is_selected ? WidgetFlags::SELECTED : WidgetFlags::NONE));
+    PseudoClasses flags = widget->pseudo_classes();
+    widget->set_pseudo_classes(flags | (is_selected ? PseudoClasses::SELECTED : PseudoClasses::NONE));
     return widget;
   }
 
@@ -76,8 +76,8 @@ namespace waytk
 
   Widget *TableAdapter::update_widget(Widget *widget, const TablePosition &pos, bool is_selected) const
   {
-    WidgetFlags flags = widget->flags();
-    widget->set_flags(flags | (is_selected ? WidgetFlags::SELECTED : WidgetFlags::NONE));
+    PseudoClasses flags = widget->pseudo_classes();
+    widget->set_pseudo_classes(flags | (is_selected ? PseudoClasses::SELECTED : PseudoClasses::NONE));
     return widget;
   }
 
@@ -114,8 +114,8 @@ namespace waytk
 
   Widget *TreeAdapter::update_widget(Widget *widget, const TreePath &path, bool is_selected) const
   {
-    WidgetFlags flags = widget->flags();
-    widget->set_flags(flags | (is_selected ? WidgetFlags::SELECTED : WidgetFlags::NONE));
+    PseudoClasses flags = widget->pseudo_classes();
+    widget->set_pseudo_classes(flags | (is_selected ? PseudoClasses::SELECTED : PseudoClasses::NONE));
     return widget;
   }
 

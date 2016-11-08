@@ -35,6 +35,7 @@
 #include <waytk/canvas.hpp>
 #include <waytk/modifiers.hpp>
 #include <waytk/structs.hpp>
+#include <waytk/styles.hpp>
 #include <waytk/text_buffer.hpp>
 #include <waytk/util.hpp>
 
@@ -47,45 +48,14 @@ namespace waytk
   class Widget;
 
   ///
-  /// An enumeration of widget flags.
-  ///
-  enum class WidgetFlags
-  {
-    NONE = 0,           ///< No flags.
-    ACTIVE = 1,         ///< The widget is clicked.
-    HOVER = 2,          ///< The pointer is on the widget.
-    SELECTED = 4        ///< The widget is selected.
-  };
-
-  inline WidgetFlags operator~(WidgetFlags flags)
-  { return static_cast<WidgetFlags>(static_cast<int>(flags) ^ 7); }
-
-  inline WidgetFlags operator&(WidgetFlags flags1, WidgetFlags flags2)
-  { return static_cast<WidgetFlags>(static_cast<int>(flags1) & static_cast<int>(flags2)); }
-
-  inline WidgetFlags operator&=(WidgetFlags &flags1, WidgetFlags flags2)
-  { flags1 = flags1 & flags2; return flags1; }
-
-  inline WidgetFlags operator|(WidgetFlags flags1, WidgetFlags flags2)
-  { return static_cast<WidgetFlags>(static_cast<int>(flags1) | static_cast<int>(flags2)); }
-
-  inline WidgetFlags operator|=(WidgetFlags &flags1, WidgetFlags flags2)
-  { flags1 = flags1 | flags2; return flags1; }
-
-  inline WidgetFlags operator^(WidgetFlags flags1, WidgetFlags flags2)
-  { return static_cast<WidgetFlags>(static_cast<int>(flags1) ^ static_cast<int>(flags2)); }
-
-  inline WidgetFlags operator^=(WidgetFlags &flags1, WidgetFlags flags2)
-  { flags1 = flags1 ^ flags2; return flags1; }
-
-  ///
   /// An enumeratin of horizontal alignment.
   ///
   enum class HAlignment
   {
     LEFT,               ///< Aligns to left.
     CENTER,             ///< Aligns to horizontal center.
-    RIGHT               ///< Aligns to right.
+    RIGHT,              ///< Aligns to right.
+    FILL                ///< Aligns to left and right.
   };
 
   ///
@@ -95,7 +65,8 @@ namespace waytk
   {
     TOP,                ///< Aligns to top.
     CENTER,             ///< Aligns to vertical center.
-    BOTTOM              ///< Aligns to bottom.
+    BOTTOM,             ///< Aligns to bottom.
+    FILL                ///< Aligns to top and bottom.
   };
 
   ///
@@ -157,6 +128,16 @@ namespace waytk
   };
 
   ///
+  /// An enumeration of icon size.
+  ///
+  enum class IconSize
+  {
+    SMALL,              ///< Small icon.
+    MEDIUM,             ///< Medium icon.
+    LARGE               ///< Large icon.
+  };
+
+  ///
   /// A touch pointer class.
   ///
   class Pointer
@@ -207,7 +188,7 @@ namespace waytk
     const std::string &name() const
     { return _M_name; }
 
-    std::shared_ptr<CanvasImage> image() const;
+    std::shared_ptr<CanvasImage> image(IconSize size) const;
   };
 
   ///
@@ -472,8 +453,8 @@ namespace waytk
     class Unused { char _M_pad; };
   private:
     bool _M_is_enabled;
-    WidgetFlags _M_flags;
     bool _M_has_focus;
+    PseudoClasses _M_pseudo_classes;
     bool _M_is_visible;
     HAlignment _M_h_align;
     VAlignment _M_v_align;
@@ -481,9 +462,13 @@ namespace waytk
     int _M_max_height;
     int _M_min_width;
     int _M_min_height;
+    int _M_weight;
     Rectangle<int> _M_bounds;
     std::weak_ptr<Surface> _M_surface;
     Widget *_M_parent;
+    const char *_M_style_name;
+    Styles *_M_styles;
+    Dimension<int> _M_content_size;
     OnTouchCallback _M_on_touch_callback;
     OnTouchLeaveCallback _M_on_touch_leave_callback;
     OnPointerMotionCallback _M_on_pointer_motion_callback;
@@ -509,21 +494,7 @@ namespace waytk
 
     /// Enables the widget if \p is_enabled is \c true, otherwise disables the
     /// widget.
-    void set_enabled(bool is_enabled)
-    { _M_is_enabled = is_enabled; }
-
-    ///
-    /// Returns the widget flags.
-    ///
-    /// The widget flags have affect on drawing the widget, but haven't affect
-    /// on behavior of the widget.
-    ///
-    WidgetFlags flags() const
-    { return _M_flags; }
-
-    /// Sets the widget flags.
-    void set_flags(WidgetFlags flags)
-    { _M_flags = flags; }
+    void set_enabled(bool is_enabled);
 
     ///
     /// Returns \c true if the widget has focus, otherwise \c false.
@@ -538,6 +509,23 @@ namespace waytk
     /// widget focus.
     void set_focus(bool has_focus);
 
+    ///
+    /// Returns the pseudo classe of the widget.
+    ///
+    /// The pseudo classes of the widget affects on determining the widget
+    /// style.
+    ///
+    PseudoClasses pseudo_classes() const
+    { return _M_pseudo_classes; }
+
+    /// Sets the pseudo classe of the widget.
+    void set_pseudo_classes(PseudoClasses pseudo_classes)
+    { _M_pseudo_classes = pseudo_classes; }
+
+    /// Returns the pseudo classes of the widget with a dropback pseudo class
+    /// if the widget surface is active, the pseudo class of the widget.
+    PseudoClasses real_pseudo_classes();
+    
     ///
     /// Returns \c true if the widget is visible, otherwise \c false.
     ///
@@ -589,7 +577,7 @@ namespace waytk
 
     /// Sets the maximal width of the widget. 
     void set_max_width(int max_width)
-    { _M_max_width = max_width >= 1 ? max_width : 1; }
+    { _M_max_width = (max_width >= 1 ? max_width : 1); }
 
     ///
     /// Returns the maximal height of the widget.
@@ -601,7 +589,7 @@ namespace waytk
 
     /// Sets the maximal height of the widget.
     void set_max_height(int max_height)
-    { _M_max_height = max_height >= 1 ? max_height : 1; }
+    { _M_max_height = (max_height >= 1 ? max_height : 1); }
 
     ///
     /// Returns the minimal width of the widget.
@@ -613,7 +601,7 @@ namespace waytk
 
     /// Sets the minimal width of the widget.
     void set_min_width(int min_width)
-    { _M_min_width = min_width >= 0 ? min_width : 0; }
+    { _M_min_width = (min_width >= 0 ? min_width : 0); }
 
     ///
     /// Returns the minimal height of the widget.
@@ -625,7 +613,19 @@ namespace waytk
 
     /// Sets the minimal height of the widget.
     void set_min_height(int min_height)
-    { _M_min_height = min_height >= 0 ? min_height : 0; }
+    { _M_min_height = (min_height >= 0 ? min_height : 0); }
+
+    ///
+    /// Returns the widget weidght.
+    ///
+    /// By default, the weight is \c 0.
+    ///
+    int weight() const
+    { return _M_weight; }
+
+    /// Sets the widget weidght.
+    void set_weight(int weight)
+    { _M_weight = (weight >= 0 ? weight : 0); }
 
     ///
     /// Returns the widget bounds.
@@ -636,8 +636,20 @@ namespace waytk
     ///
     const Rectangle<int> &bounds() const
     { return _M_bounds; }
+  protected:
+    /// Sets the widget bounds.
+    void set_bounds(int x, int y, int width, int height)
+    { set_bounds(Rectangle<int>(x, y, width, height)); }
 
-    // Returns the widget surface.
+    /// \copydoc set_bounds(int x, int y, int width, int height)
+    void set_bounds(const Point<int> point, const Dimension<int> size)
+    { set_bounds(Rectangle<int>(point.x, point.y, size.width, size.height)); }
+
+    /// \copydoc set_bounds(int x, int y, int width, int height)
+    void set_bounds(const Rectangle<int> &bounds)
+    { _M_bounds = bounds; }
+  public:
+    /// Returns the widget surface.
     const std::weak_ptr<Surface> &surface();
 
     /// Returns the widget parent.
@@ -659,9 +671,26 @@ namespace waytk
 
     bool delete_pointer(const Pointer &pointer);
   public:
+    /// Returns the widget styles.
+    Styles *styles();
+    
     /// Returns the widget margin.
-    Edges<int> margin() const;
+    Edges<int> margin()
+    { return styles()->margin(real_pseudo_classes()); }
 
+    /// Returns \c true if the widget can be adjacent to other widget, otherwise
+    /// \c false.
+    bool has_adjacency_to(Widget *widget)
+    { return styles()->has_adjacency_to(widget->styles()); }
+  protected:
+    /// Returns the content size of the widget.
+    const Dimension<int> &content_size() const
+    { return _M_content_size; }
+
+    /// Sets the content size of the widget.
+    void set_content_size(const Dimension<int> &size)
+    { _M_content_size = size; }
+  public:
     /// Returns the listener for touch events.
     const OnTouchListener &on_touch_listener() const
     { return _M_on_touch_callback.listener(); }
@@ -750,9 +779,36 @@ namespace waytk
     /// Returns the widget name.
     virtual const char *name() const;
 
+    /// Updates the top left point of the widget.
+    virtual void update_point(const Rectangle<int> &area_bounds, const HAlignment *h_align = nullptr, const VAlignment *v_align = nullptr);
+  protected:
+    /// Updates the top left points of the widget children.
+    virtual void update_child_points(const Rectangle<int> &area_bounds);
+  public:
+    /// Updates the widget size.
+    virtual void update_size(Canvas *canvas, const Dimension<int> &area_size, const HAlignment *h_align = nullptr, const VAlignment *v_align = nullptr);
+  protected:
+    /// Updates the sizes of the widget children.
+    virtual void update_child_sizes(Canvas *canvas, const Dimension<int> &area_size);
+
+    /// Updates the content size of the widget.
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
+  public:
+    /// Returns \c true if the widget width can be again updated, \c false.
+    virtual bool can_again_update_width() const;
+
+    /// Returns \c true if the widget height can be again updated, \c false.
+    virtual bool can_again_update_height() const;
+
     /// Draws the widget.
     virtual void draw(Canvas *canvas);
+  protected:
+    /// Draws the widget content.
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
 
+    /// Draws the widget children.
+    virtual void draw_children(Canvas *canvas, const Rectangle<int> &inner_bounds);
+  public:
     /// Creates a new viewport of the widget.
     virtual Viewport *viewport();
 
@@ -796,6 +852,33 @@ namespace waytk
 
     /// This method that is invoked when the widget is scrolled.
     virtual void on_scoll(Viewport *viewport);
+  protected:
+    /// Returns a margin box size of a block.
+    Dimension<int> block_margin_box_size(const char *name, PseudoClasses pseudo_classes, const Dimension<int> &content_size);
+
+    /// Draws a block.
+    void draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size)
+    {
+      Styles *styles;
+      Rectangle<int> inner_bounds;
+      draw_block(name, pseudo_classes, canvas, margin_box_point, margin_box_size, inner_bounds, styles);
+    }
+
+    /// \copydoc draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size)
+    void draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size, Rectangle<int> &inner_bounds)
+    {
+      Styles *styles;
+      draw_block(name, pseudo_classes, canvas, margin_box_point, margin_box_size, inner_bounds, styles);
+    }
+
+    /// \copydoc draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size)
+    void draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size, Rectangle<int> &inner_bounds, Styles *&styles);
+
+    /// Converts an area size to a inner area size.
+    Dimension<int> area_size_to_inner_area_size(const Dimension<int> &size);
+
+    /// Converts an area bounds to a inner area bounds.
+    Rectangle<int> area_bounds_to_inner_area_bounds(const Rectangle<int> &bounds);
   };
 
   ///
@@ -857,8 +940,10 @@ namespace waytk
     void set_text(const std::string &text);
 
     virtual const char *name() const;
+  protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw(Canvas *canvas);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
   };
 
   ///
@@ -874,6 +959,8 @@ namespace waytk
     std::string _M_label;
     OnClickCallback _M_on_click_callback;
     std::size_t _M_touch_count;
+    Dimension<int> _M_icon_margin_box_size;
+    Dimension<int> _M_label_margin_box_size;
   protected:
     /// Default constructor that doesn't invoke an \ref initialize method.
     Button() {}
@@ -930,11 +1017,13 @@ namespace waytk
     /// Sets the listener for clicks.
     void set_on_click_listener(const OnClickListener &listener)
     { _M_on_click_callback.set_listener(listener); }
-
+  public:
     virtual const char *name() const;
+  protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw(Canvas *canvas);
-
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
+  public:
     virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
     virtual void on_touch_leave(const Pointer &pointer);
@@ -943,6 +1032,43 @@ namespace waytk
   protected:
     /// This method that is invoked when a click occurs.
     virtual void on_click();
+
+    /// Returns the name of the button icon.
+    virtual const char *icon_name() const;
+
+    /// Returns the size of th button icon.
+    virtual IconSize icon_size() const;
+
+    /// Returns the margin box size of the button icon.
+    const Dimension<int> &icon_margin_box_size() const
+    { return _M_icon_margin_box_size; }
+
+    /// Sets the margin box size of the button icon.
+    void set_icon_margin_box_size(const Dimension<int> &size)
+    { _M_icon_margin_box_size = size; }
+
+    /// Updates the margin box size of the button icon.
+    virtual void update_icon_margin_box_size(Canvas *canvas);
+
+    /// Draws the button icon.
+    virtual void draw_icon(Canvas *canvas, const Point<int> &margin_box_point);
+
+    /// Returns the name of the button label.
+    virtual const char *label_name() const;
+
+    /// Returns the margin box size of the button label.
+    const Dimension<int> &label_margin_box_size() const
+    { return _M_label_margin_box_size; }
+
+     /// Sets the margin box size of the button label.
+    void label_margin_box_size(const Dimension<int> &size)
+    { _M_label_margin_box_size = size; }
+
+    /// Updates the margin box size of the label button.
+    virtual void update_label_margin_box_size(Canvas *canvas);
+
+    /// Draws the button label.
+    virtual void draw_label(Canvas *canvas, const Point<int> &margin_box_point);
   };
 
   ///
@@ -1205,6 +1331,7 @@ namespace waytk
   {
     bool _M_is_checked;
     OnCheckCallback _M_on_check_callback;
+    Dimension<int> _M_check_margin_box_size;
   protected:
     /// Constructor that doesn't invoke the \ref initialize method.
     CheckBox(Unused unused) {}
@@ -1248,13 +1375,38 @@ namespace waytk
     { _M_on_check_callback.set_listener(listener); }
 
     virtual const char *name() const;
-
-    virtual void draw(Canvas *canvas);
   protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
+
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
+
     virtual void on_click();
 
     // This method is inovked when the check box state is changed.
     virtual void on_check(bool is_checked);
+
+    /// Returns \c true if the check box can draw an icon, otherwise \c false.
+    virtual bool can_draw_icon() const;
+
+    virtual const char *label_name() const;
+
+    /// Returns the name of the check of the check box.
+    virtual const char *check_name() const;
+    
+    /// Returns the margin box size of the check of the check box.
+    const Dimension<int> &check_margin_box_size() const
+    { return _M_check_margin_box_size; }
+
+    /// Sets the margin box size of the check of the check box.
+    void set_check_margin_box_size(const Dimension<int> &size)
+    { _M_check_margin_box_size = size; }
+
+    /// Updates the margin box size of the check of the check box.
+    virtual void update_check_margin_box_size(Canvas *canvas);
+
+    /// Draws the check of the check box.
+    virtual void draw_check(Canvas *canvas, const Point<int> &margin_box_point);
+
   };
 
   ///
@@ -1346,10 +1498,12 @@ namespace waytk
     void set_group(const std::shared_ptr<RadioGroup> &group);
 
     virtual const char *name() const;
-
-    virtual void draw(Canvas *canvas);
   protected:
     virtual void on_check(bool is_checked);
+
+    virtual const char *label_name() const;
+
+    virtual const char *check_name() const;
   };
 
   namespace priv
@@ -1398,7 +1552,7 @@ namespace waytk
       { return _M_fields->_M_on_selection(pos); }
     };
   }
-  
+
   ///
   /// A combo box is a button with drop-down list.
   ///
@@ -1523,8 +1677,16 @@ namespace waytk
     { _M_value = (value < _M_max_value ? value : _M_max_value); }
 
     virtual const char *name() const;
+  protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw(Canvas &canvas);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
+
+    /// Returns the name of the progess of the progress bar.
+    virtual const char *progress_name() const;
+
+    /// Draws the progress of the progess bar.
+    virtual void draw_progress(Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size);
   };
 
   ///
@@ -1603,8 +1765,10 @@ namespace waytk
     { set_image(std::shared_ptr<CanvasImage>(load_canvas_image(file_name))); }
 
     virtual const char *name() const;
+  protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw(Canvas &canvas);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
   };
 
   ///
@@ -1618,6 +1782,8 @@ namespace waytk
   public:
     /// Destructor.
     virtual ~Panel();
+  protected:
+    virtual void draw_children(Canvas *canvas, const Rectangle<int> &inner_bounds);
   };
 
   ///
@@ -1626,6 +1792,12 @@ namespace waytk
   class LinearPanel : public Panel
   {
     Orientation _M_orientation;
+    int _M_weight_sum;
+    union
+    {
+      int _M_item_height;
+      int _M_item_width;
+    };
   protected:
     /// Constructor that doesn't invoke the \ref initialize method.
     LinearPanel(Unused unused) {}
@@ -1665,9 +1837,27 @@ namespace waytk
     void set_orientation(Orientation orientation)
     { _M_orientation = orientation; }
 
-    virtual const char *name() const;
+    int weight_sum() const
+    { return _M_weight_sum; }
 
-    virtual void draw(Canvas *canvas);
+    void set_weight_sum(int weight_sum)
+    { _M_weight_sum = (weight_sum >= 0 ? weight_sum : 0); }
+    
+    virtual const char *name() const;
+  protected:
+    virtual void update_child_points(const Rectangle<int> &area_bounds);
+
+    virtual void update_child_sizes(Canvas *canvas, const Dimension<int> &area_size);
+
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
+
+    virtual bool can_again_update_width() const;
+
+    virtual bool can_again_update_height() const;
+  private:
+    int min_item_width(int inner_area_width, double &float_width);
+
+    int min_item_height(int inner_area_height, double &float_height);
   };
 
   ///
@@ -1676,6 +1866,7 @@ namespace waytk
   class GridPanel : public Panel
   {
     int _M_column_count;
+    Dimension<int> _M_cell_size;
   protected:
     /// Default constructor that doesn't invoke the \ref initialize method.
     GridPanel() {}
@@ -1699,12 +1890,20 @@ namespace waytk
     { return _M_column_count; }
 
     /// Sets the number of columns.
-    void set_columns(int column_count)
-    { _M_column_count = column_count; }
+    void set_column_count(int column_count)
+    { _M_column_count = (column_count >= 1 ? column_count : 1); }
 
     virtual const char *name() const;
+  protected:
+    virtual void update_child_points(const Rectangle<int> &area_bounds);
 
-    virtual void draw(Canvas *canvas);
+    virtual void update_child_sizes(Canvas *canvas, const Dimension<int> &area_size);
+
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
+
+    virtual bool can_again_update_width() const;
+
+    virtual bool can_again_update_height() const;
   };
 
   ///
@@ -1765,8 +1964,10 @@ namespace waytk
     void set_second_widget(Widget *widget);
 
     virtual const char *name() const;
+  protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw(Canvas *canvas);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
   };
 
   ///
@@ -1895,9 +2096,11 @@ namespace waytk
     { _M_on_list_selection_callback.set_listener(listener); }
 
     virtual const char *name() const;
+  protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw(Canvas *canvas);
-
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
+  public:
     virtual Viewport *viewport();
 
     virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
@@ -2086,9 +2289,11 @@ namespace waytk
     { _M_on_table_selection_callback.set_listener(listener); }
 
     virtual const char *name() const;
+  protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw(Canvas *canvas);
-
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
+  public:
     virtual Viewport *viewport();
 
     virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
@@ -2233,9 +2438,11 @@ namespace waytk
     { _M_on_tree_selection_callback.set_listener(listener); }
 
     virtual const char *name() const;
+  protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw(Canvas *canvas);
-
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
+  public:
     virtual Viewport *viewport();
 
     virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
@@ -2325,9 +2532,11 @@ namespace waytk
     { _M_has_auto_v_scroll_bar = has_auto_v_scroll_bar; }
 
     virtual const char *name() const;
+  protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw(Canvas *canvas);
-    
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
+  public:
     virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
     virtual void on_touch_leave(const Pointer &pointer);
@@ -2370,8 +2579,14 @@ namespace waytk
     virtual ~MenuItem();
 
     virtual const char *name() const;
+  protected:
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
 
-    virtual void draw(Canvas *canvas);
+    virtual const char *icon_name() const;
+
+    virtual IconSize icon_size() const;
+
+    virtual const char *label_name() const;
   };
 
   ///
@@ -2409,8 +2624,20 @@ namespace waytk
     virtual ~CheckMenuItem();
 
     virtual const char *name() const;
+  protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw(Canvas *canvas);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
+
+    virtual const char *icon_name() const;
+
+    virtual IconSize icon_size() const;
+
+    virtual bool can_draw_icon() const;
+
+    virtual const char *label_name() const;
+
+    virtual const char *check_name() const;
   };
 
   ///
@@ -2471,8 +2698,20 @@ namespace waytk
     virtual ~RadioMenuItem();
 
     virtual const char *name() const;
+  protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw(Canvas *canvas);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
+
+    virtual const char *icon_name() const;
+
+    virtual IconSize icon_size() const;
+
+    virtual bool can_draw_icon() const;
+
+    virtual const char *label_name() const;
+
+    virtual const char *check_name() const;
   };
 
   ///
@@ -2494,8 +2733,10 @@ namespace waytk
     virtual ~SeparatorMenuItem();
 
     virtual const char *name() const;
+  protected:
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw(Canvas *canvas);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
   };
 
   ///
@@ -2556,7 +2797,9 @@ namespace waytk
 
     virtual const char *name() const;
 
-    virtual void draw(Canvas *canvas);
+    virtual const char *icon_name() const;
+
+    virtual const char *label_name() const;
   };
 
   ///
@@ -2565,6 +2808,7 @@ namespace waytk
   class MenuBar : public Widget
   {
     std::list<std::unique_ptr<Menu>> _M_menus;
+    int _M_menu_height;
   protected:
     /// Constructor that doesn't invoke the \ref initialize method.
     MenuBar(Unused unused) {}
@@ -2598,9 +2842,18 @@ namespace waytk
     void delete_all_menus();
 
     virtual const char *name() const;
+  protected:
+    virtual void update_child_points(const Rectangle<int> &area_bounds);
 
-    virtual void draw(Canvas *canvas);    
+    virtual void update_child_sizes(Canvas *canvas, const Dimension<int> &area_size);
+
+    virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
+
+    virtual void draw_children(Canvas *canvas, const Rectangle<int> &inner_bounds);
   };
+
+  /// Converts an icon size to a dimension.
+  Dimension<int> icon_size_to_dimension(IconSize size);
 }
 
 #endif

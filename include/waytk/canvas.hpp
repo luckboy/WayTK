@@ -155,13 +155,13 @@ namespace waytk
   struct TextMetrics
   {
     double x_bearing, y_bearing;
-    double width, heihgt;
+    double width, height;
     double x_advance, y_advance;
 
     TextMetrics() {}
 
     TextMetrics(double x_bearing, double y_bearing, double width, double height, double x_advance, double y_advance) :
-      x_bearing(x_bearing), y_bearing(y_bearing), width(width), heihgt(height), x_advance(x_advance), y_advance(y_advance) {}
+      x_bearing(x_bearing), y_bearing(y_bearing), width(width), height(height), x_advance(x_advance), y_advance(y_advance) {}
   };
 
   class CanvasPattern
@@ -409,7 +409,7 @@ namespace waytk
     { rect(Rectangle<double>(x, y, width, height)); }
 
     void rect(const Point<double> &p, const Dimension<double> &d)
-    { rect(Rectangle<double>(p.x, p.y, d.width, d.height)); }
+    { rect(Rectangle<double>(p, d)); }
 
     virtual void rect(const Rectangle<double> &r) = 0;
 

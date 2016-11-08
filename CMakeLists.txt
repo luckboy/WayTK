@@ -18,7 +18,7 @@ pkg_search_module(WAYLAND_CURSOR REQUIRED wayland-cursor)
 pkg_search_module(XKBCOMMON REQUIRED xkbcommon)
 pkg_search_module(YAML REQUIRED yaml-0.1)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 
 if(CMAKE_USE_PTHREADS_INIT)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")

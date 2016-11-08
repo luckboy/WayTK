@@ -98,11 +98,20 @@ namespace waytk
     Rectangle(_T x, _T y, _T width, _T height) :
       x(x), y(y), width(width), height(height) {}
 
+    Rectangle(const Point<_T> &point, const Dimension<_T> &size) :
+      x(point.x), y(point.y), width(size.width), height(size.height) {}
+
     bool operator==(const Rectangle<_T> &rect) const
     { return x == rect.x && y == rect.y && width == rect.width && height == rect.height; }
 
     bool operator!=(const Rectangle<_T> &rect) const
     { return !(*this == rect); }
+
+    Point<_T> point() const
+    { return Point<_T>(x, y); }
+
+    Dimension<_T> size() const
+    { return Dimension<_T>(width, height); }
   };
 
   ///

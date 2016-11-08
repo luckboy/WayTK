@@ -638,8 +638,8 @@ namespace waytk
 
     void ImplCanvas::set_font_face(const string &name, FontSlant slant, FontWeight weight)
     {
-      ::cairo_font_slant_t cairo_slant;
-      ::cairo_font_weight_t cairo_weight;
+      ::cairo_font_slant_t cairo_slant = ::CAIRO_FONT_SLANT_NORMAL;
+      ::cairo_font_weight_t cairo_weight = ::CAIRO_FONT_WEIGHT_NORMAL;
       switch(slant) {
         case FontSlant::NORMAL:
           cairo_slant = ::CAIRO_FONT_SLANT_NORMAL;
@@ -751,7 +751,7 @@ namespace waytk
       text_metrics.x_bearing = text_extents.x_bearing;
       text_metrics.y_bearing = text_extents.y_bearing;
       text_metrics.width = text_extents.width;
-      text_metrics.heihgt = text_extents.height;
+      text_metrics.height = text_extents.height;
       text_metrics.x_advance = text_extents.x_advance;
       text_metrics.y_advance = text_extents.y_advance;
     }
@@ -764,7 +764,7 @@ namespace waytk
       text_metrics.x_bearing = text_extents.x_bearing;
       text_metrics.y_bearing = text_extents.y_bearing;
       text_metrics.width = text_extents.width;
-      text_metrics.heihgt = text_extents.height;
+      text_metrics.height = text_extents.height;
       text_metrics.x_advance = text_extents.x_advance;
       text_metrics.y_advance = text_extents.y_advance;
     }
