@@ -890,8 +890,10 @@ namespace waytk
   {
     std::list<std::unique_ptr<Widget>> _M_widgets;
   protected:
+    /// Default constructor.
     Container() {}
   public:
+    /// Destreuctor.
     virtual ~Container();
   protected:
     /// Initializes the container.
@@ -1406,7 +1408,6 @@ namespace waytk
 
     /// Draws the check of the check box.
     virtual void draw_check(Canvas *canvas, const Point<int> &margin_box_point);
-
   };
 
   ///
