@@ -26,8 +26,10 @@
 
 namespace waytk
 {
+  /// Normalizes an UTF-8 string. 
   std::string normalize_utf8(const std::string &str);
 
+  /// \copydoc normalize_utf8(const std::string &str)
   void normalize_utf8(const std::string &str, std::string &result); 
 }
 

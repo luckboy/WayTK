@@ -27,77 +27,116 @@
 
 namespace waytk
 {
+  ///
+  /// An enumeration of pseudo classes.
+  ///
   enum class PseudoClasses
   {
-    NONE = 0,
-    ACTIVE = 1,
-    BACKDROP = 2,
-    CHECKED = 4,
-    DISABLED = 8,
-    FOCUS = 16,
-    HOVER = 32,
-    SELECTED = 64,
-    ADJACENT_TO_TOP = 128,
-    ADJACENT_TO_RIGHT = 256,
-    ADJACENT_TO_BOTTOM = 512,
-    ADJACENT_TO_LEFT = 1024,
-    FIRST = 2048,
-    LAST = 4096,
-    EVEN = 8192,
-    ODD = 16384,
-    TOP_ACTIVE = 32768, 
-    RIGHT_ACTIVE = 65536,
-    BOTTOM_ACTIVE = 131072,
-    LEFT_ACTIVE = 262144
+    NONE = 0,                   ///< No pseudo classes.
+    ACTIVE = 1,                 ///< The widget is clicked.
+    BACKDROP = 2,               ///< The widget is on the inactive surface.
+    CHECKED = 4,                ///< The wigdet is checked.
+    DISABLED = 8,               ///< The widget is disabled.
+    FOCUS = 16,                 ///< The widget has focus.
+    HOVER = 32,                 ///< The pointer is on the widget.
+    SELECTED = 64,              ///< The widget is selected.
+    ADJACENT_TO_TOP = 128,      ///< The widget is adjacent to the top widget.
+    ADJACENT_TO_RIGHT = 256,    ///< The widget is adjacent to the right widget.
+    ADJACENT_TO_BOTTOM = 512,   ///< The widget is adjacent to the bottom widget.
+    ADJACENT_TO_LEFT = 1024,    ///< The widget is adjacent to the left widget.
+    FIRST = 2048,               ///< The widget at the first row.
+    LAST = 4096,                ///< The widget at the last row.
+    EVEN = 8192,                ///< The widget at an even row.
+    ODD = 16384,                ///< The widget at an odd row.
+    TOP_ACTIVE = 32768,         ///< The adjacent top widget to the widget is
+                                ///  clicked.
+    RIGHT_ACTIVE = 65536,       ///< The adjacent right wigdet to the widget is
+                                ///  clicked.
+    BOTTOM_ACTIVE = 131072,     ///< The adjacent bottom widget to the widget is
+                                ///  clicked.
+    LEFT_ACTIVE = 262144        ///< The adjacent left widget to the widget is
+                                ///  clicked.
   };
 
-  inline PseudoClasses operator~(PseudoClasses pseudo_class)
-  { return static_cast<PseudoClasses>(static_cast<int>(pseudo_class) ^ 524287); }
+  /// Returns nagation of \p pseudo_classes.
+  inline PseudoClasses operator~(PseudoClasses pseudo_classes)
+  { return static_cast<PseudoClasses>(static_cast<int>(pseudo_classes) ^ 524287); }
 
-  inline PseudoClasses operator&(PseudoClasses pseudo_class1, PseudoClasses pseudo_class2)
-  { return static_cast<PseudoClasses>(static_cast<int>(pseudo_class1) & static_cast<int>(pseudo_class2)); }
+  /// Returns conjuction of \p pseudo_classes1 with \p pseudo_classes2.
+  inline PseudoClasses operator&(PseudoClasses pseudo_classes1, PseudoClasses pseudo_classes2)
+  { return static_cast<PseudoClasses>(static_cast<int>(pseudo_classes1) & static_cast<int>(pseudo_classes2)); }
 
-  inline PseudoClasses operator&=(PseudoClasses &psuedo_class1, PseudoClasses pseudo_class2)
-  { psuedo_class1 = psuedo_class1 & pseudo_class2; return psuedo_class1; }
+  /// Assigns conjuction of \p pseudo_classes1 with \p pseudo_classes2 to
+  /// \p pseudo_classes2.
+  inline PseudoClasses operator&=(PseudoClasses &psuedo_classes1, PseudoClasses pseudo_classes2)
+  { psuedo_classes1 = psuedo_classes1 & pseudo_classes2; return psuedo_classes1; }
 
-  inline PseudoClasses operator|(PseudoClasses pseudo_class1, PseudoClasses pseudo_class2)
-  { return static_cast<PseudoClasses>(static_cast<int>(pseudo_class1) | static_cast<int>(pseudo_class2)); }
+  /// Returns disjuction of \p pseudo_classes1 with \p pseudo_classes2.
+  inline PseudoClasses operator|(PseudoClasses pseudo_classes1, PseudoClasses pseudo_classes2)
+  { return static_cast<PseudoClasses>(static_cast<int>(pseudo_classes1) | static_cast<int>(pseudo_classes2)); }
 
-  inline PseudoClasses operator|=(PseudoClasses &pseudo_class1, PseudoClasses pseudo_class2)
-  { pseudo_class1 = pseudo_class1 | pseudo_class2; return pseudo_class1; }
+  /// Assigns disjuction of \p pseudo_classes1 with \p pseudo_classes2 to
+  /// \p pseudo_classes2.
+  inline PseudoClasses operator|=(PseudoClasses &pseudo_classes1, PseudoClasses pseudo_classes2)
+  { pseudo_classes1 = pseudo_classes1 | pseudo_classes2; return pseudo_classes1; }
 
-  inline PseudoClasses operator^(PseudoClasses pseudo_class1, PseudoClasses pseudo_class2)
-  { return static_cast<PseudoClasses>(static_cast<int>(pseudo_class1) ^ static_cast<int>(pseudo_class2)); }
+  /// Returns exclusive disjuction of \p pseudo_classes1 with
+  /// \p pseudo_classes2.
+  inline PseudoClasses operator^(PseudoClasses pseudo_classes1, PseudoClasses pseudo_classes2)
+  { return static_cast<PseudoClasses>(static_cast<int>(pseudo_classes1) ^ static_cast<int>(pseudo_classes2)); }
 
-  inline PseudoClasses operator^=(PseudoClasses &pseudo_class1, PseudoClasses pseudo_class2)
-  { pseudo_class1 = pseudo_class1 ^ pseudo_class2; return pseudo_class1; }
+  /// Assigns exclusive disjuction of \p pseudo_classes1 with \p pseudo_classes2
+  /// to \p pseudo_classes2.
+  inline PseudoClasses operator^=(PseudoClasses &pseudo_classes1, PseudoClasses pseudo_classes2)
+  { pseudo_classes1 = pseudo_classes1 ^ pseudo_classes2; return pseudo_classes1; }
 
+  ///
+  /// A class of styles for a widget or a block.
+  ///
+  /// Styles are used for drawing widgets and blocks in WayTK theme. The styles
+  /// contain an information about how to draw a widget or a block for a
+  /// specified pseudo classes. Some information are accessible by properties
+  /// and this class has methods to drawing a widget background or a block
+  /// background.
+  ///
   class Styles
   {
   protected:
+    /// Default constructor.
     Styles() {}
   public:
+    /// Destructor.
     virtual ~Styles();
 
+    /// Returns a margin width for pseudo classes.
     virtual Edges<int> margin(PseudoClasses pseudo_classes) const = 0;
 
+    /// Returns a border width for pseudo classes.
     virtual Edges<int> border(PseudoClasses pseudo_classes) const = 0;
 
+    /// Returns a padding width for pseudo classes.
     virtual Edges<int> padding(PseudoClasses pseudo_classes) const = 0;
 
+    /// Draws background for pseudo classes.
     void draw_background(PseudoClasses pseudo_classes, Canvas *canvas, int x, int y, int width, int height) const
     { draw_background(pseudo_classes, canvas, Rectangle<int>(x, y, width, height)); }
 
+    /// \copydoc draw_background(PseudoClasses pseudo_classes, Canvas *canvas, int x, int y, int width, int height) const
     void draw_background(PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &point, const Rectangle<int> &size) const
     { draw_background(pseudo_classes, canvas, Rectangle<int>(point.x, point.y, size.width, size.height)); }
 
+    /// \copydoc draw_background(PseudoClasses pseudo_classes, Canvas *canvas, int x, int y, int width, int height) const
     virtual void draw_background(PseudoClasses pseudo_classes, Canvas *canvas, const Rectangle<int> &rect) const = 0;
 
+    /// Returns a foreground color for pseudo classes.
     virtual Color foreground_color(PseudoClasses pseudo_classes) const = 0;
-    
-    virtual bool has_adjacency_to(Styles *styles);
+
+    /// Returns \c true if the widget can be adjacent to other widget, otherwise
+    /// \c false.
+    virtual bool has_adjacency_to() = 0;
   };
 
+  /// Finds styles for a specified name.
   Styles *find_styles(const char *name);
 }
 

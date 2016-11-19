@@ -48,14 +48,14 @@ namespace waytk
   class Widget;
 
   ///
-  /// An enumeratin of horizontal alignment.
+  /// An enumeration of horizontal alignment.
   ///
   enum class HAlignment
   {
-    LEFT,               ///< Aligns to left.
-    CENTER,             ///< Aligns to horizontal center.
-    RIGHT,              ///< Aligns to right.
-    FILL                ///< Aligns to left and right.
+    LEFT,                       ///< Aligns to left.
+    CENTER,                     ///< Aligns to horizontal center.
+    RIGHT,                      ///< Aligns to right.
+    FILL                        ///< Aligns to left and right.
   };
 
   ///
@@ -63,10 +63,10 @@ namespace waytk
   ///
   enum class VAlignment
   {
-    TOP,                ///< Aligns to top.
-    CENTER,             ///< Aligns to vertical center.
-    BOTTOM,             ///< Aligns to bottom.
-    FILL                ///< Aligns to top and bottom.
+    TOP,                        ///< Aligns to top.
+    CENTER,                     ///< Aligns to vertical center.
+    BOTTOM,                     ///< Aligns to bottom.
+    FILL                        ///< Aligns to top and bottom.
   };
 
   ///
@@ -74,10 +74,12 @@ namespace waytk
   ///
   enum class TouchState
   {
-    DOWN,               ///< A touch start or a pointer button is pressed.
-    MOTION,             ///< A touch motion or a pointer motion with pressed
-                        ///  button.
-    UP                  ///< A touch end or a pointer button is released.
+    DOWN,                       ///< A touch start or a pointer button is
+                                ///  pressed.
+    MOTION,                     ///< A touch motion or a pointer motion with
+                                ///  pressed button.
+    UP                          ///< A touch end or a pointer button is
+                                ///  released.
   };
 
   ///
@@ -85,8 +87,8 @@ namespace waytk
   ///
   enum class Axis
   {
-    HORIZONTAL_SCROLL,  /// Horizontal scroll wheel.
-    VERTICAL_SCROLL     /// Vertical scroll wheel.
+    HORIZONTAL_SCROLL,          ///< Horizontal scroll wheel.
+    VERTICAL_SCROLL             ///< Vertical scroll wheel.
   };
 
   ///
@@ -94,9 +96,9 @@ namespace waytk
   ///
   enum class KeyState
   {
-    PRESSED,            ///< Pressed key.
-    REPEATED,           ///< Pepeated key.
-    RELEASED            ///< Released key.
+    PRESSED,                    ///< Pressed key.
+    REPEATED,                   ///< Pepeated key.
+    RELEASED                    ///< Released key.
   };
 
   ///
@@ -104,9 +106,9 @@ namespace waytk
   ///
   enum class InputType
   {
-    SINGLE_LINE,        ///< Single-line text.
-    MULTI_LINE,         ///< Multi-line text.
-    PASSWORD            ///< Password.
+    SINGLE_LINE,                ///< Single-line text.
+    MULTI_LINE,                 ///< Multi-line text.
+    PASSWORD                    ///< Password.
   };
 
   ///
@@ -114,8 +116,8 @@ namespace waytk
   ///
   enum class Orientation
   {
-    HORIZONTAL,         ///< Horizontal orientation.
-    VERTICAL            ///< Vertical orientation.
+    HORIZONTAL,                 ///< Horizontal orientation.
+    VERTICAL                    ///< Vertical orientation.
   };
 
   ///
@@ -123,8 +125,8 @@ namespace waytk
   ///
   enum class SelectionMode
   {
-    SINGLE,             ///< Just one of items can be selected.
-    MULTI               ///< More than one item can be selected.
+    SINGLE,                     ///< Just one of items can be selected.
+    MULTI                       ///< More than one item can be selected.
   };
 
   ///
@@ -132,9 +134,9 @@ namespace waytk
   ///
   enum class IconSize
   {
-    SMALL,              ///< Small icon.
-    MEDIUM,             ///< Medium icon.
-    LARGE               ///< Large icon.
+    SMALL,                      ///< Small icon.
+    MEDIUM,                     ///< Medium icon.
+    LARGE                       ///< Large icon.
   };
 
   ///
@@ -179,15 +181,19 @@ namespace waytk
     explicit Icon(const std::string &name) :
       _M_name(name) {}
 
+    /// Returns \c true if the icon is equal to \p icon, otherwise \c false.
     bool operator==(const Icon &icon) const
     { return _M_name == icon._M_name; }
 
+    /// Returns \c true if the icon isn't equal to \p icon, otherwise \c false.
     bool operator!=(const Icon &icon) const
     { return !(*this == icon); }
 
+    /// Returns the icon name.
     const std::string &name() const
     { return _M_name; }
 
+    /// Returns the icon image.
     std::shared_ptr<CanvasImage> image(IconSize size) const;
   };
 
@@ -211,7 +217,7 @@ namespace waytk
   ///
   /// A viewport object is used by the scroll widget to store information about
   /// a widget bounds at the viewport and a scroll slider. The part of this
-  /// information is modified by the scroll widget, so that the scroll widget
+  /// information is modified by the scroll widget so that the scroll widget
   /// inform a widget motion at viewport.
   ///
   class Viewport
@@ -441,10 +447,10 @@ namespace waytk
   /// display and the widget behavior are specified by properties of this class
   /// The widget reactions can be specified by setting the listeners of the
   /// widget. The listeners of the widgets are invoked when an appropriate event
-  /// occurs. For example, the widget events are: key press, touch, and pressing
-  /// of pointer button. Each widget mustn't be used as child in more then one
-  /// other widget. The widget must be deleted from own parent if the widget
-  /// will be added onto other parent.
+  /// occurs. For example, the widget events are: key press, touch, and press of
+  /// pointer button. Each widget mustn't be used as child in more then one other
+  /// widget. The widget must be deleted from own parent if the widget will be
+  /// added onto other parent.
   ///
   class Widget
   {
@@ -530,7 +536,7 @@ namespace waytk
     /// Returns \c true if the widget is visible, otherwise \c false.
     ///
     /// If the widget isn't visible, it isn't displayed. Also, descendants of a
-    /// widget aren't displayed in case their ascendants are invisible. By
+    /// widget aren't displayed in case of their ascendants are invisible. By
     /// default, each widget of WayTK is visible.
     ///
     bool is_visible() const
@@ -557,8 +563,7 @@ namespace waytk
     ///
     /// Returns the vertical alignment of the widget.
     ///
-    /// By default, each widget of WayTK is vertically aligned to top except
-    /// buttons.
+    /// By default, each widget of WayTK is vertically aligned to center.
     ///
     VAlignment v_align() const
     { return _M_v_align; }
@@ -681,7 +686,7 @@ namespace waytk
     /// Returns \c true if the widget can be adjacent to other widget, otherwise
     /// \c false.
     bool has_adjacency_to(Widget *widget)
-    { return styles()->has_adjacency_to(widget->styles()); }
+    { return styles()->has_adjacency_to(); }
   protected:
     /// Returns the content size of the widget.
     const Dimension<int> &content_size() const
@@ -1200,7 +1205,8 @@ namespace waytk
     ///
     /// Deletes characters from the text of the text widget.
     ///
-    /// The characters are deleted from the text after the cursor.
+    /// The characters are deleted from the text of the text widget after the
+    /// cursor.
     ///
     void delete_chars(std::size_t count);
 
@@ -1411,7 +1417,7 @@ namespace waytk
   };
 
   ///
-  /// A class is used to grouped radio buttons.
+  /// A class that is used for grouped radio buttons.
   ///
   class RadioGroup
   {
@@ -1796,8 +1802,8 @@ namespace waytk
     int _M_weight_sum;
     union
     {
-      int _M_item_height;
-      int _M_item_width;
+      int _M_item_height;       ///< \private
+      int _M_item_width;        ///< \private
     };
   protected:
     /// Constructor that doesn't invoke the \ref initialize method.
@@ -2310,8 +2316,8 @@ namespace waytk
   ///
   /// A tree widget displays trees.
   ///
-  /// Branch of trees can be expanded or unexpended. Descendants of a branch are
-  /// displayed if branches are expanded, otherwise is hidden. One of the nodes
+  /// Branch of trees can be expanded or unexpended. Ascendants of a branch are
+  /// displayed if the branch is expanded, otherwise is hidden. One of the nodes
   /// of tree or more notes of tree can be selected by an user. If more than on
   /// node of the tree widget can be selected, an user can use shortcuts for a
   /// selection. Nodes of trees are displayed by displaying the widgets and
@@ -2460,8 +2466,8 @@ namespace waytk
   /// A scroll widget allows to move a widget at inside.
   ///
   /// The scroll widget uses a viewport object of the widget at inside to get
-  /// and set offset at the viewport. This offset is used to display this widget
-  /// at inside.
+  /// and set offset at the viewport. This offset is used for displaying this
+  /// widget at inside.
   ///
   class Scroll : public Widget
   {

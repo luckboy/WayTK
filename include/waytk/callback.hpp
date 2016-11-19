@@ -26,18 +26,30 @@
 
 namespace waytk
 {
+  ///
+  /// A class template of callback.
+  ///
+  /// A callback is an object that stores a listener. The callback listener can
+  /// be invoked by an invocation of the callback. The invocation of the
+  /// callback guaratees that the listener can't be invoked by the callback if
+  /// the listener already is invoked by the callback.
+  ///
   template<typename... _Ts>
   class Callback
   {
     std::function<void (_Ts...)> _M_listener;
     bool _M_can_invoke_listener;
   public:
+    /// Default constructor.
     Callback() :
       _M_can_invoke_listener(true) {}
 
+    /// Constructor.
     explicit Callback(const std::function<void (_Ts...)> &listener) :
       _M_listener(listener), _M_can_invoke_listener(true) {}
 
+    /// Invokes the listener if this listener already isn't invoked by the
+    /// callback.
     void operator()(_Ts... args)
     {
       if(_M_can_invoke_listener) {
@@ -52,9 +64,11 @@ namespace waytk
       }
     }
 
+    /// Returns the listener.
     const std::function<void (_Ts...)> &listener() const
     { return _M_listener; }
 
+    /// Sets the listener.
     void set_listener(const std::function<void (_Ts...)> &listener)
     { _M_listener = listener; }
   };

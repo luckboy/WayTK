@@ -29,126 +29,164 @@
 namespace waytk
 {
   ///
-  /// A range structure.
+  /// A structure template of range.
   ///
   template<typename _T>
   struct Range
   {
     _T begin, end;
 
+    /// Default constructor.
     Range() {}
 
+    /// Constructor
     Range(_T begin, _T end) : begin(begin), end(end) {}
 
+    /// Returns \c true if the range is equal to \p range, otherwise \c false.
     bool operator==(const Range<_T> &range) const
     { return begin == range.begin && end == range.end; }
 
+    /// Returns \c true if the range isn't equal to \p range, otherwise
+    /// \c false.
     bool operator!=(const Range<_T> &range) const
     { return !(*this == range); }
   };
 
   ///
-  /// A point structure.
+  /// A structure template of point.
   ///
   template<typename _T>
   struct Point
   {
-    _T x, y;
+    _T x;               ///< The X coordinate of the point.
+    _T y;               ///< The Y coordinate of the point.
 
+    /// Default constructor.
     Point() {}
 
+    /// Constructor.
     Point(_T x, _T y) : x(x), y(x) {}
 
+    /// Returns \c true if the point is equal to \p point, otherwise \c false.
     bool operator==(const Point<_T> &point) const
     { return x == point.x && y == point.y; }
 
+    /// Returns \c true if the point isn't equal to \p point, otherwise
+    /// \c false.
     bool operator!=(const Point<_T> &point) const
     { return !(*this == point); }
   };
 
   ///
-  /// A dimenstion strucure.
+  /// A structure template of dimension.
   ///
   template<typename _T>
   struct Dimension
   {
-    _T width, height;
+    _T width;           ///< The width.
+    _T height;          ///< The height.
 
+    /// Default constructor.
     Dimension() {}
 
+    /// Constructor.
     Dimension(_T width, _T height) : width(width), height(height) {}
 
+    /// Returns \c true if the dimension is equal to \p dim, otherwise \c false.
     bool operator==(const Dimension<_T> &dim) const
     { return width == dim.width && height == dim.height; }
 
+    /// Returns \c true if the dimension isn't equal to \p dim, otherwise
+    /// \c false.
     bool operator!=(const Dimension<_T> &dim) const
     { return !(*this == dim); }
   };
 
   ///
-  /// A rectangle structure.
+  /// A structure template of rectangle.
   ///
   template<typename _T>
   struct Rectangle
   {
-    _T x, y, width, height;
+    _T x;               ///< The X coordinate of the top left point of the
+                        ///  rectangle.
+    _T y;               ///< The Y coordinate of the top left point of the
+                        ///  rectangle.
+    _T width;           ///< The rectangle width.
+    _T height;          ///< The rectangle height.
 
+    /// Default constructor.
     Rectangle() {}
-    
+
+    /// Constructor.
     Rectangle(_T x, _T y, _T width, _T height) :
       x(x), y(y), width(width), height(height) {}
 
+    /// Constructor.
     Rectangle(const Point<_T> &point, const Dimension<_T> &size) :
       x(point.x), y(point.y), width(size.width), height(size.height) {}
 
+    /// Returns \c true if the rectangle is equal to \p rect, otherwise
+    /// \c false.
     bool operator==(const Rectangle<_T> &rect) const
     { return x == rect.x && y == rect.y && width == rect.width && height == rect.height; }
 
+    /// Returns \c true if the rectangle isn't equal to \p rect, otherwise
+    /// \c false.
     bool operator!=(const Rectangle<_T> &rect) const
     { return !(*this == rect); }
 
+    /// Returns the top left point of the rectangle
     Point<_T> point() const
     { return Point<_T>(x, y); }
 
+    /// Returns the rectangle size.
     Dimension<_T> size() const
     { return Dimension<_T>(width, height); }
   };
 
   ///
-  /// A text position structure.
+  /// A structure of text position.
   ///
   struct TextPosition
   {
-    std::size_t line, column;
+    std::size_t line;   ///< The line.
+    std::size_t column; ///< The column.
 
+    /// Default constructor.
     TextPosition() {}
 
+    /// Constructor.
     TextPosition(std::size_t line, std::size_t column) :
       line(line), column(column) {}
   };
 
   ///
-  /// A table position structure.
+  /// A structure of table position.
   ///
   struct TablePosition
   {
     std::size_t row, column;
 
+    /// Default constructor.
     TablePosition() {}
 
+    /// Constructor.
     TablePosition(std::size_t row, std::size_t column) :
       row(row), column(column) {}
   };
 
   ///
-  /// A tree path structure.
+  /// A structure of tree path.
   ///
   struct TreePath
   {
-    std::list<std::size_t> nodes;
+    std::list<std::size_t> nodes; ///< The nodes of the tree path.
 
+    /// Default constructor.
     TreePath() {}
 
+    /// Creates a new tree path from \p nodes.
     explicit TreePath(const std::initializer_list<std::size_t> nodes) :
       nodes(nodes) {}
 
@@ -157,29 +195,39 @@ namespace waytk
   };
 
   ///
-  /// A structure that has values of edges.
+  /// A structure template that has values of edges.
   ///
   template<typename _T>
   struct Edges
   {
-    _T top, right, bottom, left;
+    _T top;             ///< The value of top edge.
+    _T right;           ///< The value of right edge.
+    _T bottom;          ///< The value of bottom edge.
+    _T left;            ///< The value of left edge.
 
+    /// Default constructor.
     Edges() {}
 
+    /// Constructor.
     Edges(_T top, _T right, _T bottom, _T left) :
       top(top), right(right), bottom(bottom), left(left) {}
   };
   
   ///
-  /// A structure that has values of corners.
+  /// A structure template that has values of corners.
   ///
   template<typename _T>
   struct Corners
   {
-    _T top_left, top_right, bottom_right, bottom_left;
+    _T top_left;        ///< The value of top left corner.
+    _T top_right;       ///< The value of top right corner.
+    _T bottom_right;    ///< the value of bottom right corner.
+    _T bottom_left;     ///< The value of bottom left corner.
 
+    /// Default constructor.
     Corners() {}
 
+    /// Constructor.
     Corners(_T top_left, _T top_right, _T bottom_right, _T bottom_left) : 
       top_left(top_left), top_right(top_right), bottom_right(bottom_right), bottom_left(bottom_left) {}
   };

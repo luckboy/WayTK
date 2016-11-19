@@ -26,51 +26,80 @@
 
 namespace waytk
 {
+  ///
+  /// An exception class that is base for all WayTK exceptions.
+  ///
+  /// WayTK exceptions are thrown by some WayTK functions and methods of WayTK
+  /// classes.
+  ///
   class Exception : public std::exception
   {
     const char *_M_msg;
   public:
+    /// Constructor.
     Exception(const char *msg) throw() :
       _M_msg(msg) {}
 
+    /// Destructor.
     virtual ~Exception() throw();
 
+    /// Returns the exception message.
     virtual const char *what() const throw();
   };
 
+  ///
+  /// A runtime exception that is thrown when a runtime error occurs.
+  ///
   class RuntimeException : public Exception
   {
   public:
+    /// Constructor.
     RuntimeException(const char *msg) throw() :
       Exception(msg) {}
 
+    /// Destructor.
     virtual ~RuntimeException() throw();
   };
 
+  ///
+  /// An I/O exception that is thrown when an I/O error occurs.
+  ///
   class IOException : public Exception
   {
   public:
+    /// Constructor.
     IOException(const char *msg) throw() :
       Exception(msg) {}
 
+    /// Destructor.
     virtual ~IOException() throw();
   };
 
+  ///
+  /// A file format exception that is thrown if a file format isn't supported.
+  ///
   class FileFormatException : public Exception
   {
   public:
+    /// Constructor
     FileFormatException(const char *msg) throw() :
       Exception(msg) {}
 
+    /// Destructor.
     virtual ~FileFormatException() throw();
   };
 
+  ///
+  /// A canvas exception that is thrown by canvas methods.
+  ///
   class CanvasException : public Exception
   {
   public:
+    /// Constructor.
     CanvasException(const char *msg) throw() :
       Exception(msg) {}
 
+    /// Destructor.
     virtual ~CanvasException() throw();
   };
 }

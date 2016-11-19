@@ -37,16 +37,25 @@
 
 namespace waytk
 {
+  ///
+  /// Adds a surface.
+  ///
+  /// Added surfaces can be displayed on the screen.
+  ///
   void add_surface(const std::shared_ptr<Surface> &surface);
 
+  /// \copydoc add_surface(const std::shared_ptr<Surface> &surface)
   inline void add_surface(Surface *surface)
   { add_surface(std::shared_ptr<Surface>(surface)); }
 
+  /// Deletes a surface.
   bool delete_surface(const std::shared_ptr<Surface> &surface);
 
+  /// \copydoc delete_surface(const std::shared_ptr<Surface> &surface)
   inline bool delete_surface(Surface *surface)
   { return delete_surface(std::shared_ptr<Surface>(surface)); }
 
+  /// Runs the loop main.
   int run_loop_main();
 }
 

@@ -24,34 +24,45 @@
 
 namespace waytk
 {
+  ///
+  /// An enumeration of key modifiers.
+  ///
   enum class Modifiers
   {
-    NONE = 0,
-    CAPS = 1,
-    CTRL = 2,
-    ALT = 4,
-    NUM = 8,
-    LOGO = 16
+    NONE = 0,                   ///< No key modifiers.
+    CAPS = 1,                   ///< Caps key modifier.
+    CTRL = 2,                   ///< Ctrl key modifier.
+    ALT = 4,                    ///< Alt key modifier.
+    NUM = 8,                    ///< Num Lock key modifier.
+    LOGO = 16                   ///< Logo key modifier.
   };
 
+  /// Returns negation of \p modifiers.
   inline Modifiers operator~(Modifiers modifiers)
   { return static_cast<Modifiers>(static_cast<int>(modifiers) ^ 31); }
 
+  /// Returns conjuction of \p modifiers1 with \p modifiers2.
   inline Modifiers operator&(Modifiers modifiers1, Modifiers modifiers2)
   { return static_cast<Modifiers>(static_cast<int>(modifiers1) & static_cast<int>(modifiers2)); }
 
+  /// Assigns conjuction of \p modifiers1 with \p modifiers2 to \p modifiers1.
   inline Modifiers operator&=(Modifiers &modifiers1, Modifiers modifiers2)
   { modifiers1 = modifiers1 & modifiers2; return modifiers1; }
 
+  /// Returns disjuction of \p modifiers1 with \p modifiers2.
   inline Modifiers operator|(Modifiers modifiers1, Modifiers modifiers2)
   { return static_cast<Modifiers>(static_cast<int>(modifiers1) | static_cast<int>(modifiers2)); }
 
+  /// Assigns disjuction of \p modifiers1 with \p modifiers2 to \p modifiers1.
   inline Modifiers operator|=(Modifiers &modifiers1, Modifiers modifiers2)
   { modifiers1 = modifiers1 | modifiers2; return modifiers1; }
 
+  /// Returns exclusive disjuction of \p modifiers1 with \p modifiers2.
   inline Modifiers operator^(Modifiers modifiers1, Modifiers modifiers2)
   { return static_cast<Modifiers>(static_cast<int>(modifiers1) ^ static_cast<int>(modifiers2)); }
 
+  /// Assigns exclusive disjuction of \p modifiers1 with \p modifiers2 to
+  /// \p modifiers1.
   inline Modifiers operator^=(Modifiers &modifiers1, Modifiers modifiers2)
   { modifiers1 = modifiers1 ^ modifiers2; return modifiers1; }
 }
