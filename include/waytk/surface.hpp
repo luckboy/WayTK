@@ -25,6 +25,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <waytk/callback.hpp>
 #include <waytk/structs.hpp>
 
 namespace waytk
@@ -59,6 +60,12 @@ namespace waytk
   ///
   typedef std::function<void (const std::shared_ptr<Surface> &surface)> OnTouchCancelListener;
 
+  /// A callback type for changes of the surface size.
+  typedef Callback<const std::shared_ptr<Surface> &, const Dimension<int> &> OnSizeChangeCallback;
+
+  /// A callback type for touch cancellations.
+  typedef Callback<const std::shared_ptr<Surface> &> OnTouchCancelCallback;
+
   ///
   /// A surface class.
   ///
@@ -82,8 +89,8 @@ namespace waytk
     bool _M_is_resizable;
     bool _M_is_visible;
     Dimension<int> _M_size;
-    OnSizeChangeListener _M_on_size_change_listener;
-    OnTouchCancelListener _M_on_touch_cancel_listener;
+    OnSizeChangeCallback _M_on_size_change_callback;
+    OnTouchCancelCallback _M_on_touch_cancel_callback;
   public:
     /// Creates a new toplevel surface without a title.
     Surface(Widget *widget);
@@ -98,7 +105,7 @@ namespace waytk
     /// Creates a new popup surface with a parent surface, a title, and an
     /// initial top left point in the parent surface.
     Surface(const std::shared_ptr<Surface> &parent, Widget *widget, const Point<int> &point);
-
+  public:
     /// Destructor.
     virtual ~Surface();
 
@@ -107,8 +114,7 @@ namespace waytk
     { return _M_title; }
 
     /// Sets the surface title.
-    void set_title(const std::string &title)
-    { _M_title = title; }
+    void set_title(const std::string &title);
 
     /// Returns the root widget of the surface.
     Widget *root_widget() const
@@ -214,7 +220,8 @@ namespace waytk
     ///
     /// The resizable surface can be resized by an user. In case of the surface
     /// isn't resizable, the user can't change the surface size but an
-    /// application can change it. By default, each surface is resizable.
+    /// application can change it. By default, each surface is resizable except
+    /// popup surfaces.
     ///
     void set_resizable(bool is_resizable)
     { _M_is_resizable = is_resizable; }
@@ -232,7 +239,8 @@ namespace waytk
     /// parent also have to be visible and added so that the surface is
     /// displayed. By default, each surface is invisible.
     ///
-    bool set_visible(bool is_visible);
+    void set_visible(bool is_visible)
+    { _M_is_visible = is_visible; }
 
     /// Returns the surface size.
     const Dimension<int> &size() const
@@ -246,23 +254,27 @@ namespace waytk
     /// widgets. By default, a size of each surface is calculated after
     /// updating sizes of widgets.
     ///
-    void set_size(const Dimension<int> &size);
+    void set_size(const Dimension<int> &size)
+    {
+      _M_size.width = (size.width >= 1 ? size.width : 1);
+      _M_size.height = (size.width >= 1 ? size.height : 1);
+    }
 
     /// Returns the listener for changes of the surface size.
     const OnSizeChangeListener &on_size_change_listener() const
-    { return _M_on_size_change_listener; }
+    { return _M_on_size_change_callback.listener(); }
 
     /// Sets the listener for changes of the surface size.
     void set_on_size_change_listener(const OnSizeChangeListener &listener)
-    { _M_on_size_change_listener = listener; }
+    { _M_on_size_change_callback.set_listener(listener); }
 
     /// Returns the listener for touch cancellations.
     const OnTouchCancelListener &on_touch_cancel_listener() const
-    { return _M_on_touch_cancel_listener; }
+    { return _M_on_touch_cancel_callback.listener(); }
 
     /// Sets the listener for touch cancellations.
     void set_on_touch_cancel_listener(const OnTouchCancelListener &listener)
-    { _M_on_touch_cancel_listener = listener; }
+    { _M_on_touch_cancel_callback.set_listener(listener); }
 
     /// This method is invoked when the surface size is changed.
     virtual void on_size_change(const std::shared_ptr<Surface> &surface, const Dimension<int> &size);
