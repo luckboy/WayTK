@@ -974,33 +974,33 @@ namespace waytk
   public:
     /// Creates a new button with a label.
     explicit Button(const std::string &label)
-    { initialize(Icon(), label, [](Widget *widget) {}); }
+    { initialize(Icon(), label, [](Widget *widget) {}, true); }
 
     /// Creates a new button with a label and a specified action on a click.
     Button(const std::string &label, const OnClickListener &listener)
-    { initialize(Icon(), label, listener); }
+    { initialize(Icon(), label, listener, true); }
 
     /// Creates a new button with an icon.
     explicit Button(const Icon &icon)
-    { initialize(icon, "", [](Widget *widget) {}); }
+    { initialize(icon, "", [](Widget *widget) {}, true); }
 
     /// Creates a new button with an icon and a specified action on a click.
     Button(const Icon &icon, const OnClickListener &listener)
-    { initialize(icon, "", listener); }
+    { initialize(icon, "", listener, true); }
 
     /// Creates a new button with an icon and a label.
     Button(const Icon &icon, const std::string &label)
-    { initialize(icon, label, [](Widget *widget) {}); }
+    { initialize(icon, label, [](Widget *widget) {}, true); }
 
     /// Creates a new button with an icon, a label, and a specified action on a
     /// click.
     Button(const Icon &icon, const std::string &label, const OnClickListener &listener)
-    { initialize(icon, label, listener); }
+    { initialize(icon, label, listener, true); }
 
     /// Destructor.
     virtual ~Button();
   protected:
-    void initialize(const Icon &icon, const std::string &label, const OnClickListener &listener);
+    void initialize(const Icon &icon, const std::string &label, const OnClickListener &listener, bool is_button_h_align = false);
   public:
     /// Returns the button icon.
     const Icon icon() const

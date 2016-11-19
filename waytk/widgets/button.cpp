@@ -30,8 +30,9 @@ namespace waytk
 {
   Button::~Button() {}
 
-  void Button::initialize(const Icon &icon, const string &label, const OnClickListener &listener)
+  void Button::initialize(const Icon &icon, const string &label, const OnClickListener &listener, bool is_button_h_align)
   {
+    if(is_button_h_align) set_h_align(HAlignment::CENTER);
     _M_icon = icon;
     normalize_utf8(label, _M_label);
     _M_on_click_callback.set_listener(listener);
