@@ -1000,6 +1000,7 @@ namespace waytk
     /// Destructor.
     virtual ~Button();
   protected:
+    /// Initializes the button.
     void initialize(const Icon &icon, const std::string &label, const OnClickListener &listener, bool is_button_h_align = false);
   public:
     /// Returns the button icon.
