@@ -1096,10 +1096,16 @@ namespace waytk
     std::size_t _M_max_length;
     bool _M_has_line_wrap;
     bool _M_has_word_wrap;
+    bool _M_has_font;
+    std::string _M_font_name;
+    FontSlant _M_font_slant;
+    FontWeight _M_font_weight;
     bool _M_is_editable;
     OnTextChangeCallback _M_on_text_change_callback;
     OnCursorChangeCallback _M_on_cursor_change_callback;
     OnTextSelectionCallback _M_on_text_selection_callback;
+    bool _M_has_foreground_color;
+    Color _M_foreground_color;
   protected:
     /// Constructor that doesn't invoke the \ref initialize method.
     Text(Unused unused) {}
@@ -1252,6 +1258,33 @@ namespace waytk
     void set_word_wrap(bool has_word_wrap)
     { _M_has_word_wrap = has_word_wrap; }
 
+    /// Returns \c true if the text widget has the font, otherwise \c false.
+    bool has_font() const
+    { return _M_has_font; }
+
+    /// Returns the font name of the text widget.
+    const std::string &font_name() const
+    { return _M_font_name; }
+
+    /// Returns the font slant of the text widget.
+    FontSlant font_slant() const
+    { return _M_font_slant; }
+
+    /// Returns the font weight of the text widget.
+    FontWeight font_weight() const
+    { return _M_font_weight; }
+
+    ///
+    /// Sets the font of the text widget.
+    ///
+    /// If the text widget has the font, the font is used for displaying the
+    /// text of the text widget; otherwise the default font is used.
+    ///
+    void set_font(const std::string &name, FontSlant slant, FontWeight weight);
+
+    /// Unsets the font of the text widget.
+    void unset_font();
+
     /// Returns \c true if the text widget is editable, otherwise \c false.
     bool is_editable() const
     { return _M_is_editable; }
@@ -1327,6 +1360,10 @@ namespace waytk
 
     /// The method is invoked when the text selection is changed.
     virtual void on_text_selection(const Range<TextCharIterator> &range);
+
+    /// Returns a foreground color for a position from a first displaying
+    /// character.
+    virtual Color foreground_color(std::size_t pos);
   };
 
   ///

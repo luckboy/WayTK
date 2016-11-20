@@ -110,6 +110,22 @@ namespace waytk
   void Text::paste()
   { throw exception(); }
 
+  void Text::set_font(const string &name, FontSlant slant, FontWeight weight)
+  {
+    _M_has_font = true;
+    _M_font_name = name;
+    _M_font_slant = slant;
+    _M_font_weight = weight;
+  }
+
+  void Text::unset_font()
+  {
+    _M_has_font = false;
+    _M_font_name.clear();
+    _M_font_slant = FontSlant::NORMAL;
+    _M_font_weight = FontWeight::NORMAL;
+  }
+
   const char *Text::name() const
   { return "text"; }
 
@@ -136,4 +152,13 @@ namespace waytk
 
   void Text::on_text_selection(const Range<TextCharIterator> &range)
   { _M_on_text_selection_callback(this, range); }
+
+  Color Text::foreground_color(size_t pos)
+  {
+    if(!_M_has_foreground_color) {
+      _M_foreground_color = styles()->foreground_color(real_pseudo_classes());
+      _M_has_foreground_color = true;
+    }
+    return _M_foreground_color;
+  }
 }
