@@ -159,6 +159,36 @@ namespace waytk
     /// Constructor.
     TextPosition(std::size_t line, std::size_t column) :
       line(line), column(column) {}
+
+    /// Returns \c true if the text position is equal to \p pos, otherwise
+    /// \c false.
+    bool operator==(const TextPosition &pos) const
+    { return line == pos.line && column == pos.column; }
+
+    /// Returns \c true if the text position isn't equal to \p pos, otherwise
+    /// \c false.
+    bool operator!=(const TextPosition &pos) const
+    { return !(*this == pos); }
+
+    /// Returns \c true if the text position is less than \p pos, otherwise
+    /// \c false.
+    bool operator<(const TextPosition &pos) const
+    { return line == pos.line ? column < pos.column : line < pos.line; }
+
+    /// Returns \c true if the text position is greater than or equal to \p pos,
+    /// otherwise \c false.
+    bool operator>=(const TextPosition &pos) const
+    { return !(*this < pos); }
+
+    /// Returns \c true if the text position is greater than \p pos, otherwise
+    /// \c false.
+    bool operator>(const TextPosition &pos) const
+    { return pos < *this; }
+
+    /// Returns \c true if the text position is less than or equal to \p pos,
+    /// otherwise \c false.
+    bool operator<=(const TextPosition &pos) const
+    { return !(pos < *this); }
   };
 
   ///
@@ -174,6 +204,16 @@ namespace waytk
     /// Constructor.
     TablePosition(std::size_t row, std::size_t column) :
       row(row), column(column) {}
+
+    /// Returns \c true if the text position is equal to \p pos, otherwise
+    /// \c false.
+    bool operator==(const TablePosition &pos) const
+    { return row == pos.row && column == pos.column; }
+
+    /// Returns \c true if the text position isn't equal to \p pos, otherwise
+    /// \c false.
+    bool operator!=(const TablePosition &pos) const
+    { return !(*this == pos); }
   };
 
   ///
@@ -186,12 +226,21 @@ namespace waytk
     /// Default constructor.
     TreePath() {}
 
-    /// Creates a new tree path from \p nodes.
+    /// Constructor.
     explicit TreePath(const std::initializer_list<std::size_t> nodes) :
       nodes(nodes) {}
 
+    /// Constructor.
     explicit TreePath(const std::list<std::size_t> &nodes) :
       nodes(nodes) {}
+
+    /// Returns \c true if the tree path is equal to \p pos, otherwise \c false.
+    bool operator==(const TreePath &path) const;
+
+    /// Returns \c true if the tree path isn't equal to \p pos, otherwise
+    /// \c false.
+    bool operator!=(const TreePath &path) const
+    { return !(*this == path); }
   };
 
   ///

@@ -168,6 +168,16 @@ namespace waytk
   };
 
   ///
+  /// A structure to comparing two pointers
+  ///
+  struct PointerCompare
+  {
+    /// Invocation operator.
+    bool operator()(const Pointer &pointer1, const Pointer &pointer2) const
+    { return pointer1.is_touch() == pointer2.is_touch() ? pointer1.touch_id() < pointer2.touch_id() : !pointer1.is_touch(); }
+  };
+
+  ///
   /// An icon class.
   ///
   class Icon
@@ -202,6 +212,7 @@ namespace waytk
   ///
   struct TablePositionCompare
   {
+    /// Invocation operator.
     bool operator()(const TablePosition &pos1, const TablePosition &pos2) const
     { return pos1.row == pos2.row ? pos1.column < pos2.column : pos1.column < pos2.column; }
   };
@@ -210,7 +221,10 @@ namespace waytk
   /// A structure to comparing two tree paths.
   ///
   struct TreePathCompare
-  { bool operator()(const TreePath &path1, const TreePath &path2) const; };
+  {
+    /// Invocation operator.
+    bool operator()(const TreePath &path1, const TreePath &path2) const;
+  };
 
   ///
   /// A viewport class that used in a scroll widget.
