@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 #include <limits>
-#include <waytk.hpp>
+#include "waytk_priv.hpp"
 
 using namespace std;
 
@@ -35,7 +35,8 @@ namespace waytk
     _M_is_visible(true),
     _M_size(numeric_limits<int>::max(), numeric_limits<int>::max()),
     _M_on_size_change_callback([](const shared_ptr<Surface> &surface, const Dimension<int> &size) {}),
-    _M_on_touch_cancel_callback([](const shared_ptr<Surface> &surface) {}) {}
+    _M_on_touch_cancel_callback([](const shared_ptr<Surface> &surface) {}),
+    _M_focused_widget(nullptr) {}
 
   Surface::Surface(const string &title, Widget *widget) :
     _M_title(title),
@@ -47,7 +48,8 @@ namespace waytk
     _M_is_visible(true),
     _M_size(numeric_limits<int>::max(), numeric_limits<int>::max()),
     _M_on_size_change_callback([](const shared_ptr<Surface> &surface, const Dimension<int> &size) {}),
-    _M_on_touch_cancel_callback([](const shared_ptr<Surface> &surface) {}) {}
+    _M_on_touch_cancel_callback([](const shared_ptr<Surface> &surface) {}),
+    _M_focused_widget(nullptr) {}
 
   Surface::Surface(const shared_ptr<Surface> &parent, const string &title, Widget *widget, const Point<int> &point) :
     _M_title(title),
@@ -60,8 +62,9 @@ namespace waytk
     _M_is_visible(true),
     _M_size(numeric_limits<int>::max(), numeric_limits<int>::max()),
     _M_on_size_change_callback([](const shared_ptr<Surface> &surface, const Dimension<int> &size) {}),
-    _M_on_touch_cancel_callback([](const shared_ptr<Surface> &surface) {}) {}
-  
+    _M_on_touch_cancel_callback([](const shared_ptr<Surface> &surface) {}),
+    _M_focused_widget(nullptr) {}
+
   Surface::Surface(const shared_ptr<Surface> &parent, Widget *widget, const Point<int> &point) :
     _M_root_widget(widget),
     _M_is_modal(false),
@@ -72,7 +75,8 @@ namespace waytk
     _M_is_visible(true),
     _M_size(numeric_limits<int>::max(), numeric_limits<int>::max()),
     _M_on_size_change_callback([](const shared_ptr<Surface> &surface, const Dimension<int> &size) {}),
-    _M_on_touch_cancel_callback([](const shared_ptr<Surface> &surface) {}) {}
+    _M_on_touch_cancel_callback([](const shared_ptr<Surface> &surface) {}),
+    _M_focused_widget(nullptr) {}
 
   Surface::~Surface() {}
 
@@ -82,8 +86,29 @@ namespace waytk
   bool Surface::is_active() const
   { throw exception(); }
 
-  bool Surface::set_modal(bool is_modal)
-  { throw exception(); }
+  void Surface::set_modal(bool is_modal)
+  {
+    if(_M_is_visible && is_added_surface(this)) {
+      if(is_modal) {
+        if(!_M_is_modal) priv::push_visible_modal_surface(this);
+      } else {
+        if(_M_is_modal) priv::delete_visible_modal_surface(this);
+      }
+    }
+    _M_is_modal = is_modal;
+  }
+
+  void Surface::set_visible(bool is_visible)
+  {
+    if(_M_is_modal && is_added_surface(this)) {
+      if(is_visible) {
+        if(!_M_is_visible) priv::push_visible_modal_surface(this);
+      } else {
+        if(_M_is_visible) priv::delete_visible_modal_surface(this);
+      }
+    }
+    _M_is_visible = is_visible;
+  }
 
   void Surface::on_size_change(const shared_ptr<Surface> &surface, const Dimension<int> &size)
   { throw exception(); }

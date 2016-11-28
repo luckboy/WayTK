@@ -37,18 +37,27 @@
 
 namespace waytk
 {
+  /// Returns \c true if a surface is added, otherwise \c false.
+  bool is_added_surface(Surface *surface);
+
+  /// \copydoc is_added_surface(Surface *surface)
+  inline bool is_added_surface(const std::shared_ptr<Surface> &surface)
+  { return is_added_surface(surface.get()); }
+
   ///
-  /// Adds a surface.
+  /// Adds a surface and returns \c true if the surface didn't already be added,
+  /// otherwise \c false.
   ///
   /// Added surfaces can be displayed on the screen.
   ///
-  void add_surface(const std::shared_ptr<Surface> &surface);
+  bool add_surface(const std::shared_ptr<Surface> &surface);
 
   /// \copydoc add_surface(const std::shared_ptr<Surface> &surface)
-  inline void add_surface(Surface *surface)
-  { add_surface(std::shared_ptr<Surface>(surface)); }
+  inline bool add_surface(Surface *surface)
+  { return add_surface(std::shared_ptr<Surface>(surface)); }
 
-  /// Deletes a surface.
+  /// Tries delete a surface and returns \c true if the surface is deleted,
+  /// otherwise \c false.
   bool delete_surface(const std::shared_ptr<Surface> &surface);
 
   /// \copydoc delete_surface(const std::shared_ptr<Surface> &surface)

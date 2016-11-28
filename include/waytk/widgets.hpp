@@ -174,7 +174,7 @@ namespace waytk
   {
     /// Invocation operator.
     bool operator()(const Pointer &pointer1, const Pointer &pointer2) const
-    { return pointer1.is_touch() == pointer2.is_touch() ? pointer1.touch_id() < pointer2.touch_id() : !pointer1.is_touch(); }
+    { return pointer1.is_touch() == pointer2.is_touch() ? (pointer1.is_touch() && pointer1.touch_id() < pointer2.touch_id()) : !pointer1.is_touch(); }
   };
 
   ///
@@ -520,14 +520,21 @@ namespace waytk
     /// Returns \c true if the widget has focus, otherwise \c false.
     ///
     /// If the widget has focus, it also can react on key events; otherwise it
-    /// just can react touch events and pointer.
+    /// just can react touch events and pointer. By default, each widget of
+    /// WayTK hasn't focus.
     ///
     bool has_focus() const
     { return _M_has_focus; }
 
-    /// Sets the widget focus if \p has_focus is \c true, otherwise unsets the
-    /// widget focus.
-    void set_focus(bool has_focus);
+    ///
+    /// Tries set the widget focus if \p has_focus is \c true, otherwise tries
+    /// unset the widget focus.
+    ///
+    /// The widget focus can be set or unset if the widget has the surface. If
+    /// the widget can be set or unset, this method returns \c true; otherwise
+    /// this method returns \c false.
+    ///
+    bool set_focus(bool has_focus);
 
     ///
     /// Returns the pseudo classe of the widget.
@@ -684,7 +691,7 @@ namespace waytk
     { widget->_M_parent = nullptr; }
   protected:
     /// Returns \c true if a touch pointer is in the widget, otherwise \c false.
-    bool has_pointer(const Pointer &pointer) const;
+    bool has_pointer(const Pointer &pointer);
   private:
     void add_pointer(const Pointer &pointer);
 
@@ -925,7 +932,7 @@ namespace waytk
     /// Adds a new widget.
     void add_widget(Widget *widget);
 
-    /// Tries delete the widget and returns \c true if the widget is deleted,
+    /// Tries delete a widget and returns \c true if the widget is deleted,
     /// otherwise \c false.
     bool delete_widget(Widget *widget);
 
@@ -2847,7 +2854,7 @@ namespace waytk
     /// Adds a new menu item.
     void add_menu_item(MenuItem *menu_item);
 
-    /// Tries delete the menu item and returns \c true if the menu item is
+    /// Tries delete a menu item and returns \c true if the menu item is
     /// deleted, otherwise \c false.
     bool delete_menu_item(MenuItem *menu_item);
 
@@ -2893,7 +2900,7 @@ namespace waytk
     /// Adds a new menu.
     void add_menu(Menu *menu);
 
-    /// Tries delete the menu and returns \c true if the menu is deleted,
+    /// Tries delete a menu and returns \c true if the menu is deleted,
     /// otherwise \c false.
     bool delete_menu(Menu *menu);
 

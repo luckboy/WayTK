@@ -21,6 +21,7 @@
  */
 #include <cstring>
 #include <limits>
+#include <utility>
 #include <waytk.hpp>
 
 using namespace std;
@@ -79,8 +80,27 @@ namespace waytk
       _M_pseudo_classes |= PseudoClasses::DISABLED;
   }
 
-  void Widget::set_focus(bool has_focus)
-  { throw exception(); }
+  bool Widget::set_focus(bool has_focus)
+  {
+    shared_ptr<Surface> tmp_surface = surface().lock();
+    if(tmp_surface.get() == nullptr) return false;
+    if(has_focus) {
+      if(tmp_surface->_M_focused_widget != nullptr) {
+        tmp_surface->_M_focused_widget->_M_has_focus = false;
+        tmp_surface->_M_focused_widget->_M_pseudo_classes &= ~PseudoClasses::FOCUS;
+      }
+      tmp_surface->_M_focused_widget = this;
+    } else {
+      if(tmp_surface->_M_focused_widget == this)
+        tmp_surface->_M_focused_widget = nullptr;
+    }
+    _M_has_focus = has_focus;
+    if(_M_has_focus)
+      _M_pseudo_classes |= PseudoClasses::FOCUS;
+    else
+      _M_pseudo_classes &= ~PseudoClasses::FOCUS;
+    return true;
+  }
 
   PseudoClasses Widget::real_pseudo_classes()
   { return _M_pseudo_classes | (surface().lock()->is_active() ? PseudoClasses::NONE : PseudoClasses::BACKDROP); }
@@ -92,11 +112,29 @@ namespace waytk
     return root->_M_surface;
   }
 
+  bool Widget::has_pointer(const Pointer &pointer)
+  {
+    shared_ptr<Surface> tmp_surface = surface().lock();
+    if(tmp_surface.get() == nullptr) return false;
+    auto iter = tmp_surface->_M_touched_widgets.find(pointer);
+    return iter != tmp_surface->_M_touched_widgets.end();
+  }
+
   void Widget::add_pointer(const Pointer &pointer)
-  { throw exception(); }
+  {
+    shared_ptr<Surface> tmp_surface = surface().lock();
+    if(tmp_surface.get() == nullptr)
+      throw new RuntimeException("widget hasn't surface");
+    tmp_surface->_M_touched_widgets[pointer] = this;
+  }
 
   bool Widget::delete_pointer(const Pointer &pointer)
-  { throw exception(); }
+  {
+    shared_ptr<Surface> tmp_surface = surface().lock();
+    if(tmp_surface.get() == nullptr)
+      throw new RuntimeException("widget hasn't surface");
+    return tmp_surface->_M_touched_widgets.erase(pointer) > 0;
+  }
 
   Styles *Widget::styles()
   {

@@ -23,15 +23,16 @@
 #define _WAYTK_SURFACE_HPP
 
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
 #include <waytk/callback.hpp>
 #include <waytk/structs.hpp>
+#include <waytk/widgets.hpp>
 
 namespace waytk
 {
   class Surface;
-  class Widget;
 
   ///
   /// An enumeration of surface state.
@@ -91,6 +92,8 @@ namespace waytk
     Dimension<int> _M_size;
     OnSizeChangeCallback _M_on_size_change_callback;
     OnTouchCancelCallback _M_on_touch_cancel_callback;
+    Widget *_M_focused_widget;
+    std::map<Pointer, Widget *, PointerCompare> _M_touched_widgets;
   public:
     /// Creates a new toplevel surface without a title.
     Surface(Widget *widget);
@@ -139,10 +142,10 @@ namespace waytk
     /// Sets the surface as modal if \p is_modal is \c true, otherwise sets
     /// the surface as non-modal.
     ///
-    /// If some surface is modal, other surface can't react on an user actions.
+    /// If some surface is modal, other surfaces can't react on an user actions.
     /// By default, each surface isn't modal.
     ///
-    bool set_modal(bool is_modal);
+    void set_modal(bool is_modal);
 
     /// Returns the surface state.
     SurfaceState state() const
@@ -239,8 +242,7 @@ namespace waytk
     /// parent also have to be visible and added so that the surface is
     /// displayed. By default, each surface is invisible.
     ///
-    void set_visible(bool is_visible)
-    { _M_is_visible = is_visible; }
+    void set_visible(bool is_visible);
 
     /// Returns the surface size.
     const Dimension<int> &size() const
@@ -281,6 +283,10 @@ namespace waytk
 
     /// This method is invoked when a touch is canceled.
     virtual void on_touch_cancel(const std::shared_ptr<Surface> &surface);
+
+    friend class Widget;
+    friend bool add_surface(const std::shared_ptr<Surface> &surface);
+    friend bool delete_surface(const std::shared_ptr<Surface> &surface);
   };
 }
 
