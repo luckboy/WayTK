@@ -143,6 +143,10 @@ namespace waytk
     /// Returns the rectangle size.
     Dimension<_T> size() const
     { return Dimension<_T>(width, height); }
+
+    /// Returns \c true if the rectangle contains \p point, otherwise \c false.
+    bool contain(const Point<_T> &point) const
+    { return point.x >= x && point.x < x + width && point.y >= y && point.y < y + height; }
   };
 
   ///

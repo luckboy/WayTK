@@ -78,6 +78,7 @@ namespace waytk
                                 ///  pressed.
     MOTION,                     ///< A touch motion or a pointer motion with
                                 ///  pressed button.
+    REPEATED,                   ///< A touch or a pointer button is repeated.
     UP                          ///< A touch end or a pointer button is
                                 ///  released.
   };
@@ -147,24 +148,30 @@ namespace waytk
     bool _M_is_touch;
     std::uint32_t _M_touch_id;
   public:
-    /// Creates a new touch pointer.
-    Pointer() : _M_is_touch(false) {}
+    /// Creates a new touch pointer without a touch identifier.
+    Pointer() :
+      _M_is_touch(false) {}
 
     /// Creates a new touch pointer with a touch identifier.
-    explicit Pointer(std::uint32_t touch_id) : _M_is_touch(true), _M_touch_id(touch_id) {}
+    explicit Pointer(std::uint32_t touch_id) :
+      _M_is_touch(true), _M_touch_id(touch_id) {}
 
-    /// Returns \c true if the touch pointer concers a touch, otherwise
+    /// Returns \c true if the touch pointer is equal to \p pointer, otherwise
+    /// \c false.
+    bool operator==(const Pointer &pointer) const
+    { return (_M_is_touch && pointer._M_is_touch) ? _M_touch_id == pointer._M_touch_id : _M_is_touch == pointer._M_is_touch; }
+
+    /// Returns \c true if the touch pointer isn't equal to \p pointer,
+    /// otherwise \c false.
+    bool operator!=(const Pointer &pointer) const
+    { return !(*this == pointer); }
+
+    /// Returns \c true if the touch pointer concerns a touch, otherwise
     /// \c false.
     bool is_touch() const { return _M_is_touch; }
 
     /// Returns the touch identifier.
     std::uint32_t touch_id() const { return _M_touch_id; }
-
-    bool operator==(const Pointer &pointer) const
-    { return (_M_is_touch && pointer._M_is_touch) ? _M_touch_id == pointer._M_touch_id : _M_is_touch == pointer._M_is_touch; }
-
-    bool operator!=(const Pointer &pointer) const
-    { return !(*this == pointer); }
   };
 
   ///
@@ -178,6 +185,31 @@ namespace waytk
   };
 
   ///
+  /// A block class.
+  ///
+  class Block
+  {
+    unsigned _M_id;
+  public:
+    /// Default constructor.
+    Block() :
+      _M_id(0) {}
+
+    /// Creates a new block with an identifier.
+    Block(unsigned id) :
+      _M_id(id) {}
+
+    /// Returns \c true if the block is equal to \p block, otherwise \c false.
+    bool operator==(const Block &block) const
+    { return _M_id == block._M_id; }
+
+    /// Returns \c true if the block isn't equal to \p block, otherwise
+    /// \c false.
+    bool operator!=(const Block &block) const
+    { return _M_id != block._M_id; }
+  };
+
+  ///
   /// An icon class.
   ///
   class Icon
@@ -187,7 +219,7 @@ namespace waytk
     /// Default constructor.
     Icon() {}
 
-    /// Creates an icon with a name.
+    /// Creates a new icon with a name.
     explicit Icon(const std::string &name) :
       _M_name(name) {}
 
@@ -230,12 +262,13 @@ namespace waytk
   /// A viewport class that used in a scroll widget.
   ///
   /// A viewport object is used by the scroll widget to store information about
-  /// a widget bounds at the viewport and a scroll slider. The part of this
+  /// a widget bounds in the viewport and a scroll slider. The part of this
   /// information is modified by the scroll widget so that the scroll widget
-  /// inform a widget motion at viewport.
+  /// informs a widget motion in viewport.
   ///
   class Viewport
   {
+    Rectangle<int> _M_bounds;
   protected:
     /// Default constructor.
     Viewport() {}
@@ -243,32 +276,87 @@ namespace waytk
     /// Destructor.
     virtual ~Viewport();
 
-    /// Returns the widget viewport at the viewport.
-    virtual Rectangle<int> bounds() const = 0;
+    // Returns the viewport margin.
+    virtual Edges<int> margin() const = 0;
+
+    /// Returns the top left point of the viewport in the inner bounds of the
+    /// scroll widget inner bounds.
+    virtual Point<int> point() const = 0;
+
+    /// Returns the viewport size.
+    virtual Dimension<int> size() const = 0;
+
+    /// Sets the viewport size.
+    virtual void set_size(const Dimension<int> &size) = 0;
+    
+    /// Updates the top left point of the viewport in the inner bounds of the
+    /// viewport widget.
+    virtual void update_point(Canvas *canvas) = 0;
+
+    /// Moves the widget view to top of the client.
+    virtual void move_view_to_top() = 0;
+
+    /// Moves the widget view to bottom of the client.
+    virtual void move_view_to_bottom() = 0;
+
+    /// Horizontally moves the widget view.
+    virtual void h_move_view(int x) = 0;
+
+    /// Vertically moves the widget view.
+    virtual void v_move_view(int y) = 0; 
 
     /// Returns the X offset of the horizontal scroll slider.
     virtual int h_scroll_slider_x(int width) const = 0;
-
-    /// Returns the step of the X offset of the horizontal scroll slider.
-    virtual int h_scroll_slider_x_step(int width) const = 0;
-    
+  
     /// Sets the X offset of the horizontal scroll slider.
     virtual void set_h_scroll_slider_x(int x, int width) = 0; 
 
+    /// Adds a number onto the X offset of the horizontal scroll slider.
+    virtual void add_onto_h_scroll_slider_x(int x, int width) = 0;
+    
     /// Returns the width of the horizontal scroll slider.
     virtual int h_scroll_slider_width(int width) const = 0;
-
+    
     /// Returns the Y offset of the vertical scroll slider.
     virtual int v_scroll_slider_y(int height) const = 0;
-
-    /// Returns the step of the Y offset of the vertical scroll slider.
-    virtual int v_scroll_slider_y_step(int height) const = 0;
 
     /// Sets the Y offset of the vertical scroll slider.
     virtual void set_v_scroll_slider_y(int y, int height) = 0; 
 
+    /// Adds a number onto the X offset of the vertical scroll slider.
+    virtual void add_onto_v_scroll_slider_y(int y, int height) = 0;
+
     /// Returns the height of the vertical scroll slider.
     virtual int v_scroll_slider_height(int height) const = 0;
+
+    /// Returns \c true if the viewport width is less than the client width,
+    /// \c false.
+    virtual bool width_is_less_than_clien_width() const = 0;
+
+    /// Returns \c true if the viewport height is less than the client heihgt,
+    /// \c false.
+    virtual bool height_is_less_than_clien_height() const = 0;
+    
+    /// Returns the maximal viewport width.
+    virtual int max_width() const = 0;
+
+    /// Returns the maximal viewport height.
+    virtual int max_height() const = 0;
+    
+    /// Updates the top left point of the scrollable client.
+    virtual void update_client_point(const Point<int> &viewport_point) = 0;
+
+    /// Updates the size of the scrollable client.
+    virtual void update_client_size(Canvas *canvas) = 0;
+
+    /// Returns the margin of the viewport widget.
+    virtual Edges<int> widget_margin() const = 0;
+    
+    /// Updates the top left point of the viewport widget.
+    virtual void update_widget_point(const Rectangle<int> &area_bounds) = 0;
+
+    /// Updates the size of the viewport widget.
+    virtual void update_widget_size(Canvas *canvas, const Dimension<int> &area_size) = 0;
   };
 
   ///
@@ -548,10 +636,6 @@ namespace waytk
     /// Sets the pseudo classe of the widget.
     void set_pseudo_classes(PseudoClasses pseudo_classes)
     { _M_pseudo_classes = pseudo_classes; }
-
-    /// Returns the pseudo classes of the widget with a dropback pseudo class
-    /// if the widget surface is active, the pseudo class of the widget.
-    PseudoClasses real_pseudo_classes();
     
     ///
     /// Returns \c true if the widget is visible, otherwise \c false.
@@ -657,7 +741,6 @@ namespace waytk
     /// Returns the widget bounds.
     ///
     /// The widget is drawn on the ractangle that is specified by the widget
-    /// bounds. The widget just react on touch and pointer action at this
     /// bounds.
     ///
     const Rectangle<int> &bounds() const
@@ -691,18 +774,37 @@ namespace waytk
     { widget->_M_parent = nullptr; }
   protected:
     /// Returns \c true if a touch pointer is in the widget, otherwise \c false.
-    bool has_pointer(const Pointer &pointer);
-  private:
-    void add_pointer(const Pointer &pointer);
+    bool has_pointer(const Pointer &pointer)
+    { return block_has_pointer(Block(), pointer); }
 
-    bool delete_pointer(const Pointer &pointer);
+    /// Returns \c true if a touch pointer is in a block of the widget,
+    /// otherwise \c false.
+    bool block_has_pointer(Block block, const Pointer &pointer);
+  private:
+    void add_pointer(Block block, const Pointer &pointer);
+
+    bool delete_pointer(Block block, const Pointer &pointer);
+  protected:
+    /// Tries delete a touch pointer from any block of the widget and returns
+    /// \c true if the touch pointer is deleted, otherwise \c false.
+    bool delete_pointer_from_any_block(const Pointer &pointer);
+
+    /// Tries lock a touch leaving of a touch pointer from the widget and
+    /// returns \c true if the touch leaving of the touch pointer can't be
+    /// locked, otherwise \c false.
+    bool lock_touch_leaving(const Pointer &pointer);
+
+    /// Tries unlock a touch leaving of a touch pointer from the widget and
+    /// returns \c true if the touch leaving of the touch pointer can't be
+    /// unlocked, otherwise \c false.
+    bool unlock_touch_leaving(const Pointer &pointer);
   public:
     /// Returns the widget styles.
     Styles *styles();
     
     /// Returns the widget margin.
     Edges<int> margin()
-    { return styles()->margin(real_pseudo_classes()); }
+    { return styles()->margin(_M_pseudo_classes); }
 
     /// Returns \c true if the widget can be adjacent to other widget, otherwise
     /// \c false.
@@ -805,11 +907,14 @@ namespace waytk
     /// Returns the widget name.
     virtual const char *name() const;
 
+    /// Updates the pseudo classes.
+    virtual void update_pseudo_classes();
+
     /// Updates the top left point of the widget.
     virtual void update_point(const Rectangle<int> &area_bounds, const HAlignment *h_align = nullptr, const VAlignment *v_align = nullptr);
   protected:
     /// Updates the top left points of the widget children.
-    virtual void update_child_points(const Rectangle<int> &area_bounds);
+    virtual void update_child_points();
   public:
     /// Updates the widget size.
     virtual void update_size(Canvas *canvas, const Dimension<int> &area_size, const HAlignment *h_align = nullptr, const VAlignment *v_align = nullptr);
@@ -839,13 +944,25 @@ namespace waytk
     virtual Viewport *viewport();
 
     ///
+    /// Returns the bounds of child events.
+    ///
+    /// Child events of touch and child events of pointer can be handle by
+    /// children in the bounds of the child events.
+    ///
+    virtual Rectangle<int> child_event_bounds() const;
+
+    ///
     /// This method that is invoked when a touch event occurs.
     ///
     /// If this method returns \c false, this method is invoked for the widget
     /// parent.
     ///
     virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
-
+  protected:
+    /// This method is similar to the \ref on_touch method but adds or deletes
+    /// from a block of the widget instead of the widget.
+    bool on_touch_for_block(Block block, const Pointer &pointer, const Point<double> &point, TouchState state);
+  public:
     /// This method that is invoked when a touch leaves from the widget.
     virtual void on_touch_leave(const Pointer &pointer);
 
@@ -877,7 +994,7 @@ namespace waytk
     virtual bool on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
 
     /// This method that is invoked when the widget is scrolled.
-    virtual void on_scoll(Viewport *viewport);
+    virtual void on_scroll(Viewport *viewport);
   protected:
     /// Returns a margin box size of a block.
     Dimension<int> block_margin_box_size(const char *name, PseudoClasses pseudo_classes, const Dimension<int> &content_size);
@@ -893,18 +1010,33 @@ namespace waytk
     /// \copydoc draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size)
     void draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size, Rectangle<int> &inner_bounds)
     {
+      Rectangle<int> bounds;
       Styles *styles;
       draw_block(name, pseudo_classes, canvas, margin_box_point, margin_box_size, inner_bounds, styles);
     }
 
     /// \copydoc draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size)
-    void draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size, Rectangle<int> &inner_bounds, Styles *&styles);
+    void draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size, Rectangle<int> &inner_bounds, Styles *&styles)
+    {
+      Rectangle<int> bounds;
+      draw_block(name, pseudo_classes, canvas, margin_box_point, margin_box_size, inner_bounds, bounds, styles);
+    }
+
+    /// \copydoc draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size)
+    void draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size, Rectangle<int> &inner_bounds, Rectangle<int> &bounds)
+    {
+      Styles *styles;
+      draw_block(name, pseudo_classes, canvas, margin_box_point, margin_box_size, inner_bounds, bounds, styles);
+    }
+
+    /// \copydoc draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size)
+    void draw_block(const char *name, PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &margin_box_point, const Dimension<int> &margin_box_size, Rectangle<int> &inner_bounds, Rectangle<int> &bounds, Styles *&styles);
 
     /// Converts an area size to a inner area size.
     Dimension<int> area_size_to_inner_area_size(const Dimension<int> &size);
 
     /// Converts an area bounds to a inner area bounds.
-    Rectangle<int> area_bounds_to_inner_area_bounds(const Rectangle<int> &bounds);
+    Rectangle<int> bounds_to_inner_bounds(const Rectangle<int> &bounds);
   };
 
   ///
@@ -1090,7 +1222,7 @@ namespace waytk
     { return _M_label_margin_box_size; }
 
      /// Sets the margin box size of the button label.
-    void label_margin_box_size(const Dimension<int> &size)
+    void set_label_margin_box_size(const Dimension<int> &size)
     { _M_label_margin_box_size = size; }
 
     /// Updates the margin box size of the label button.
@@ -1834,7 +1966,7 @@ namespace waytk
   protected:
     virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
   };
 
   ///
@@ -1911,7 +2043,7 @@ namespace waytk
     
     virtual const char *name() const;
   protected:
-    virtual void update_child_points(const Rectangle<int> &area_bounds);
+    virtual void update_child_points();
 
     virtual void update_child_sizes(Canvas *canvas, const Dimension<int> &area_size);
 
@@ -1961,7 +2093,7 @@ namespace waytk
 
     virtual const char *name() const;
   protected:
-    virtual void update_child_points(const Rectangle<int> &area_bounds);
+    virtual void update_child_points();
 
     virtual void update_child_sizes(Canvas *canvas, const Dimension<int> &area_size);
 
@@ -2033,7 +2165,7 @@ namespace waytk
   protected:
     virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
   };
 
   ///
@@ -2165,7 +2297,7 @@ namespace waytk
   protected:
     virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
   public:
     virtual Viewport *viewport();
 
@@ -2358,7 +2490,7 @@ namespace waytk
   protected:
     virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
   public:
     virtual Viewport *viewport();
 
@@ -2507,7 +2639,7 @@ namespace waytk
   protected:
     virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
   public:
     virtual Viewport *viewport();
 
@@ -2522,19 +2654,85 @@ namespace waytk
   };
 
   ///
-  /// A scroll widget allows to move a widget at inside.
+  /// A scroll widget allows to move a widget in inside.
   ///
   /// The scroll widget uses a viewport object of the widget at inside to get
-  /// and set offset at the viewport. This offset is used for displaying this
-  /// widget at inside.
+  /// and set offset in the viewport. This offset is used for displaying this
+  /// widget in inside.
   ///
   class Scroll : public Widget
   {
+  protected:
+    /// The block of the horizontal scroll bar.
+    static const Block H_SCROLL_BAR;
+    /// The block of the left button.
+    static const Block LEFT_BUTTON;
+    /// The block of the horizontal slider.
+    static const Block H_SLIDER;
+    /// The block of the right button.
+    static const Block RIGHT_BUTTON;
+    /// The block of the vertical scroll bar.
+    static const Block V_SCROLL_BAR;
+    /// The block of the top button.
+    static const Block TOP_BUTTON;
+    /// The block of the vertical slider.
+    static const Block V_SLIDER;
+    /// The block of the bottom button.
+    static const Block BOTTOM_BUTTON;
+    /// The maximal block identifier of the scroll widget.
+    static const unsigned MAX_SCROLL_BLOCK_ID = 8;
+  private:
     std::unique_ptr<Widget> _M_widget;
     bool _M_has_h_scroll_bar;
     bool _M_has_auto_h_scroll_bar;
     bool _M_has_v_scroll_bar;
     bool _M_has_auto_v_scroll_bar;
+    std::unique_ptr<Viewport> _M_viewport;
+    bool _M_has_enabled_h_scroll_bar;
+    bool _M_has_visible_h_scroll_bar;
+    bool _M_has_enabled_v_scroll_bar;
+    bool _M_has_visible_v_scroll_bar;
+    int _M_left_button_touch_count;
+    int _M_right_button_touch_count;
+    int _M_top_button_touch_count;
+    int _M_bottom_button_touch_count;
+    bool  _M_has_h_slider_pointer;
+    Pointer _M_h_slider_pointer;
+    Point<int> _M_old_h_slider_pointer_point;
+    bool  _M_has_v_slider_pointer;
+    Pointer _M_v_slider_pointer;
+    Point<int> _M_old_v_slider_pointer_point;
+    Rectangle<int> _M_viewport_widget_bounds;
+    PseudoClasses _M_h_scroll_bar_pseudo_classes;
+    Dimension<int> _M_h_scroll_bar_margin_box_size;
+    Rectangle<int> _M_h_scroll_bar_bounds;
+    Rectangle<int> _M_h_trough_bounds;
+    int _M_center_h_trough_x;
+    PseudoClasses _M_left_button_pseudo_classes;
+    Dimension<int> _M_left_button_margin_box_size;
+    Rectangle<int> _M_left_button_bounds;
+    PseudoClasses _M_h_slider_pseudo_classes;
+    Dimension<int> _M_h_slider_margin_box_size;
+    int _M_min_h_slider_margin_box_width;
+    Rectangle<int> _M_h_slider_bounds;
+    PseudoClasses _M_right_button_pseudo_classes;
+    Dimension<int> _M_right_button_margin_box_size;
+    Rectangle<int> _M_right_button_bounds;
+    PseudoClasses _M_v_scroll_bar_pseudo_classes;
+    Dimension<int> _M_v_scroll_bar_margin_box_size;
+    Rectangle<int> _M_v_scroll_bar_bounds;
+    Rectangle<int> _M_v_trough_bounds;
+    int _M_center_v_trough_y;
+    PseudoClasses _M_top_button_pseudo_classes;
+    Dimension<int> _M_top_button_margin_box_size;
+    Rectangle<int> _M_top_button_bounds;
+    PseudoClasses _M_v_slider_pseudo_classes;
+    Dimension<int> _M_v_slider_margin_box_size;
+    int _M_min_v_slider_margin_box_height;
+    Rectangle<int> _M_v_slider_bounds;
+    PseudoClasses _M_bottom_button_pseudo_classes;
+    Dimension<int> _M_bottom_button_margin_box_size;
+    Rectangle<int> _M_bottom_button_bounds;
   protected:
     /// Default constructor that doesn't invoke the \ref initialize method.
     Scroll() {}
@@ -2599,10 +2797,18 @@ namespace waytk
 
     virtual const char *name() const;
   protected:
+    virtual void update_child_points();
+
+    virtual void update_child_sizes(Canvas *canvas, const Dimension<int> &area_size);
+
     virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
+
+    virtual void draw_children(Canvas *canvas, const Rectangle<int> &inner_bounds);
   public:
+    virtual Rectangle<int> child_event_bounds() const;
+
     virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
     virtual void on_touch_leave(const Pointer &pointer);
@@ -2610,6 +2816,379 @@ namespace waytk
     virtual bool on_pointer_axis(Axis axis, double value);
 
     virtual bool on_key(std::uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state);
+  protected:
+    /// Returns \c true if the horizontal scroll bar is enabled, otherwise
+    /// \c false.
+    bool has_enable_h_scroll_bar() const
+    { return _M_has_enabled_h_scroll_bar; }
+
+    /// Enables the horizontal scroll bar if \p has_enabled_h_scroll_bar is
+    /// \c true, disables the horizontal scroll bar.
+    void set_enabled_h_scroll_bar(bool has_enabled_h_scroll_bar)
+    { _M_has_enabled_h_scroll_bar = has_enabled_h_scroll_bar; }
+
+    /// Returns \c true if the horizontal scroll bar is visible, otherwise
+    /// \c false.
+    bool has_visible_h_scroll_bar() const
+    { return _M_has_visible_h_scroll_bar; }
+
+    /// Sets the horizontal scroll bar as visible if \p has_visible_h_scroll_bar
+    /// is \c true, sets the horizontal scroll bar as invisible.
+    void set_visible_h_scroll_bar(bool has_visible_h_scroll_bar)
+    { _M_has_visible_h_scroll_bar = has_visible_h_scroll_bar; }
+
+    /// Returns \c true if the horizontal scroll bar is enabled, otherwise
+    /// \c false.
+    bool has_enable_v_scroll_bar() const
+    { return _M_has_enabled_v_scroll_bar; }
+
+    /// Enables the vertical scroll bar if \p has_enabled_v_scroll_bar is
+    /// \c true, disables the vertical scroll bar.
+    void set_enabled_v_scroll_bar(bool has_enabled_v_scroll_bar)
+    { _M_has_enabled_v_scroll_bar = has_enabled_v_scroll_bar; }
+
+    /// Returns \c true if the vertical scroll bar is visible, otherwise
+    /// \c false.
+    bool has_visible_v_scroll_bar() const
+    { return _M_has_visible_v_scroll_bar; }
+
+    /// Sets the vertical scroll bar as visible if \p has_visible_v_scroll_bar
+    /// is \c true, sets the vertical scroll bar as invisible.
+    void set_visible_v_scroll_bar(bool has_visible_v_scroll_bar)
+    { _M_has_visible_v_scroll_bar = has_visible_v_scroll_bar; }
+
+    /// Returns the bounds of the widget viewport.
+    const Rectangle<int> &viewport_widget_bounds() const
+    { return _M_viewport_widget_bounds; }
+
+    /// Sets the bounds of the widget viewport.
+    void set_viewport_widget_bounds(const Rectangle<int> &bounds)
+    { _M_viewport_widget_bounds = bounds; }
+
+    /// Updates the margin box sizes of the scroll bars.
+    virtual void update_scroll_bar_margin_box_sizes(Canvas *canvas, const Dimension<int> &inner_area_size);
+
+    /// Returns the name of the horizontal scroll bar.
+    virtual const char *h_scroll_bar_name() const;
+
+    /// Returns the pseudo class of the horizontal scroll bar.
+    PseudoClasses h_scroll_bar_pseudo_classes() const
+    { return _M_h_scroll_bar_pseudo_classes; }
+
+    /// Sets the pseudo class of the horizontal scroll bar.
+    void set_h_scroll_bar_pseudo_classes(PseudoClasses pseudo_classes)
+    { _M_h_scroll_bar_pseudo_classes = pseudo_classes; }
+
+    /// Returns the margin box size of the horizontal scroll bar.
+    const Dimension<int> &h_scroll_bar_margin_box_size() const
+    { return _M_h_scroll_bar_margin_box_size; }
+
+    /// Sets the margin box size of the horizontal scroll bar.
+    void set_h_scroll_bar_margin_box_size(const Dimension<int> &margin_box_size)
+    { _M_h_scroll_bar_margin_box_size =  margin_box_size; }
+
+    /// Returns the bounds of the horizontal scroll bar.
+    const Rectangle<int> &h_scroll_bar_bounds() const
+    { return _M_h_scroll_bar_bounds; }
+
+    /// Sets the bounds of the horizontal scroll bar.
+    void set_h_scroll_bar_bounds(const Rectangle<int> &bounds)
+    { _M_h_scroll_bar_bounds = bounds; }
+
+    /// Draws the horizontal scroll bar.
+    virtual void draw_h_scroll_bar(Canvas *canvas, const Point<int> &margin_box_point);
+
+    /// Returns the bounds of the horizontal trough.
+    const Rectangle<int> h_trough_bounds() const
+    { return _M_h_trough_bounds; }
+
+    /// Sets the bounds of the horizontal trough.
+    void set_h_trough_bounds(const Rectangle<int> &bounds)
+    { _M_h_trough_bounds = bounds; }
+
+    /// Returns the X coordinate of the center point of the horizontal trough.
+    int center_h_trough_x() const
+    { return _M_center_h_trough_x; }
+
+    /// Sets the X coordinate of the center point of the horizontal trough.
+    void set_center_h_trough_x(int x)
+    { _M_center_h_trough_x = x; }
+
+    /// Returns the name of the left button.
+    virtual const char *left_button_name() const;
+
+    /// Returns the pseudo classes of the left button.
+    PseudoClasses left_button_pseudo_classes() const
+    { return _M_left_button_pseudo_classes; }
+
+    /// Sets the pseudo classes of the left button.
+    void set_left_button_pseudo_classes(PseudoClasses pseudo_classes)
+    { _M_left_button_pseudo_classes = pseudo_classes; }
+
+    /// Returns the margin box size of the left button.
+    const Dimension<int> &left_button_margin_box_size() const
+    { return _M_left_button_margin_box_size; }
+
+    /// Sets the margin box size of the left button.
+    void set_left_button_margin_box_size(const Dimension<int> &margin_box_size)
+    { _M_left_button_margin_box_size =  margin_box_size; }
+
+    /// Returns the bounds of the left button.
+    const Rectangle<int> &left_button_bounds() const
+    { return _M_left_button_bounds; }
+
+    /// Sets the bounds of the left button.
+    void set_left_button_bounds(const Rectangle<int> &bounds)
+    { _M_left_button_bounds = bounds; }
+
+    /// Updates the margin box size of the left button.
+    virtual void update_left_button_margin_box_size(Canvas *canvas);
+
+    /// Updates the left button.
+    virtual void draw_left_button(Canvas *canvas, const Point<int> &margin_box_point);
+
+    /// Returns the name of the horizontal slider.
+    virtual const char *h_slider_name() const;
+
+    /// Returns the pseudo classes of the horizontal slider.
+    PseudoClasses h_slider_pseudo_classes() const
+    { return _M_h_slider_pseudo_classes; }
+
+    /// Sets the pseudo classes of the horizontal slider.
+    void set_h_slider_pseudo_classes(PseudoClasses pseudo_classes)
+    { _M_h_slider_pseudo_classes = pseudo_classes; }
+    
+    /// Returns the margin box size of the horizontal slider.
+    const Dimension<int> &h_slider_margin_box_size() const
+    { return _M_h_slider_margin_box_size; }
+
+    /// Sets the margin box size of the horizontal slider.
+    void set_h_slider_margin_box_size(const Dimension<int> &margin_box_size)
+    { _M_h_slider_margin_box_size =  margin_box_size; }
+
+    /// Returns the bounds of the horizontal slider.
+    const Rectangle<int> &h_slider_bounds() const
+    { return _M_h_slider_bounds; }
+
+    /// Sets the bounds of the horizontal slider.
+    void set_h_slider_bounds(const Rectangle<int> &bounds)
+    { _M_h_slider_bounds = bounds; }
+
+    /// Returns the minimal width of the margin box size of the horizontal
+    /// slider.
+    int min_h_slider_margin_box_width() const
+    { return _M_min_h_slider_margin_box_width; }
+
+    /// Sets the minimal width of the margin box size of the horizontal slider.
+    void set_min_h_slider_margin_box_width(int width)
+    { _M_min_h_slider_margin_box_width = width; }
+
+    /// Updates the margin box size of the horizontal slider.
+    virtual void update_h_slider_margin_box_size(Canvas *canvas);
+
+    /// Updates the margin box width of the horizontal slider.
+    virtual void update_h_slider_margin_box_width(Canvas *canvas, int inner_width);
+
+    /// Draws the horizontal slider.
+    virtual void draw_h_slider(Canvas *canvas, const Point<int> &margin_box_point, Styles *&styles);
+
+    /// Returns the name of the right button.
+    virtual const char *right_button_name() const;
+
+    /// Returns the pseudo classes of the right button.
+    PseudoClasses right_button_pseudo_classes() const
+    { return _M_right_button_pseudo_classes; }
+
+    /// Sets the pseudo classes of the right button.
+    void set_right_button_pseudo_classes(PseudoClasses pseudo_classes)
+    { _M_right_button_pseudo_classes = pseudo_classes; }
+
+    /// Returns the margin box size of the right button.
+    const Dimension<int> &right_button_margin_box_size() const
+    { return _M_right_button_margin_box_size; }
+
+    /// Sets the margin box size of the right button.
+    void set_right_button_margin_box_size(const Dimension<int> &margin_box_size)
+    { _M_right_button_margin_box_size =  margin_box_size; }
+
+    /// Returns the bounds of the right button.
+    const Rectangle<int> &right_button_bounds() const
+    { return _M_right_button_bounds; }
+
+    /// Sets the bounds of the right button.
+    void set_right_button_bounds(const Rectangle<int> &bounds)
+    { _M_right_button_bounds = bounds; }
+
+    /// Updates the margin box size of the right button.
+    virtual void update_right_button_margin_box_size(Canvas *canvas);
+
+    /// Updates the right button.
+    virtual void draw_right_button(Canvas *canvas, const Point<int> &margin_box_point);
+
+    /// Returns the name of the vertical scroll bar.
+    virtual const char *v_scroll_bar_name() const;
+
+    /// Returns the pseudo classes of the vertical scroll bar.
+    PseudoClasses v_scroll_bar_pseudo_classes() const
+    { return _M_v_scroll_bar_pseudo_classes; }
+
+    /// Sets the pseudo classes of the vertical scroll bar.
+    void set_v_scroll_bar_pseudo_classes(PseudoClasses pseudo_classes)
+    { _M_v_scroll_bar_pseudo_classes = pseudo_classes; }
+
+    /// Returns the margin box size of the vertical scroll bar.
+    const Dimension<int> &v_scroll_bar_margin_box_size() const
+    { return _M_v_scroll_bar_margin_box_size; }
+
+    /// Sets the margin box size of the vertical scroll bar.
+    void set_v_scroll_bar_margin_box_size(const Dimension<int> &margin_box_size)
+    { _M_v_scroll_bar_margin_box_size =  margin_box_size; }
+
+    /// Returns the bounds of the vertical scroll bar.
+    const Rectangle<int> &v_scroll_bar_bounds() const
+    { return _M_v_scroll_bar_bounds; }
+
+    /// Sets the bounds of the vertical scroll bar.
+    void set_v_scroll_bar_bounds(const Rectangle<int> &bounds)
+    { _M_v_scroll_bar_bounds = bounds; }
+
+    /// Draws the vertical scroll bar.
+    virtual void draw_v_scroll_bar(Canvas *canvas, const Point<int> &margin_box_point);
+
+    /// Returns the bounds of the vertical trough.
+    const Rectangle<int> &v_trough_bounds() const
+    { return _M_v_trough_bounds; }
+
+    /// Returns the bounds of the vertical trough.
+    void set_v_trough_bounds(const Rectangle<int> &bounds)
+    { _M_v_trough_bounds = bounds; }
+
+    /// Returns the Y coordinate of the center point of the vertical trough.
+    int center_v_trough_y() const
+    { return _M_center_v_trough_y; }
+
+    /// Sets the Y coordinate of the center point of the vertical trough.
+    void set_center_v_trough_y(int y)
+    { _M_center_v_trough_y = y; }
+
+    /// Returns the name of the top button.
+    virtual const char *top_button_name() const;
+
+    /// Returns the pseudo classes of the top button.
+    PseudoClasses top_button_pseudo_classes() const
+    { return _M_top_button_pseudo_classes; }
+
+    /// Sets the pseudo classes of the top button.
+    void set_top_button_pseudo_classes(PseudoClasses pseudo_classes)
+    { _M_top_button_pseudo_classes = pseudo_classes; }
+
+    /// Returns the margin box size of the top button.
+    const Dimension<int> &top_button_margin_box_size() const
+    { return _M_top_button_margin_box_size; }
+
+    /// Sets the margin box size of the top button.
+    void set_top_button_margin_box_size(const Dimension<int> &margin_box_size)
+    { _M_top_button_margin_box_size =  margin_box_size; }
+
+    /// Returns the bounds of the top button.
+    const Rectangle<int> &top_button_bounds() const
+    { return _M_top_button_bounds; }
+
+    /// Sets the bounds of the top button.
+    void set_top_button_bounds(const Rectangle<int> &bounds)
+    { _M_top_button_bounds = bounds; }
+
+    /// Updates the margin box size of the top button.
+    virtual void update_top_button_margin_box_size(Canvas *canvas);
+
+    /// Draws the top button.
+    virtual void draw_top_button(Canvas *canvas, const Point<int> &margin_box_point);
+
+    /// Returns the name of the vertical slider.
+    virtual const char *v_slider_name() const;
+
+    /// Returns the pseudo classes of the vertical slider.
+    PseudoClasses v_slider_pseudo_classes() const
+    { return _M_v_slider_pseudo_classes; }
+
+    /// Sets the pseudo classes of the vertical slider.
+    void set_v_slider_pseudo_classes(PseudoClasses pseudo_classes)
+    { _M_v_slider_pseudo_classes = pseudo_classes; }
+
+    /// Returns the margin box size of the vertical slider.
+    const Dimension<int> &v_slider_margin_box_size() const
+    { return _M_v_slider_margin_box_size; }
+
+    /// Sets the margin box size of the vertical slider.
+    void set_v_slider_margin_box_size(const Dimension<int> &margin_box_size)
+    { _M_v_slider_margin_box_size =  margin_box_size; }
+
+    /// Returns the bounds of the vertical slider.
+    const Rectangle<int> &v_slider_bounds() const
+    { return _M_v_slider_bounds; }
+
+    /// Sets the bounds of the vertical slider.
+    void set_v_slider_bounds(const Rectangle<int> &bounds)
+    { _M_v_slider_bounds = bounds; }
+
+    /// Returns the minimal height of the margin box size of the vertical
+    /// slider.
+    int min_h_slider_margin_box_height() const
+    { return _M_min_v_slider_margin_box_height; }
+
+    /// Sets the minimal height of the margin box size of the vertical slider.
+    void set_min_h_slider_margin_box_height(int height)
+    { _M_min_v_slider_margin_box_height = height; }
+
+    /// Updates the margin box size of the vertical slider.
+    virtual void update_v_slider_margin_box_size(Canvas *canvas);
+
+    /// Updates the margin box height of the vertical slider.
+    virtual void update_v_slider_margin_box_height(Canvas *canvas, int inner_height);
+
+    /// Draws the vertcial slider.
+    virtual void draw_v_slider(Canvas *canvas, const Point<int> &margin_box_point, Styles *&styles);
+
+    /// Returns the name of the bottom button.
+    virtual const char *bottom_button_name() const;
+
+    /// Returns the pseudo classes of the bottom button.
+    PseudoClasses bottom_button_pseudo_classes() const
+    { return _M_bottom_button_pseudo_classes; }
+
+    /// Sets the pseudo classes of the bottom button.
+    void set_bottom_button_pseudo_classes(PseudoClasses pseudo_classes)
+    { _M_bottom_button_pseudo_classes = pseudo_classes; }
+
+    /// Returns the margin box size of the bottom button.
+    const Dimension<int> &bottom_button_margin_box_size() const
+    { return _M_bottom_button_margin_box_size; }
+
+    /// Sets the margin box size of the bottom button.
+    void set_bottom_button_margin_box_size(const Dimension<int> &margin_box_size)
+    { _M_bottom_button_margin_box_size =  margin_box_size; }
+
+    /// Returns the bounds of the bottom button.
+    const Rectangle<int> &bottom_button_bounds() const
+    { return _M_bottom_button_bounds; }
+
+    /// Sets the bounds of the bottom button.
+    void set_bottom_button_bounds(const Rectangle<int> &bounds)
+    { _M_bottom_button_bounds = bounds; }
+
+    /// Updates the margin box size of the bottom button.
+    virtual void update_bottom_button_margin_box_size(Canvas *canvas);
+
+    /// Draws the bottom button.
+    virtual void draw_bottom_button(Canvas *canvas, const Point<int> &margin_box_point);
+  private:
+    int block_margin_box_width(const char *name, PseudoClasses pseudo_classes, int content_width);
+
+    void get_block_margin_box_width_and_block_inner_height(const char *name, PseudoClasses pseudo_classes, int content_width, int margin_box_height, int &margin_box_width, int &inner_height);
+
+    int block_margin_box_height(const char *name, PseudoClasses pseudo_classes, int content_height);
+
+    void get_block_margin_box_height_and_block_inner_width(const char *name, PseudoClasses pseudo_classes, int content_height, int margin_box_width, int &margin_box_height, int &inner_width);
   };
 
   ///
@@ -2802,7 +3381,7 @@ namespace waytk
   protected:
     virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
-    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
   };
 
   ///
@@ -2909,7 +3488,7 @@ namespace waytk
 
     virtual const char *name() const;
   protected:
-    virtual void update_child_points(const Rectangle<int> &area_bounds);
+    virtual void update_child_points();
 
     virtual void update_child_sizes(Canvas *canvas, const Dimension<int> &area_size);
 

@@ -88,7 +88,7 @@ namespace waytk
   void List::update_content_size(Canvas *canvas, const Dimension<int> &area_size)
   { throw exception(); }
 
-  void List::draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style)
+  void List::draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds)
   { throw exception(); }
 
   Viewport *List::viewport()

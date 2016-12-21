@@ -40,9 +40,9 @@ namespace waytk
   const char *LinearPanel::name() const
   { return "linear_panel"; }
 
-  void LinearPanel::update_child_points(const Rectangle<int> &area_bounds)
+  void LinearPanel::update_child_points()
   {
-    Rectangle<int> inner_area_bounds = area_bounds_to_inner_area_bounds(area_bounds);
+    Rectangle<int> inner_bounds = bounds_to_inner_bounds(bounds());
     switch(_M_orientation) {
       case Orientation::HORIZONTAL:
       {
@@ -51,19 +51,19 @@ namespace waytk
         double float_x;
         switch(h_align()) {
           case HAlignment::CENTER:
-            inner_area_bounds.x += (inner_area_bounds.width - content_size().width) / 2;
+            inner_bounds.x += (inner_bounds.width - content_size().width) / 2;
             break;
           case HAlignment::RIGHT:
-            inner_area_bounds.x += inner_area_bounds.width - content_size().width;
+            inner_bounds.x += inner_bounds.width - content_size().width;
             break;
           case HAlignment::FILL:
-            min_item_width = this->min_item_width(inner_area_bounds.width, float_min_item_width);
+            min_item_width = this->min_item_width(inner_bounds.width, float_min_item_width);
             float_x = 0.0;
             break;
           default:
             break;
         }
-        inner_area_bounds.width = numeric_limits<int>::max();
+        inner_bounds.width = numeric_limits<int>::max();
         for(auto &widget : widgets()) {
           if(widget->is_visible()) {
             Edges<int> widget_margin = widget->margin();
@@ -79,19 +79,17 @@ namespace waytk
                 widget_margin_box_width = widget->bounds().width + widget_margin.left + widget_margin.right;
             } else
               widget_margin_box_width = widget->bounds().width + widget_margin.left + widget_margin.right;
-            Rectangle<int> widget_area_bounds = inner_area_bounds;
+            Rectangle<int> widget_area_bounds = inner_bounds;
             widget_area_bounds.width = widget_margin_box_width;
             widget_area_bounds.x += widget_margin.left;
             widget_area_bounds.y += widget_margin.top;
-            if(widget_area_bounds.width != numeric_limits<int>::max())
-              widget_area_bounds.width -= widget_margin.left + widget_margin.right;
-            if(widget_area_bounds.height != numeric_limits<int>::max())
-              widget_area_bounds.height -= widget_margin.top + widget_margin.bottom;
+            widget_area_bounds.width -= widget_margin.left + widget_margin.right;
+            widget_area_bounds.height -= widget_margin.top + widget_margin.bottom;
             widget_area_bounds.width = max(widget_area_bounds.width, 0);
             widget_area_bounds.height = max(widget_area_bounds.height, 0);
             // Updates top left point of widget.
             widget->update_point(widget_area_bounds);
-            inner_area_bounds.x += widget_margin_box_width;
+            inner_bounds.x += widget_margin_box_width;
           }
         }
         break;
@@ -103,19 +101,19 @@ namespace waytk
         double float_y;
         switch(v_align()) {
           case VAlignment::CENTER:
-            inner_area_bounds.y += (inner_area_bounds.height - content_size().height) / 2;
+            inner_bounds.y += (inner_bounds.height - content_size().height) / 2;
             break;
           case VAlignment::BOTTOM:
-            inner_area_bounds.y += inner_area_bounds.height - content_size().height;
+            inner_bounds.y += inner_bounds.height - content_size().height;
             break;
           case VAlignment::FILL:
-            min_item_height = this->min_item_height(inner_area_bounds.height, float_min_item_height);
+            min_item_height = this->min_item_height(inner_bounds.height, float_min_item_height);
             float_y = 0.0;
             break;
           default:
             break;
         }
-        inner_area_bounds.height = numeric_limits<int>::max();
+        inner_bounds.height = numeric_limits<int>::max();
         for(auto &widget : widgets()) {
           if(widget->is_visible()) {
             Edges<int> widget_margin = widget->margin();
@@ -131,19 +129,17 @@ namespace waytk
                 widget_margin_box_height = widget->bounds().height + widget_margin.top + widget_margin.bottom;
             } else
               widget_margin_box_height = widget->bounds().height + widget_margin.top + widget_margin.bottom;
-            Rectangle<int> widget_area_bounds = inner_area_bounds;
+            Rectangle<int> widget_area_bounds = inner_bounds;
             widget_area_bounds.height = widget_margin_box_height;
             widget_area_bounds.x += widget_margin.left;
             widget_area_bounds.y += widget_margin.top;
-            if(widget_area_bounds.width != numeric_limits<int>::max())
-              widget_area_bounds.width -= widget_margin.left + widget_margin.right;
-            if(widget_area_bounds.height != numeric_limits<int>::max())
-              widget_area_bounds.height -= widget_margin.top + widget_margin.bottom;
+            widget_area_bounds.width -= widget_margin.left + widget_margin.right;
+            widget_area_bounds.height -= widget_margin.top + widget_margin.bottom;
             widget_area_bounds.width = max(widget_area_bounds.width, 0);
             widget_area_bounds.height = max(widget_area_bounds.height, 0);
             // Updates top left point of widget.
             widget->update_point(widget_area_bounds);
-            inner_area_bounds.y += widget_margin_box_height;
+            inner_bounds.y += widget_margin_box_height;
           }
         }
         break;

@@ -81,6 +81,17 @@ namespace waytk
   ///
   class Surface
   {
+    struct TouchInfo
+    {
+      Widget *widget;
+      Block block;
+
+      TouchInfo() {}
+
+      TouchInfo(Widget *widget, Block block) :
+        widget(widget), block(block) {}
+    };
+
     std::string _M_title;
     std::unique_ptr<Widget> _M_root_widget;
     bool _M_is_modal;
@@ -93,7 +104,8 @@ namespace waytk
     OnSizeChangeCallback _M_on_size_change_callback;
     OnTouchCancelCallback _M_on_touch_cancel_callback;
     Widget *_M_focused_widget;
-    std::map<Pointer, Widget *, PointerCompare> _M_touched_widgets;
+    std::map<Pointer, TouchInfo, PointerCompare> _M_touch_infos;
+    std::map<Pointer, Widget *, PointerCompare> _M_touch_leaving_lock_widgets;
   public:
     /// Creates a new toplevel surface without a title.
     Surface(Widget *widget);

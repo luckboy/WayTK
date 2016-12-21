@@ -95,7 +95,7 @@ namespace waytk
   void Table::update_content_size(Canvas *canvas, const Dimension<int> &area_size)
   { throw exception(); }
 
-  void Table::draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style)
+  void Table::draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds)
   { throw exception(); }
 
   Viewport *Table::viewport()

@@ -86,15 +86,20 @@ namespace waytk
     switch(state) {
       case TouchState::DOWN:
         if(!had_pointer) {
-          set_pseudo_classes(pseudo_classes() | PseudoClasses::ACTIVE);
+          if(_M_touch_count == 0)
+            set_pseudo_classes(pseudo_classes() | PseudoClasses::ACTIVE);
           _M_touch_count++;
         }
         break;
       case TouchState::UP:
         if(had_pointer) {
-          set_pseudo_classes(pseudo_classes() & ~PseudoClasses::ACTIVE);
-          if(_M_touch_count > 0) _M_touch_count--;
-          on_click();
+          if(_M_touch_count > 0) {
+            _M_touch_count--;
+            if(_M_touch_count == 0) {
+              set_pseudo_classes(pseudo_classes() & ~PseudoClasses::ACTIVE);
+              on_click();
+            }
+          }
         }
         break;
       default:
@@ -108,8 +113,11 @@ namespace waytk
     bool had_pointer = has_pointer(pointer);
     this->Widget::on_touch_leave(pointer);
     if(had_pointer) {
-      set_pseudo_classes(pseudo_classes() & ~PseudoClasses::ACTIVE);
-      if(_M_touch_count > 0) _M_touch_count--;
+      if(_M_touch_count > 0) {
+        _M_touch_count--;
+        if(_M_touch_count == 0)
+          set_pseudo_classes(pseudo_classes() & ~PseudoClasses::ACTIVE);
+      }
     }
   }
 
@@ -126,9 +134,11 @@ namespace waytk
           on_click();
           break;
         case KeyState::RELEASED:
-          if(_M_touch_count == 0)
+          if(_M_touch_count == 0) {
             set_pseudo_classes(pseudo_classes() & ~PseudoClasses::ACTIVE);
-          on_click();
+            on_click();
+          }
+          break;
       }
       return true;
     } else
@@ -191,7 +201,7 @@ namespace waytk
       FontMetrics font_metrics;
       canvas->get_font_matrics(font_metrics);
       canvas->move_to(inner_bounds.x, inner_bounds.y + (inner_bounds.height - font_metrics.height) / 2 + font_metrics.ascent);
-      canvas->set_color(label_styles->foreground_color(real_pseudo_classes()));
+      canvas->set_color(label_styles->foreground_color(pseudo_classes()));
       canvas->show_text(_M_label);
     }
   }

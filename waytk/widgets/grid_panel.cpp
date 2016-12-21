@@ -39,9 +39,9 @@ namespace waytk
   const char *GridPanel::name() const
   { return "grid_panel"; }
 
-  void GridPanel::update_child_points(const Rectangle<int> &area_bounds)
+  void GridPanel::update_child_points()
   {
-    Rectangle<int> inner_area_bounds = area_bounds_to_inner_area_bounds(area_bounds);
+    Rectangle<int> inner_bounds = bounds_to_inner_bounds(bounds());
     int row_count = widgets().size() / _M_column_count + (widgets().size() % _M_column_count > 0 ? 1 : 0);
     int x, y, width, height;
     double float_width, float_height;
@@ -49,13 +49,13 @@ namespace waytk
     if(h_align() != HAlignment::FILL) {
       switch(h_align()) {
         case HAlignment::LEFT:
-          x = inner_area_bounds.x;
+          x = inner_bounds.x;
           break;
         case HAlignment::CENTER:
-          x = inner_area_bounds.x + (inner_area_bounds.width - content_size().width) / 2 ;
+          x = inner_bounds.x + (inner_bounds.width - content_size().width) / 2 ;
           break;
         case HAlignment::RIGHT:
-          x = inner_area_bounds.x + (inner_area_bounds.width - content_size().width);
+          x = inner_bounds.x + (inner_bounds.width - content_size().width);
           break;
         default:
           break;
@@ -63,23 +63,20 @@ namespace waytk
       width = _M_cell_size.width;
       is_float_width = false;
     } else {
-      x = inner_area_bounds.x;
-      if(inner_area_bounds.width != numeric_limits<int>::max()) {
-        float_width = (inner_area_bounds.width + 0.0) / _M_column_count;
-        is_float_width = true;
-      } else
-        is_float_width = false;
+      x = inner_bounds.x;
+      float_width = (inner_bounds.width + 0.0) / _M_column_count;
+      is_float_width = true;
     }
     if(v_align() != VAlignment::FILL) {
       switch(v_align()) {
         case VAlignment::TOP:
-          y = inner_area_bounds.y;
+          y = inner_bounds.y;
           break;
         case VAlignment::CENTER:
-          y = inner_area_bounds.y + (inner_area_bounds.height - content_size().height) / 2 ;
+          y = inner_bounds.y + (inner_bounds.height - content_size().height) / 2 ;
           break;
         case VAlignment::BOTTOM:
-          y = inner_area_bounds.y + (inner_area_bounds.height - content_size().height);
+          y = inner_bounds.y + (inner_bounds.height - content_size().height);
           break;
         default:
           break;
@@ -87,9 +84,9 @@ namespace waytk
       height = _M_cell_size.height;
       is_float_width = false;
     } else {
-      y = inner_area_bounds.y;
-      if(inner_area_bounds.height != numeric_limits<int>::max() && row_count > 0) {
-        float_height = (inner_area_bounds.height + 0.0) / row_count;
+      y = inner_bounds.y;
+      if(row_count > 0) {
+        float_height = (inner_bounds.height + 0.0) / row_count;
         is_float_height = true;
       } else
         is_float_height = false;

@@ -156,7 +156,7 @@ namespace waytk
   Color Text::foreground_color(size_t pos)
   {
     if(!_M_has_foreground_color) {
-      _M_foreground_color = styles()->foreground_color(real_pseudo_classes());
+      _M_foreground_color = styles()->foreground_color(pseudo_classes());
       _M_has_foreground_color = true;
     }
     return _M_foreground_color;

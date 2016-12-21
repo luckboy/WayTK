@@ -32,5 +32,5 @@ namespace waytk
 
   void SeparatorMenuItem::update_content_size(Canvas *canvas, const Dimension<int> &area_size) {}
 
-  void SeparatorMenuItem::draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style) {}
+  void SeparatorMenuItem::draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds) {}
 }

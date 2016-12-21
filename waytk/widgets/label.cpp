@@ -54,7 +54,7 @@ namespace waytk
     FontMetrics font_metrics;
     canvas->get_font_matrics(font_metrics);
     canvas->move_to(inner_bounds.x, inner_bounds.y + (inner_bounds.height - content_size().height) / 2 + font_metrics.ascent);
-    canvas->set_color(styles()->foreground_color(real_pseudo_classes()));
+    canvas->set_color(styles()->foreground_color(pseudo_classes()));
     canvas->show_text(_M_text);
   }
 }

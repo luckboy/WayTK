@@ -37,7 +37,7 @@ namespace waytk
   namespace
   {
     //
-    // An ImplComboBoxList class.
+    // A ComboBoxList class.
     //
 
     class ComboBoxList : public Widget, public priv::ComboBoxListBase

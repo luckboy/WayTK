@@ -52,6 +52,6 @@ namespace waytk
   void SplitPane::update_content_size(Canvas *canvas, const Dimension<int> &area_size)
   { throw exception(); }
 
-  void SplitPane::draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style)
+  void SplitPane::draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds)
   { throw exception(); }
 }

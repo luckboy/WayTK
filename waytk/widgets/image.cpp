@@ -36,7 +36,7 @@ namespace waytk
   void Image::update_content_size(Canvas *canvas, const Dimension<int> &area_size)
   { set_content_size(_M_image->size()); }
 
-  void Image::draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds, Styles *style)
+  void Image::draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds)
   {
     canvas->save();
     canvas->rect(inner_bounds.x, inner_bounds.y, inner_bounds.width, inner_bounds.height);

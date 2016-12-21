@@ -67,29 +67,27 @@ namespace waytk
   const char *MenuBar::name() const
   { return "menu_bar"; }
 
-  void MenuBar::update_child_points(const Rectangle<int> &area_bounds)
+  void MenuBar::update_child_points()
   {
-    Rectangle<int> inner_area_bounds = area_bounds_to_inner_area_bounds(area_bounds);
+    Rectangle<int> inner_bounds = bounds_to_inner_bounds(bounds());
     HAlignment h_align = HAlignment::LEFT;
     VAlignment v_align = VAlignment::CENTER;
-    inner_area_bounds.width = numeric_limits<int>::max();
+    inner_bounds.width = numeric_limits<int>::max();
     for(auto &menu : _M_menus) {
       if(menu->is_visible()) {
         Edges<int> widget_margin = menu->margin();
         int widget_margin_box_width = menu->bounds().width + widget_margin.left + widget_margin.right;
-        Rectangle<int> widget_area_bounds = inner_area_bounds;
+        Rectangle<int> widget_area_bounds = inner_bounds;
         widget_area_bounds.width = widget_margin_box_width;
         widget_area_bounds.x += widget_margin.left;
         widget_area_bounds.y += widget_margin.top;
-        if(widget_area_bounds.width != numeric_limits<int>::max())
-          widget_area_bounds.width -= widget_margin.left + widget_margin.right;
-        if(widget_area_bounds.height != numeric_limits<int>::max())
-          widget_area_bounds.height -= widget_margin.top + widget_margin.bottom;
+        widget_area_bounds.width -= widget_margin.left + widget_margin.right;
+        widget_area_bounds.height -= widget_margin.top + widget_margin.bottom;
         widget_area_bounds.width = max(widget_area_bounds.width, 0);
         widget_area_bounds.height = max(widget_area_bounds.height, 0);
         // Updates top left point of menu.
         menu->update_point(widget_area_bounds, &h_align, &v_align);
-        inner_area_bounds.x += widget_margin_box_width;
+        inner_bounds.x += widget_margin_box_width;
       }
     }
   }
