@@ -74,7 +74,7 @@ namespace waytk
     { throw exception(); }
 
     Color ImplStyles::foreground_color(PseudoClasses pseudo_classes) const
-    { throw exception(); }
+    { return find_style_attr(_M_foreground_colors, pseudo_classes, Color(0xff000000)); }
 
     bool ImplStyles::has_adjacency_to()
     { throw exception(); }
