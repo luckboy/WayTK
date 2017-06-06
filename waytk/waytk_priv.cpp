@@ -42,8 +42,9 @@ namespace waytk
       auto iter = find_if(visible_modal_surface_stack.rbegin(), visible_modal_surface_stack.rend(), [surface](Surface *tmp_surface) {
         return tmp_surface == surface;
       });
+      auto tmp_iter = --(iter.base());
       if(iter != visible_modal_surface_stack.rend()) {
-        visible_modal_surface_stack.erase(iter);
+        visible_modal_surface_stack.erase(tmp_iter);
         return true;
       }
       return false;
