@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2507,7 +2507,7 @@ namespace waytk
   ///
   /// A tree widget displays trees.
   ///
-  /// Branch of trees can be expanded or unexpended. Ascendants of a branch are
+  /// Branch of trees can be expanded or unexpended. Descendants of a branch are
   /// displayed if the branch is expanded, otherwise is hidden. One of the nodes
   /// of tree or more notes of tree can be selected by an user. If more than on
   /// node of the tree widget can be selected, an user can use shortcuts for a
