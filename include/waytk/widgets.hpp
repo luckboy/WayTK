@@ -952,6 +952,14 @@ namespace waytk
     virtual Rectangle<int> child_event_bounds() const;
 
     ///
+    /// Invokes a function for the touch event or the pointer event.
+    ///
+    /// If the function returns \c false for the widget, the function is invoked
+    /// for the widget parent.
+    ///
+    virtual bool invoke_fun_for_event(const Point<double> &point, const std::function<bool (Widget *, const Point<double> &)> &fun);
+
+    ///
     /// This method that is invoked when a touch event occurs.
     ///
     /// If this method returns \c false, this method is invoked for the widget
@@ -1070,6 +1078,8 @@ namespace waytk
 
     /// Deletes all widgets of the container.
     void delete_all_widgets();
+
+    virtual bool invoke_fun_for_event(const Point<double> &point, const std::function<bool (Widget *, const Point<double> &)> &fun);
   };
 
   ///
@@ -2166,6 +2176,8 @@ namespace waytk
     virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
     virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
+  public:
+    virtual bool invoke_fun_for_event(const Point<double> &point, const std::function<bool (Widget *, const Point<double> &)> &fun);
   };
 
   ///
@@ -2300,6 +2312,8 @@ namespace waytk
     virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
   public:
     virtual Viewport *viewport();
+    
+    virtual bool invoke_fun_for_event(const Point<double> &point, const std::function<bool (Widget *, const Point<double> &)> &fun);
 
     virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
@@ -2493,6 +2507,8 @@ namespace waytk
     virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
   public:
     virtual Viewport *viewport();
+    
+    virtual bool invoke_fun_for_event(const Point<double> &point, const std::function<bool (Widget *, const Point<double> &)> &fun);
 
     virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
@@ -2642,6 +2658,8 @@ namespace waytk
     virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
   public:
     virtual Viewport *viewport();
+
+    virtual bool invoke_fun_for_event(const Point<double> &point, const std::function<bool (Widget *, const Point<double> &)> &fun);
 
     virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
@@ -2809,6 +2827,8 @@ namespace waytk
   public:
     virtual Rectangle<int> child_event_bounds() const;
 
+    virtual bool invoke_fun_for_event(const Point<double> &point, const std::function<bool (Widget *, const Point<double> &)> &fun);
+    
     virtual bool on_touch(const Pointer &pointer, const Point<double> &point, TouchState state);
 
     virtual void on_touch_leave(const Pointer &pointer);
@@ -3495,6 +3515,8 @@ namespace waytk
     virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
     virtual void draw_children(Canvas *canvas, const Rectangle<int> &inner_bounds);
+  public:
+    virtual bool invoke_fun_for_event(const Point<double> &point, const std::function<bool (Widget *, const Point<double> &)> &fun);
   };
 
   /// Converts an icon size to a dimension.

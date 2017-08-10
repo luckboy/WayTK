@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <cmath>
 #include <waytk.hpp>
 
 using namespace std;
@@ -54,4 +55,17 @@ namespace waytk
 
   void SplitPane::draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds)
   { throw exception(); }
+  
+  bool SplitPane::invoke_fun_for_event(const Point<double> &point, const std::function<bool (Widget *, const Point<double> &)> &fun)
+  {
+    Point<int> int_point(round(point.x), round(point.x));
+    bool cant_invoke = false;
+    Rectangle<int> result;
+    if(child_event_bounds().intersect(_M_first_widget->bounds(), result) && result.contain(int_point))
+      cant_invoke = _M_first_widget->invoke_fun_for_event(point, fun);
+    else if(child_event_bounds().intersect(_M_second_widget->bounds(), result) && result.contain(int_point))
+      cant_invoke = _M_second_widget->invoke_fun_for_event(point, fun);
+    return !cant_invoke ? fun(this, point) : true;
+  }
+
 }

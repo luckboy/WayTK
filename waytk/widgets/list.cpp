@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -92,6 +92,9 @@ namespace waytk
   { throw exception(); }
 
   Viewport *List::viewport()
+  { throw exception(); }
+  
+  bool List::invoke_fun_for_event(const Point<double> &point, const function<bool (Widget *, const Point<double> &)> &fun)
   { throw exception(); }
 
   bool List::on_touch(const Pointer &pointer, const Point<double> &point, TouchState state)

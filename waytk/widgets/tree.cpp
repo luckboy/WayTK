@@ -141,6 +141,9 @@ namespace waytk
 
   Viewport *Tree::viewport()
   { throw exception(); }
+  
+  bool invoke_fun_for_event(const Point<double> &point, const function<bool (Widget *, const Point<double> &)> &fun)
+  { throw exception(); }
 
   bool Tree::on_touch(const Pointer &pointer, const Point<double> &point, TouchState state)
   { throw exception(); }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -438,6 +438,9 @@ namespace waytk
 
   Rectangle<int> Widget::child_event_bounds() const
   { return _M_bounds; }
+
+  bool Widget::invoke_fun_for_event(const Point<double> &point, const function<bool (Widget *, const Point<double> &)> &fun)
+  { return fun(this, point); }
 
   bool Widget::on_touch(const Pointer &pointer, const Point<double> &point, TouchState state)
   { return on_touch_for_block(Block(), pointer, point, state); }

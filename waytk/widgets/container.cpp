@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 #include <algorithm>
+#include <cmath>
 #include <waytk.hpp>
 
 using namespace std;
@@ -36,7 +37,7 @@ namespace waytk
       _M_widgets.push_back(unique_ptr<Widget>(widget));
     }
   }
-
+  
   void Container::add_widget(Widget *widget)
   {
     _M_widgets.push_back(unique_ptr<Widget>(widget));
@@ -60,5 +61,19 @@ namespace waytk
   {
     for(auto &widget : _M_widgets) unset_this_as_widget_parent(widget.get());
     _M_widgets.clear();
+  }
+
+  bool Container::invoke_fun_for_event(const Point<double> &point, const function<bool (Widget *, const Point<double> &)> &fun)
+  {
+    Point<int> int_point(round(point.x), round(point.x));
+    bool cant_invoke = false;
+    for(auto &widget : _M_widgets) {
+      Rectangle<int> result;
+      if(child_event_bounds().intersect(widget->bounds(), result) && result.contain(int_point)) {
+        cant_invoke = widget->invoke_fun_for_event(point, fun);
+        break;
+      }
+    }
+    return !cant_invoke ? fun(this, point) : true;
   }
 }

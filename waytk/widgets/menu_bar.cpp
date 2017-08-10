@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -190,5 +190,19 @@ namespace waytk
         canvas->restore();
       }
     }
+  }
+
+  bool MenuBar::invoke_fun_for_event(const Point<double> &point, const function<bool (Widget *, const Point<double> &)> &fun)
+  {
+    Point<int> int_point(round(point.x), round(point.x));
+    bool cant_invoke = false;
+    for(auto &menu : _M_menus) {
+      Rectangle<int> result;
+      if(child_event_bounds().intersect(menu->bounds(), result) && result.contain(int_point)) {
+        cant_invoke = menu->invoke_fun_for_event(point, fun);
+        break;
+      }
+    }
+    return !cant_invoke ? fun(this, point) : true;
   }
 }
