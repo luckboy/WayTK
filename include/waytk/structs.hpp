@@ -153,32 +153,32 @@ namespace waytk
     {
       Rectangle<_T> tmp_result;
       bool is_result = true;
-      if(x >= rect.x && x + width < rect.x) {
-        tmp_result.x = rect.x;
-        if(x + width >= rect.x + rect.width)
-          tmp_result.width = rect.width;
-        else
-          tmp_result.width = x + width - rect.x; 
-      } else if(rect.x >= x && rect.x + rect.width < x) {
+      if(x >= rect.x && x < rect.x + rect.width) {
         tmp_result.x = x;
-        if(rect.x + rect.width >= x + width)
+        if(x + width <= rect.x + rect.width)
           tmp_result.width = width;
         else
           tmp_result.width = rect.x + rect.width - x; 
+      } else if(rect.x >= x && rect.x < x + width) {
+        tmp_result.x = rect.x;
+        if(rect.x + rect.width <= x + width)
+          tmp_result.width = rect.width;
+        else
+          tmp_result.width = x + width - rect.x; 
       } else
         is_result = false;
-      if(y >= rect.y && y + height < rect.y) {
-        tmp_result.y = rect.y;
-        if(y + height >= rect.y + rect.height)
-          tmp_result.height = rect.height;
-        else
-          tmp_result.height = y + height - rect.y; 
-      } else if(rect.y >= y && rect.y + rect.height < y) {
+      if(y >= rect.y && y < rect.y + rect.height) {
         tmp_result.y = y;
-        if(rect.y + rect.height >= y + height)
+        if(y + height <= rect.y + rect.height)
           tmp_result.height = height;
         else
           tmp_result.height = rect.y + rect.height - y; 
+      } else if(rect.y >= y && rect.y < y + height) {
+        tmp_result.y = rect.y;
+        if(rect.y + rect.height <= y + height)
+          tmp_result.height = rect.height;
+        else
+          tmp_result.height = y + height - rect.y; 
       } else
         is_result = false;
       if(is_result) result = tmp_result;
