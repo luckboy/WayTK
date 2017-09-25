@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -152,7 +152,7 @@ namespace waytk
     {
       auto iter = str.begin();
       while(iter != str.end()) {
-        char char_bytes[MAX_UNNORMALIZED_UTF8_CHAR_LENGTH];
+        char char_bytes[MAX_NORMALIZED_UTF8_CHAR_LENGTH];
         size_t char_length;
         normalize_utf8_char(iter, str.end(), char_bytes, char_length);
         for(size_t i = 0; i < char_length; i++) {
@@ -266,7 +266,7 @@ namespace waytk
     void ImplTextBuffer::priv_append_string(const string &str)
     {
       for(auto iter = str.begin(); iter != str.end(); ) {
-        char char_bytes[MAX_UNNORMALIZED_UTF8_CHAR_LENGTH];
+        char char_bytes[MAX_NORMALIZED_UTF8_CHAR_LENGTH];
         size_t char_length;
         normalize_utf8_char(iter, str.end(), char_bytes, char_length);
         for(size_t i = 0; i < char_length; i++) {
