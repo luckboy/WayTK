@@ -153,9 +153,9 @@ namespace waytk
       auto iter = str.begin();
       while(iter != str.end()) {
         char char_bytes[MAX_NORMALIZED_UTF8_CHAR_LENGTH];
-        size_t char_length;
-        normalize_utf8_char(iter, str.end(), char_bytes, char_length);
-        for(size_t i = 0; i < char_length; i++) {
+        size_t input_char_length, output_char_length;
+        normalize_utf8_char(iter, str.end(), char_bytes, input_char_length, output_char_length);
+        for(size_t i = 0; i < output_char_length; i++) {
           if(_M_gap_begin_index >= _M_cursor_index) {
             _M_bytes.resize(_M_bytes.size() + _M_gap_size + 1);
             copy_backward(_M_bytes.begin() + _M_gap_begin_index, _M_bytes.end() - (_M_gap_size + 1), _M_bytes.begin() + _M_gap_begin_index + (_M_gap_size + 1));
@@ -174,7 +174,7 @@ namespace waytk
             _M_cursor_pos.column++;
           _M_char_count++;
         }
-        iter += char_length;
+        iter += input_char_length;
       }
     }
 
@@ -267,13 +267,14 @@ namespace waytk
     {
       for(auto iter = str.begin(); iter != str.end(); ) {
         char char_bytes[MAX_NORMALIZED_UTF8_CHAR_LENGTH];
-        size_t char_length;
-        normalize_utf8_char(iter, str.end(), char_bytes, char_length);
-        for(size_t i = 0; i < char_length; i++) {
+        size_t input_char_length, output_char_length;
+        normalize_utf8_char(iter, str.end(), char_bytes, input_char_length, output_char_length);
+        for(size_t i = 0; i < output_char_length; i++) {
           _M_bytes.push_back(char_bytes[i]);
           if(char_bytes[i] == '\n') _M_line_count++;
           _M_char_count++;
         }
+        iter += input_char_length;
       }
     }
   }
