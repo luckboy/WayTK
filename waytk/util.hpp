@@ -185,12 +185,13 @@ namespace waytk
       if(iter == begin) return 0;
       unsigned c = 0;
       std::size_t i;
-      for(i = 0; iter != begin; i++) {
+      for(i = 0; true; i++) {
         iter--;
         length++;
         if((*iter & 0xc0) != 0x80) break;
         c = *iter & 0x3f;
         if(i >= 3) break;
+        if(iter == begin) break;
       }
       bool is_char = false;
       switch(i) {
