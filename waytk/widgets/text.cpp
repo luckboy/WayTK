@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,12 @@ namespace waytk
     _M_max_length = numeric_limits<size_t>::max();
     _M_has_line_wrap = false;
     _M_has_word_wrap = false;
+    _M_has_font = false;
+    _M_font_name.clear();
+    _M_font_slant = FontSlant::NORMAL;
+    _M_font_weight = FontWeight::NORMAL;
+    _M_has_font_size = false;
+    _M_font_size = 0;
     _M_is_editable = true;
     _M_on_text_change_callback.set_listener([](Widget *widget, const Range<TextCharIterator> &range) {});
     _M_on_cursor_change_callback.set_listener([](Widget *widget, const TextCharIterator &iter, const TextPosition &pos) {});
@@ -124,6 +130,18 @@ namespace waytk
     _M_font_name.clear();
     _M_font_slant = FontSlant::NORMAL;
     _M_font_weight = FontWeight::NORMAL;
+  }
+  
+  void Text::set_font_size(int size)
+  {
+    _M_has_font_size = true;
+    _M_font_size = size;
+  }
+
+  void Text::unset_font_size()
+  {
+    _M_has_font_size = false;
+    _M_font_size = 0;
   }
 
   const char *Text::name() const

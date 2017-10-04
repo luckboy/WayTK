@@ -1264,6 +1264,8 @@ namespace waytk
     std::string _M_font_name;
     FontSlant _M_font_slant;
     FontWeight _M_font_weight;
+    bool _M_has_font_size;
+    int _M_font_size;
     bool _M_is_editable;
     OnTextChangeCallback _M_on_text_change_callback;
     OnCursorChangeCallback _M_on_cursor_change_callback;
@@ -1437,7 +1439,7 @@ namespace waytk
     /// Returns the font weight of the text widget.
     FontWeight font_weight() const
     { return _M_font_weight; }
-
+  
     ///
     /// Sets the font of the text widget.
     ///
@@ -1448,6 +1450,20 @@ namespace waytk
 
     /// Unsets the font of the text widget.
     void unset_font();
+
+      /// Returns \c true if the text widhet has the font size, otherwise \c false.
+    bool has_font_size()
+    { return _M_has_font_size; }
+    
+    /// Returns the font size of the text widget.
+    int font_size() const
+    { return _M_font_size; }
+
+    /// Sets the font size of the text widget.
+    void set_font_size(int size);
+    
+    /// Unsets the font size of the text widget.
+    void unset_font_size();
 
     /// Returns \c true if the text widget is editable, otherwise \c false.
     bool is_editable() const
