@@ -149,7 +149,13 @@ namespace waytk
     }
 
     Dimension<int> WidgetViewport::client_size() const
-    { return _M_widget->bounds().size(); }
+    {
+      Edges<int> margin = _M_widget->margin();      
+      Dimension<int> tmp_size = _M_widget->bounds().size();
+      tmp_size.width += margin.left + margin.right;
+      tmp_size.height += margin.top + margin.bottom;
+      return tmp_size;
+    }
 
     void WidgetViewport::update_widget_point(const Rectangle<int> &area_bounds) {}
 
