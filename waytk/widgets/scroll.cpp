@@ -126,17 +126,6 @@ namespace waytk
     _M_viewport->update_widget_point(_M_viewport_widget_bounds);
   }
 
-  void Scroll::update_child_sizes(Canvas *canvas, const Dimension<int> &area_size)
-  {
-    Dimension<int> inner_area_size = area_size_to_inner_area_size(area_size);
-    Dimension<int> widget_area_size = inner_area_size;
-    widget_area_size.width -= _M_v_scroll_bar_margin_box_size.width;
-    widget_area_size.height -= _M_h_scroll_bar_margin_box_size.height;
-    widget_area_size.width = max(widget_area_size.width, 0);
-    widget_area_size.height = max(widget_area_size.height, 0);
-    _M_viewport->update_widget_size(canvas, widget_area_size);
-  }
-
   void Scroll::update_content_size(Canvas *canvas, const Dimension<int> &area_size)
   {
     _M_viewport->update_point(canvas);
@@ -221,6 +210,12 @@ namespace waytk
       _M_v_slider_pseudo_classes |= PseudoClasses::DISABLED;
       _M_bottom_button_pseudo_classes |= PseudoClasses::DISABLED;
     }
+    Dimension<int> widget_area_size = inner_area_size;
+    widget_area_size.width -= _M_v_scroll_bar_margin_box_size.width;
+    widget_area_size.height -= _M_h_scroll_bar_margin_box_size.height;
+    widget_area_size.width = max(widget_area_size.width, 0);
+    widget_area_size.height = max(widget_area_size.height, 0);
+    _M_viewport->update_widget_size(canvas, widget_area_size);
   }
 
   void Scroll::draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds)

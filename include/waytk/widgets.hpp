@@ -2833,8 +2833,6 @@ namespace waytk
   protected:
     virtual void update_child_points();
 
-    virtual void update_child_sizes(Canvas *canvas, const Dimension<int> &area_size);
-
     virtual void update_content_size(Canvas *canvas, const Dimension<int> &area_size);
 
     virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
