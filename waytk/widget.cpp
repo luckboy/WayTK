@@ -137,8 +137,8 @@ namespace waytk
       area_bounds.y = viewport_point.y - _M_view_point.y;
       area_bounds.width = numeric_limits<int>::max();
       area_bounds.height = numeric_limits<int>::max();
-      area_bounds.x -= margin.left;
-      area_bounds.y -= margin.top;
+      area_bounds.x += margin.left;
+      area_bounds.y += margin.top;
       _M_widget->update_point(area_bounds);
     }
 
