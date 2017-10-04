@@ -74,47 +74,59 @@ namespace waytk
     }
 
     int WidgetViewport::h_scroll_slider_x(int width) const
-    { return static_cast<int64_t>(_M_view_point.x) * width / _M_bounds.width; }
+    {
+      int client_width = client_size().width;
+      return static_cast<int64_t>(_M_view_point.x) * width / client_width;
+    }
 
     void WidgetViewport::set_h_scroll_slider_x(int x, int width)
     {
-      _M_view_point.x = static_cast<int64_t>(x) * _M_bounds.width / width;
-      _M_view_point.x = min(max(_M_view_point.x, 0), max(client_size().width - _M_bounds.width, 0));
+      int client_width = client_size().width;
+      _M_view_point.x = static_cast<int64_t>(x) * client_width / width;
+      _M_view_point.x = min(max(_M_view_point.x, 0), max(client_width - _M_bounds.width, 0));
     }
 
     void WidgetViewport::add_onto_h_scroll_slider_x(int x, int width)
     {
-      _M_view_point.x += static_cast<int64_t>(x) * _M_bounds.width / width;
-      _M_view_point.x = min(max(_M_view_point.x, 0), max(client_size().width - _M_bounds.width, 0));
+      int client_width = client_size().width;
+      _M_view_point.x += static_cast<int64_t>(x) * client_width / width;
+      _M_view_point.x = min(max(_M_view_point.x, 0), max(client_width - _M_bounds.width, 0));
     }
 
     int WidgetViewport::h_scroll_slider_width(int width) const
     {
-      int64_t x1 = client_size().width - _M_bounds.width;
-      int64_t x2 = client_size().width;
-      return x2 * width / _M_bounds.width - x1 * width / _M_bounds.width;
+      int client_width = client_size().width;
+      int64_t x1 = client_width - _M_bounds.width;
+      int64_t x2 = client_width;
+      return x2 * width / client_width - x1 * width / client_width;
     }
 
     int WidgetViewport::v_scroll_slider_y(int height) const
-    { return static_cast<int64_t>(_M_view_point.y) * height / _M_bounds.height; }
+    {
+      int client_height = client_size().height;
+      return static_cast<int64_t>(_M_view_point.y) * height / client_height;
+    }
 
     void WidgetViewport::set_v_scroll_slider_y(int y, int height)
     {
-      _M_view_point.y = static_cast<int64_t>(y) * _M_bounds.height / height;
-      _M_view_point.y = min(max(_M_view_point.y, 0), max(client_size().height - _M_bounds.height, 0));
+      int client_height = client_size().height;
+      _M_view_point.y = static_cast<int64_t>(y) * client_height / height;
+      _M_view_point.y = min(max(_M_view_point.y, 0), max(client_height - _M_bounds.height, 0));
     }
 
     void WidgetViewport::add_onto_v_scroll_slider_y(int y, int height)
     {
-      _M_view_point.y += static_cast<int64_t>(y) * _M_bounds.height / height;
-      _M_view_point.y = min(max(_M_view_point.y, 0), max(client_size().height - _M_bounds.height, 0));
+      int client_height = client_size().height;
+      _M_view_point.y += static_cast<int64_t>(y) * client_height / height;
+      _M_view_point.y = min(max(_M_view_point.y, 0), max(client_height - _M_bounds.height, 0));
     }
 
     int WidgetViewport::v_scroll_slider_height(int height) const
     {
-      int64_t y1 = client_size().height - _M_bounds.height;
-      int64_t y2 = client_size().height;
-      return y2 * height / _M_bounds.height - y1 * height / _M_bounds.height;
+      int client_height = client_size().height;
+      int64_t y1 = client_height - _M_bounds.height;
+      int64_t y2 = client_height;
+      return y2 * height / client_height - y1 * height / client_height;
     }
     
     bool WidgetViewport::width_is_less_than_clien_width() const
