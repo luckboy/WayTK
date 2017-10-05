@@ -113,7 +113,7 @@ namespace waytk
               _M_selection_index_range.begin = i;
             if(_M_selection_index_range.end >= i && _M_selection_index_range.end < j)
               _M_selection_index_range.end = i;
-          } while(j <= new_cursor_index);
+          } while(j < new_cursor_index);
         } else if(new_cursor_index < old_cursor_index) {
           do {
             _M_bytes[j] = _M_bytes[i];
