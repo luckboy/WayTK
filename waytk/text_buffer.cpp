@@ -221,10 +221,24 @@ namespace waytk
     }
 
     bool ImplTextBuffer::is_equal_to(const TextByteIterator &iter1, const TextByteIterator &iter2) const
-    { return iter1.buffer() == iter2.buffer() && byte_iter_data1(iter1) == byte_iter_data1(iter2); }
+    {
+      if(iter1.buffer() == iter2.buffer()) {
+        uintptr_t index1 = byte_iter_data1(iter1) == _M_gap_begin_index ? _M_cursor_index : byte_iter_data1(iter1);
+        uintptr_t index2 = byte_iter_data1(iter2) == _M_gap_begin_index ? _M_cursor_index : byte_iter_data1(iter1);
+        return index1 == index2;
+      } else
+        return false;
+    }
 
     bool ImplTextBuffer::is_less_than(const TextByteIterator &iter1, const TextByteIterator &iter2) const
-    { return iter1.buffer() == iter2.buffer() ? byte_iter_data1(iter1) < byte_iter_data1(iter2) : iter1.buffer() < iter2.buffer(); }
+    {
+      if(iter1.buffer() == iter2.buffer()) {
+        uintptr_t index1 = byte_iter_data1(iter1) == _M_gap_begin_index ? _M_cursor_index : byte_iter_data1(iter1);
+        uintptr_t index2 = byte_iter_data1(iter2) == _M_gap_begin_index ? _M_cursor_index : byte_iter_data1(iter1);
+        return index1 < index2;
+      } else
+        return iter1.buffer() < iter2.buffer();
+    }
 
     TextCharIterator &ImplTextBuffer::increase_char_iter(TextCharIterator &iter) const
     {
