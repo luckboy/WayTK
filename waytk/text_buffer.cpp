@@ -195,10 +195,16 @@ namespace waytk
     { _M_gap_size = gap_size; }
 
     const char &ImplTextBuffer::byte(const TextByteIterator &iter) const
-    { return _M_bytes[byte_iter_data1(iter)]; }
+    {
+      uintptr_t index = byte_iter_data1(iter) == _M_gap_begin_index ? _M_cursor_index : byte_iter_data1(iter);
+      return _M_bytes[index];
+    }
 
     const char *ImplTextBuffer::byte_ptr(const TextByteIterator &iter) const
-    { return &(_M_bytes[byte_iter_data1(iter)]); }
+    {
+      uintptr_t index = byte_iter_data1(iter) == _M_gap_begin_index ? _M_cursor_index : byte_iter_data1(iter);
+      return &(_M_bytes[index]);
+    }
 
     TextByteIterator &ImplTextBuffer::increase_byte_iter(TextByteIterator &iter) const
     {
