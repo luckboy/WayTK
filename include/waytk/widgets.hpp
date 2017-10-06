@@ -1383,10 +1383,8 @@ namespace waytk
     ///
     void delete_chars(std::size_t count);
 
-    ///
     /// Appends a new text to the text of the text widget at end of the text of
     /// the text widget.
-    ///
     void append_string(const std::string &str);
 
     /// Returns the maximal text length of the text widget.
