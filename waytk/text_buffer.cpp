@@ -183,8 +183,13 @@ namespace waytk
       for(size_t i = 0; i < count && _M_cursor_index < _M_bytes.size(); i++) {
         size_t char_length = current_utf8_char_length(_M_bytes.begin() + _M_cursor_index, _M_bytes.end());
         if(_M_bytes[_M_cursor_index] == '\n') _M_line_count--;
+        if(_M_selection_index_range.begin == _M_cursor_index)
+          _M_selection_index_range.begin += char_length;
+        if(_M_selection_index_range.end == _M_cursor_index)
+          _M_selection_index_range.end += char_length;
         _M_cursor_index += char_length;
         _M_char_count--;
+        
       }
     }
 
