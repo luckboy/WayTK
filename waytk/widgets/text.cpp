@@ -40,6 +40,7 @@ namespace waytk
     _M_max_length = numeric_limits<size_t>::max();
     _M_has_line_wrap = false;
     _M_has_word_wrap = false;
+    _M_tab_spaces = 8;
     _M_has_font = false;
     _M_font_name.clear();
     _M_font_slant = FontSlant::NORMAL;

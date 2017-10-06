@@ -1260,6 +1260,7 @@ namespace waytk
     std::size_t _M_max_length;
     bool _M_has_line_wrap;
     bool _M_has_word_wrap;
+    std::size_t _M_tab_spaces;
     bool _M_has_font;
     std::string _M_font_name;
     FontSlant _M_font_slant;
@@ -1423,6 +1424,14 @@ namespace waytk
     /// disables the word wrapping.
     void set_word_wrap(bool has_word_wrap)
     { _M_has_word_wrap = has_word_wrap; }
+    
+    /// Returns the number of the tab spaces of the text widget.
+    std::size_t tab_spaces() const
+    { return _M_tab_spaces; }
+
+    /// Sets the number of the tab spaces of the text widget.
+    void set_tab_spaces(std::size_t tab_spaces)
+    { _M_tab_spaces = tab_spaces; }
 
     /// Returns \c true if the text widget has the font, otherwise \c false.
     bool has_font() const
