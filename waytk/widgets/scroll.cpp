@@ -139,9 +139,9 @@ namespace waytk
       inner_area_size.width +=  viewport_widget_margin.left + viewport_widget_margin.right;
       if(_M_has_visible_v_scroll_bar) {
         int content_width;
-        content_width = _M_top_button_margin_box_size.width;
-        content_width = max(content_width, _M_v_slider_margin_box_size.width);
-        content_width = max(content_width, _M_bottom_button_margin_box_size.width);
+        content_width = block_margin_box_width(top_button_name(), _M_top_button_pseudo_classes, 0);
+        content_width = max(content_width, block_margin_box_width(v_slider_name(), _M_v_slider_pseudo_classes, 0));
+        content_width = max(content_width, block_margin_box_width(bottom_button_name(), _M_bottom_button_pseudo_classes, 0));
         inner_area_size.width += block_margin_box_width(v_scroll_bar_name(), _M_v_scroll_bar_pseudo_classes, content_width);
       }
     }
@@ -151,10 +151,10 @@ namespace waytk
       inner_area_size.height +=  viewport_widget_margin.top + viewport_widget_margin.bottom;
       if(_M_has_visible_h_scroll_bar) {
         int content_height;
-        content_height = _M_left_button_margin_box_size.width;
-        content_height = max(content_height, _M_h_slider_margin_box_size.width);
-        content_height = max(content_height, _M_right_button_margin_box_size.width);
-        inner_area_size.width += block_margin_box_width(h_scroll_bar_name(), _M_h_scroll_bar_pseudo_classes, content_height);
+        content_height = block_margin_box_height(left_button_name(), _M_left_button_pseudo_classes, 0);
+        content_height = max(content_height, block_margin_box_height(h_slider_name(), _M_h_slider_pseudo_classes, 0));
+        content_height = max(content_height, block_margin_box_height(right_button_name(), _M_right_button_pseudo_classes, 0));
+        inner_area_size.width += block_margin_box_height(h_scroll_bar_name(), _M_h_scroll_bar_pseudo_classes, content_height);
       }
     }
     update_scroll_bar_margin_box_sizes(canvas, inner_area_size);
