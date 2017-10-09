@@ -146,7 +146,7 @@ namespace waytk
   }
 
   const char *Text::name() const
-  { return "text"; }
+  { return _M_input_type == InputType::MULTI_LINE ? "text.multi_line" : "text.single_line"; }
 
   void Text::draw(Canvas *canvas)
   { throw exception(); }
