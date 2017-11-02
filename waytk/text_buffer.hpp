@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,9 +39,13 @@ namespace waytk
       std::size_t _M_char_count;
       std::size_t _M_line_count;
       std::size_t _M_gap_size;
+      std::size_t _M_tab_spaces;
+      bool _M_has_saved_column;
+      std::size_t _M_saved_column;
     public:
       ImplTextBuffer(const std::string &text, std::size_t gap_size) :
-        _M_gap_size(gap_size) { priv_set_text(text); }
+        _M_gap_size(gap_size), _M_tab_spaces(8), _M_has_saved_column(false),
+        _M_saved_column(0) { priv_set_text(text); }
 
       virtual ~ImplTextBuffer();
 
@@ -84,6 +88,20 @@ namespace waytk
       virtual void append_string(const std::string &str);
 
       virtual void set_gap_size(std::size_t gap_size);
+      
+      virtual std::size_t tab_spaces() const;
+
+      virtual void set_tab_spaces(std::size_t tab_spaces);
+    protected:
+      virtual bool has_saved_column() const;
+
+      virtual std::size_t saved_column() const;
+
+      virtual void set_saved_column(std::size_t column);
+
+      virtual void unset_saved_column();
+    public:
+      virtual void validate_byte_iter(TextByteIterator &iter, const TextCharIterator &old_cursor_iter) const;
     protected:
       virtual const char &byte(const TextByteIterator &iter) const;
 
@@ -108,6 +126,12 @@ namespace waytk
       void priv_set_text(const std::string &text);
 
       void priv_append_string(const std::string &str);
+
+      void throw_runtime_exception_for_invalid_iterator(const TextByteIterator &iter) const
+      {
+        if(iter.buffer() != this || byte_iter_data1(iter) > _M_bytes.size())
+          throw RuntimeException("invalid text iterator");
+      }
 
       void throw_runtime_exception_for_invalid_iterator(const TextCharIterator &iter) const
       {

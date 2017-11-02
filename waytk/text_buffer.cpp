@@ -92,14 +92,24 @@ namespace waytk
         for(; line_iter < new_line_iter; line_iter++) _M_cursor_pos.line++;
         TextCharIterator char_iter = line_iter.char_iter();
         _M_cursor_pos.column = 0;
-        for(; char_iter < new_char_iter; char_iter++) _M_cursor_pos.column++;
+        for(; char_iter < new_char_iter; char_iter++) {
+          if(**char_iter == '\t')
+            _M_cursor_pos.column += _M_tab_spaces - _M_cursor_pos.column % _M_tab_spaces;
+          else
+            _M_cursor_pos.column++;
+        }
       } else if(new_char_iter < old_char_iter) {
         TextLineIterator old_line_iter(old_char_iter);
         TextLineIterator line_iter(new_char_iter);
         for(; line_iter > old_line_iter; line_iter--) _M_cursor_pos.line--;
         TextCharIterator char_iter = line_iter.char_iter();
         _M_cursor_pos.column = 0;
-        for(; char_iter < new_char_iter; char_iter++) _M_cursor_pos.column++;
+        for(; char_iter < new_char_iter; char_iter++) {
+          if(**char_iter == '\t')
+            _M_cursor_pos.column += _M_tab_spaces - _M_cursor_pos.column % _M_tab_spaces;
+          else
+            _M_cursor_pos.column++;
+        }
       }
       // Moves gap and updates selection index range.
       size_t i = _M_gap_begin_index;
@@ -129,6 +139,7 @@ namespace waytk
       // Sets cursor index.
       _M_gap_begin_index = i;
       _M_cursor_index = j;
+      unset_saved_column();
     }
 
     Range<TextCharIterator> ImplTextBuffer::selection_range() const
@@ -170,12 +181,17 @@ namespace waytk
             _M_cursor_pos.line++;
             _M_cursor_pos.column = 0;
             _M_line_count++;
-          } else
-            _M_cursor_pos.column++;
+          } else {
+            if(char_bytes[i] == '\t')
+              _M_cursor_pos.column += (_M_tab_spaces - _M_cursor_pos.column % _M_tab_spaces);
+            else
+              _M_cursor_pos.column++;
+          }
           _M_char_count++;
         }
         iter += input_char_length;
       }
+      unset_saved_column();
     }
 
     void ImplTextBuffer::delete_chars(size_t count)
@@ -189,8 +205,8 @@ namespace waytk
           _M_selection_index_range.end += char_length;
         _M_cursor_index += char_length;
         _M_char_count--;
-        
       }
+      unset_saved_column();
     }
 
     void ImplTextBuffer::append_string(const string &str)
@@ -198,6 +214,55 @@ namespace waytk
 
     void ImplTextBuffer::set_gap_size(size_t gap_size)
     { _M_gap_size = gap_size; }
+
+    std::size_t ImplTextBuffer::tab_spaces() const
+    { return _M_tab_spaces; }
+
+    void ImplTextBuffer::set_tab_spaces(std::size_t tab_spaces)
+    {
+      _M_tab_spaces = tab_spaces;
+      TextLineIterator line_iter(cursor_iter());
+      _M_cursor_pos.column = 0;
+      for(auto char_iter = line_iter.char_iter(); char_iter != cursor_iter(); char_iter++) {
+        if(**char_iter == '\t')
+          _M_cursor_pos.column += _M_tab_spaces - _M_cursor_pos.column % _M_tab_spaces;
+        else
+          _M_cursor_pos.column++;
+      }
+    }
+
+    bool ImplTextBuffer::has_saved_column() const
+    { return _M_has_saved_column; }
+    
+    size_t ImplTextBuffer::saved_column() const
+    { return _M_saved_column; }
+
+    void ImplTextBuffer::set_saved_column(size_t column)
+    {
+      _M_has_saved_column = true;
+      _M_saved_column = column;
+    }
+    
+    void ImplTextBuffer::unset_saved_column()
+    {
+      _M_has_saved_column = true;
+      _M_saved_column = 0;
+    }
+
+    void ImplTextBuffer::validate_byte_iter(TextByteIterator &iter, const TextCharIterator &old_cursor_iter) const
+    {
+      throw_runtime_exception_for_invalid_iterator(iter);
+      throw_runtime_exception_for_invalid_iterator(old_cursor_iter);
+      size_t old_cursor_index = char_iter_data1(old_cursor_iter);
+      size_t index = byte_iter_data1(iter);
+      if(_M_cursor_index > old_cursor_index) {
+        if(_M_cursor_index > index && old_cursor_index <= index)
+          iter = make_byte_iter(index - (_M_cursor_index - _M_gap_begin_index), 0);
+      } else if(_M_cursor_index < old_cursor_index) {
+        if(_M_gap_begin_index < index && old_cursor_index - (_M_cursor_index - _M_gap_begin_index) >= index)
+          iter = make_byte_iter(index + (_M_cursor_index - _M_gap_begin_index), 0);
+      }
+    }
 
     const char &ImplTextBuffer::byte(const TextByteIterator &iter) const
     {
@@ -310,7 +375,7 @@ namespace waytk
 
   TextCharIterator::TextCharIterator(const TextByteIterator &iter)
   {
-    TextByteIterator tmp_iter = priv::first_utf8_char_byte_iter(iter, iter._M_buffer->byte_begin());
+    TextByteIterator tmp_iter = priv::first_utf8_char_byte_iter(iter, iter._M_buffer->byte_begin(), _M_buffer->byte_end());
     _M_buffer = tmp_iter._M_buffer;
     _M_data1 = tmp_iter._M_data1;
     _M_data2 = tmp_iter._M_data2;
@@ -321,12 +386,12 @@ namespace waytk
   //
 
   TextLineIterator::TextLineIterator(const TextByteIterator &iter)
-  { intialize(TextCharIterator(iter)); }
+  { initialize(TextCharIterator(iter)); }
 
   TextLineIterator::TextLineIterator(const TextCharIterator &iter)
-  { intialize(iter); }
+  { initialize(iter); }
 
-  void TextLineIterator::intialize(const TextCharIterator &iter)
+  void TextLineIterator::initialize(const TextCharIterator &iter)
   {
     TextCharIterator tmp_iter = iter;
     while(tmp_iter > tmp_iter.buffer()->char_begin()) {
@@ -373,12 +438,37 @@ namespace waytk
   TextLineIterator &TextBuffer::decrease_line_iter(TextLineIterator &iter) const
   {
     TextCharIterator char_iter = iter.char_iter();
-    while(char_iter > char_begin()) {
-      char_iter--;
-      if(**char_iter == '\n') break;
+    if(char_iter > char_begin()) {
+      if(char_iter != char_end()) {
+        char_iter--;
+      } else {
+        char_iter--;
+        if(**char_iter != '\n') char_iter++;
+      }
+      while(char_iter > char_begin()) {
+        char_iter--;
+        if(**char_iter == '\n') {
+          char_iter++;
+          break;
+        }
+      }
     }
     iter = TextLineIterator(char_iter);
     return iter;
+  }
+  
+  void TextBuffer::validate_char_iter(TextCharIterator &iter, const TextCharIterator &old_cursor_iter) const
+  {
+    TextByteIterator tmp_iter = make_byte_iter(char_iter_data1(iter), char_iter_data2(iter));
+    validate_byte_iter(tmp_iter, old_cursor_iter);
+    iter = make_char_iter(byte_iter_data1(tmp_iter), byte_iter_data2(tmp_iter));
+  }
+
+  void TextBuffer::validate_line_iter(TextLineIterator &iter, const TextCharIterator &old_cursor_iter) const
+  {
+    TextByteIterator tmp_iter = make_byte_iter(line_iter_data1(iter), line_iter_data2(iter));
+    validate_byte_iter(tmp_iter, old_cursor_iter);
+    iter = make_line_iter(byte_iter_data1(tmp_iter), byte_iter_data2(tmp_iter));
   }
 
   size_t TextBuffer::default_single_line_gap_size()

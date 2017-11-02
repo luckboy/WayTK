@@ -231,11 +231,13 @@ namespace waytk
     }
 
     template<typename _Iter>
-    _Iter first_utf8_char_byte_iter(_Iter iter, _Iter begin)
+    _Iter first_utf8_char_byte_iter(_Iter iter, _Iter begin, _Iter end)
     {
-      while(iter != begin) {
-        if((*iter & 0xc0) != 0x80) break;
-        iter--;
+      if(iter != end) {
+        while(iter != begin) {
+          if((*iter & 0xc0) != 0x80) break;
+          iter--;
+        }
       }
       return iter;
     }

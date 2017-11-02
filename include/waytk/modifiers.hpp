@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,16 +30,17 @@ namespace waytk
   enum class Modifiers
   {
     NONE = 0,                   ///< No key modifiers.
-    CAPS = 1,                   ///< Caps key modifier.
-    CTRL = 2,                   ///< Ctrl key modifier.
-    ALT = 4,                    ///< Alt key modifier.
-    NUM = 8,                    ///< Num Lock key modifier.
-    LOGO = 16                   ///< Logo key modifier.
+    SHIFT = 1,                  ///< Shift key modifier.
+    CAPS = 2,                   ///< Caps key modifier.
+    CTRL = 4,                   ///< Ctrl key modifier.
+    ALT = 8,                    ///< Alt key modifier.
+    NUM = 16,                   ///< Num Lock key modifier.
+    LOGO = 32                   ///< Logo key modifier.
   };
 
   /// Returns negation of \p modifiers.
   inline Modifiers operator~(Modifiers modifiers)
-  { return static_cast<Modifiers>(static_cast<int>(modifiers) ^ 31); }
+  { return static_cast<Modifiers>(static_cast<int>(modifiers) ^ 63); }
 
   /// Returns conjuction of \p modifiers1 with \p modifiers2.
   inline Modifiers operator&(Modifiers modifiers1, Modifiers modifiers2)

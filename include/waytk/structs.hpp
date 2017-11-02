@@ -321,6 +321,30 @@ namespace waytk
     Corners(_T top_left, _T top_right, _T bottom_right, _T bottom_left) : 
       top_left(top_left), top_right(top_right), bottom_right(bottom_right), bottom_left(bottom_left) {}
   };
+
+  struct TextPoint
+  {
+    int x;
+    long y_line;
+    int y_offset;
+    
+    TextPoint() {}
+    
+    TextPoint(int x, long y_line, int y_offset) :
+      x(x), y_line(y_line), y_offset(y_offset) {}
+  };
+
+  struct TextDimension
+  {
+    int width;
+    long height_line;
+    int height_offset;
+    
+    TextDimension() {}
+
+    TextDimension(int width, long height_line, int height_offset) :
+      width(width), height_line(height_line), height_offset(height_offset) {}
+  };
 }
 
 #endif

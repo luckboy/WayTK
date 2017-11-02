@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -122,12 +122,15 @@ namespace waytk
     { draw_background(pseudo_classes, canvas, Rectangle<int>(x, y, width, height)); }
 
     /// \copydoc draw_background(PseudoClasses pseudo_classes, Canvas *canvas, int x, int y, int width, int height) const
-    void draw_background(PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &point, const Rectangle<int> &size) const
+    void draw_background(PseudoClasses pseudo_classes, Canvas *canvas, const Point<int> &point, const Dimension<int> &size) const
     { draw_background(pseudo_classes, canvas, Rectangle<int>(point.x, point.y, size.width, size.height)); }
 
     /// \copydoc draw_background(PseudoClasses pseudo_classes, Canvas *canvas, int x, int y, int width, int height) const
     virtual void draw_background(PseudoClasses pseudo_classes, Canvas *canvas, const Rectangle<int> &rect) const = 0;
 
+    /// Returns a background color for pseudo classes.
+    virtual Color background_color(PseudoClasses pseudo_classes) const = 0;
+    
     /// Returns a foreground color for pseudo classes.
     virtual Color foreground_color(PseudoClasses pseudo_classes) const = 0;
 

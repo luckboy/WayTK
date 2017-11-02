@@ -73,6 +73,9 @@ namespace waytk
     void ImplStyles::draw_background(PseudoClasses pseudo_classes, Canvas *canvas, const Rectangle<int> &rect) const
     { throw exception(); }
 
+    Color ImplStyles::background_color(PseudoClasses pseudo_classes) const
+    { return find_style_attr(_M_background_colors, pseudo_classes, Color(0xffffffff)); }
+    
     Color ImplStyles::foreground_color(PseudoClasses pseudo_classes) const
     { return find_style_attr(_M_foreground_colors, pseudo_classes, Color(0xff000000)); }
 

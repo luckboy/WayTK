@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 #include <memory>
 #include <string>
 #include <waytk/callback.hpp>
+#include <waytk/canvas.hpp>
 #include <waytk/structs.hpp>
 #include <waytk/widgets.hpp>
 
@@ -295,6 +296,8 @@ namespace waytk
 
     /// This method is invoked when a touch is canceled.
     virtual void on_touch_cancel(const std::shared_ptr<Surface> &surface);
+
+    virtual Canvas *canvas();
 
     friend class Widget;
     friend bool add_surface(const std::shared_ptr<Surface> &surface);

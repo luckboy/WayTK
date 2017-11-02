@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -124,7 +124,7 @@ namespace waytk
   bool Button::on_key(uint32_t key_sym, Modifiers modifiers, const char *utf8, KeyState state)
   {
     this->Widget::on_key(key_sym, modifiers, utf8, state);
-    if((strcmp(utf8, "\n") == 0 || strcmp(utf8, " ") == 0)) {
+    if((strcmp(utf8, "\r") == 0 || strcmp(utf8, " ") == 0)) {
       switch(state) {
         case KeyState::PRESSED:
           if(_M_touch_count == 0)

@@ -78,6 +78,8 @@ namespace waytk
 
       virtual void draw_background(PseudoClasses pseudo_classes, Canvas *canvas, const Rectangle<int> &rect) const;
 
+      virtual Color background_color(PseudoClasses pseudo_classes) const;
+
       virtual Color foreground_color(PseudoClasses pseudo_classes) const;
 
       virtual bool has_adjacency_to();

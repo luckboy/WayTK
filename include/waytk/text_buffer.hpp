@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@
 
 namespace waytk
 {
+  class Text;
   class TextBuffer;
   class TextCharIterator;
   class TextLineIterator;
@@ -299,7 +300,7 @@ namespace waytk
     TextCharIterator char_iter() const
     { return TextCharIterator(_M_buffer, _M_data1, _M_data2); }
   private:
-    void intialize(const TextCharIterator &iter);
+    void initialize(const TextCharIterator &iter);
 
     friend class TextBuffer;
   };
@@ -443,6 +444,26 @@ namespace waytk
     ///
     virtual void set_gap_size(std::size_t gap_size) = 0;
 
+    /// Returns the number of the tab spaces of the text buffer.
+    virtual std::size_t tab_spaces() const = 0;
+
+    /// Sets the number of the tab spaces of the text buffer.
+    virtual void set_tab_spaces(std::size_t tab_spaces) = 0;
+  protected:
+    virtual bool has_saved_column() const = 0;
+
+    virtual std::size_t saved_column() const = 0;
+
+    virtual void set_saved_column(std::size_t column) = 0;
+
+    virtual void unset_saved_column() = 0;
+  public:
+    virtual void validate_byte_iter(TextByteIterator &iter, const TextCharIterator &old_cursor_iter) const = 0;
+    
+    void validate_char_iter(TextCharIterator &iter, const TextCharIterator &old_cursor_iter) const;
+
+    void validate_line_iter(TextLineIterator &iter, const TextCharIterator &old_cursor_iter) const;
+
     /// Returns the default initial gap size for single-line.
     static std::size_t default_single_line_gap_size();
 
@@ -550,6 +571,7 @@ namespace waytk
     std::uintptr_t &line_iter_data2(TextLineIterator &iter) const
     { return iter._M_data2; }
 
+    friend class Text;
     friend class TextByteIterator;
     friend class TextCharIterator;
     friend class TextLineIterator;

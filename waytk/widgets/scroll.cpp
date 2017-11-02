@@ -157,7 +157,10 @@ namespace waytk
         inner_area_size.width += block_margin_box_height(h_scroll_bar_name(), _M_h_scroll_bar_pseudo_classes, content_height);
       }
     }
-    update_scroll_bar_margin_box_sizes(canvas, inner_area_size);
+    set_content_size(inner_area_size);
+    int h_scroll_bar_inner_width;
+    int v_scroll_bar_inner_height;
+    update_scroll_bar_margin_box_sizes(canvas, inner_area_size, h_scroll_bar_inner_width, v_scroll_bar_inner_height);
     Edges<int> viewport_margin = _M_viewport->margin();
     Dimension<int> viewport_size = inner_area_size;
     viewport_size.width -= _M_viewport->point().x;
@@ -169,13 +172,17 @@ namespace waytk
     viewport_size.width = max(viewport_size.width, 0);
     viewport_size.height = max(viewport_size.height, 0);
     _M_viewport->set_size(viewport_size);
+    if(_M_has_visible_h_scroll_bar)
+      update_h_slider_margin_box_width(canvas, h_scroll_bar_inner_width);
+    if(_M_has_visible_v_scroll_bar)
+      update_v_slider_margin_box_height(canvas, v_scroll_bar_inner_height);
     if(_M_has_auto_h_scroll_bar) {
       _M_has_visible_h_scroll_bar = _M_viewport->width_is_less_than_clien_width();
     }
     if(_M_has_auto_v_scroll_bar) {
       _M_has_visible_v_scroll_bar = _M_viewport->height_is_less_than_clien_height();
     }
-    update_scroll_bar_margin_box_sizes(canvas, inner_area_size);
+    update_scroll_bar_margin_box_sizes(canvas, inner_area_size, h_scroll_bar_inner_width, v_scroll_bar_inner_height);
     viewport_size = inner_area_size;
     viewport_size.width -= _M_viewport->point().x;
     viewport_size.height -= _M_viewport->point().y;
@@ -186,6 +193,10 @@ namespace waytk
     viewport_size.width = max(viewport_size.width, 0);
     viewport_size.height = max(viewport_size.height, 0);
     _M_viewport->set_size(viewport_size);
+    if(_M_has_visible_h_scroll_bar)
+      update_h_slider_margin_box_width(canvas, h_scroll_bar_inner_width);
+    if(_M_has_visible_v_scroll_bar)
+      update_v_slider_margin_box_height(canvas, v_scroll_bar_inner_height);
     _M_has_enabled_h_scroll_bar = _M_viewport->width_is_less_than_clien_width();
     _M_has_enabled_v_scroll_bar = _M_viewport->height_is_less_than_clien_height();
     if(_M_has_enabled_h_scroll_bar) {
@@ -211,14 +222,10 @@ namespace waytk
       _M_bottom_button_pseudo_classes |= PseudoClasses::DISABLED;
     }
     Dimension<int> widget_area_size = inner_area_size;
-    if(_M_has_visible_v_scroll_bar) {
-      widget_area_size.width -= _M_v_scroll_bar_margin_box_size.width;
-      widget_area_size.width = max(widget_area_size.width, 0);
-    }
-    if(_M_has_visible_h_scroll_bar) {
-      widget_area_size.height -= _M_h_scroll_bar_margin_box_size.height;
-      widget_area_size.height = max(widget_area_size.height, 0);
-    }
+    widget_area_size.width -= _M_v_scroll_bar_margin_box_size.width;
+    widget_area_size.width = max(widget_area_size.width, 0);
+    widget_area_size.height -= _M_h_scroll_bar_margin_box_size.height;
+    widget_area_size.height = max(widget_area_size.height, 0);
     _M_viewport->update_widget_size(canvas, widget_area_size);
   }
 
@@ -529,7 +536,7 @@ namespace waytk
       case XKB_KEY_Home:
       case XKB_KEY_KP_Home:
         _M_viewport->move_view_to_top(); 
-        break;
+        return true;
       case XKB_KEY_Left:
       case XKB_KEY_KP_Left:
         _M_viewport->h_move_view(-x_step);
@@ -545,7 +552,7 @@ namespace waytk
       case XKB_KEY_Down:
       case XKB_KEY_KP_Down:
         _M_viewport->v_move_view(_M_viewport->size().width);
-        break;
+        return true;
       case XKB_KEY_Page_Up:
       case XKB_KEY_KP_Page_Up:
         _M_viewport->v_move_view(-_M_viewport->size().height);
@@ -557,16 +564,14 @@ namespace waytk
       case XKB_KEY_End:
       case XKB_KEY_KP_End:
         _M_viewport->move_view_to_bottom(); 
-        break;
+        return true;
     }
     return false;
   }
 
-  void Scroll::update_scroll_bar_margin_box_sizes(Canvas *canvas, const Dimension<int> &inner_area_size)
+  void Scroll::update_scroll_bar_margin_box_sizes(Canvas *canvas, const Dimension<int> &inner_area_size, int &h_scroll_bar_inner_width, int &v_scroll_bar_inner_height)
   {
     Edges<int> viewport_margin = _M_viewport->margin();
-    int h_scroll_bar_inner_width;
-    int v_scroll_bar_inner_height;
     if(_M_has_visible_h_scroll_bar) {
       update_left_button_margin_box_size(canvas);
       update_h_slider_margin_box_size(canvas);
@@ -605,10 +610,6 @@ namespace waytk
         _M_v_scroll_bar_margin_box_size.height = max(_M_h_scroll_bar_margin_box_size.height, 0);
       }
     }
-    if(_M_has_visible_h_scroll_bar)
-      update_h_slider_margin_box_width(canvas, h_scroll_bar_inner_width);
-    if(_M_has_visible_v_scroll_bar)
-      update_v_slider_margin_box_height(canvas, v_scroll_bar_inner_height);
   }
 
   const char *Scroll::h_scroll_bar_name() const

@@ -29,6 +29,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 #include <waytk/adapters.hpp>
 #include <waytk/callback.hpp>
@@ -1255,12 +1256,14 @@ namespace waytk
   {
     InputType _M_input_type;
     std::unique_ptr<TextBuffer> _M_buffer;
-    TextLineIterator _M_first_visible_iter;
-    TextLineIterator _M_last_visible_iter;
+    TextDimension _M_client_size;
+    TextPoint _M_view_point;
+    TextCharIterator _M_first_visible_iter;
+    Point<int> _M_visible_point;
+    std::size_t _M_first_visible_color_index;
     std::size_t _M_max_length;
     bool _M_has_line_wrap;
     bool _M_has_word_wrap;
-    std::size_t _M_tab_spaces;
     bool _M_has_font;
     std::string _M_font_name;
     FontSlant _M_font_slant;
@@ -1268,6 +1271,7 @@ namespace waytk
     bool _M_has_font_size;
     int _M_font_size;
     bool _M_is_editable;
+    bool _M_has_insert_mode;
     OnTextChangeCallback _M_on_text_change_callback;
     OnCursorChangeCallback _M_on_cursor_change_callback;
     OnTextSelectionCallback _M_on_text_selection_callback;
@@ -1425,11 +1429,11 @@ namespace waytk
     
     /// Returns the number of the tab spaces of the text widget.
     std::size_t tab_spaces() const
-    { return _M_tab_spaces; }
+    { return _M_buffer->tab_spaces(); }
 
     /// Sets the number of the tab spaces of the text widget.
     void set_tab_spaces(std::size_t tab_spaces)
-    { _M_tab_spaces = tab_spaces; }
+    { _M_buffer->set_tab_spaces(tab_spaces); }
 
     /// Returns \c true if the text widget has the font, otherwise \c false.
     bool has_font() const
@@ -1480,7 +1484,17 @@ namespace waytk
     /// the widget as uneditable.
     void set_editable(bool is_editable)
     { _M_is_editable = is_editable; }
+    
+    /// Returns \c true if the text widget has an insert mode, otherwise
+    /// \c false.
+    bool has_insert_mode() const
+    { return _M_has_insert_mode; }
 
+    /// Sets an insert mode if \p has_insert_mode is \c true, othrwise
+    /// unsets the insert mode.
+    void set_insert_mode(bool has_insert_mode)
+    { _M_has_insert_mode = has_insert_mode; }
+    
     /// Returns the selected text of the text widget.
     std::string selected_text() const
     { return _M_buffer->selected_text(); }
@@ -1529,7 +1543,7 @@ namespace waytk
 
     virtual const char *name() const;
 
-    virtual void draw(Canvas *canvas);
+    virtual void draw_content(Canvas *canvas, const Rectangle<int> &inner_bounds);
 
     virtual Viewport *viewport();
 
@@ -1551,6 +1565,46 @@ namespace waytk
     /// Returns a foreground color for a position from a first displaying
     /// character.
     virtual Color foreground_color(std::size_t pos);
+  private:
+    TextDimension for_text(Canvas *canvas, const TextCharIterator &first_iter, const std::function<std::pair<bool, bool> (const FontMetrics &, const TextMetrics &, const TextCharIterator &, const TextPoint &, std::size_t, bool)> &cond_fun, const std::function<void (const FontMetrics &, const TextMetrics &, const TextCharIterator &, const TextPoint &, std::size_t, bool)> &iter_fun);
+    
+    TextDimension for_text(Canvas *canvas, const TextCharIterator &first_iter, const FontMetrics &font_metrics, const std::function<std::pair<bool, bool> (const FontMetrics &, const TextMetrics &, const TextCharIterator &, const TextPoint &, std::size_t, bool)> &cond_fun, const std::function<void (const FontMetrics &, const TextMetrics &, const TextCharIterator &, const TextPoint &, std::size_t, bool)> &iter_fun);
+
+    TextDimension for_text_backward(Canvas *canvas, const TextCharIterator &first_iter, const std::function<std::pair<bool, bool> (const FontMetrics &, const TextMetrics &, const TextCharIterator &, const TextPoint &, std::size_t, bool)> &cond_fun, const std::function<void (const FontMetrics &, const TextMetrics &, const TextCharIterator &, const TextPoint &, std::size_t, bool)> &iter_fun);
+    
+    TextDimension for_text_backward(Canvas *canvas, const TextCharIterator &first_iter, const FontMetrics &font_metrics, const std::function<std::pair<bool, bool> (const FontMetrics &, const TextMetrics &, const TextCharIterator &, const TextPoint &, std::size_t, bool)> &cond_fun, const std::function<void (const FontMetrics &, const TextMetrics &, const TextCharIterator &, const TextPoint &, std::size_t, bool)> &iter_fun);
+
+    std::size_t cursor_column(Canvas *canvas);
+    
+    std::size_t iter_column(Canvas *canvas, TextCharIterator iter);
+
+    void update_cursor_iter_for_home(Canvas *canvas);
+
+    void update_cursor_iter_for_move_up_down(Canvas *canvas, long y_line);
+    
+    void update_cursor_iter_for_move_left_right(Canvas *canvas, int x);
+    
+    void update_cursor_iter_for_end(Canvas *canvas);
+
+    void update_selection_range(const TextCharIterator &old_cursor_iter, bool is_shift);
+    
+    TextCharIterator align_to_line(Canvas *canvas, const TextCharIterator &iter);
+
+    void draw_cursor(Canvas *canvas, const Rectangle<int> &rect);
+
+    void update_first_visible_iter(Canvas *canvas);
+
+    void update_first_visible_iter_for_move_up(Canvas *canvas);
+
+    void update_first_visible_iter_for_move_down(Canvas *canvas);
+
+    long cursor_y_line(Canvas *canvas);
+  
+    void update_first_visible_iter_for_page_up_down(Canvas *canvas, long old_cursor_y_line);
+  
+    void update_visible_point_for_move_left(Canvas *canvas);
+    
+    void update_visible_point_for_move_right(Canvas *canvas);
   };
 
   ///
@@ -2907,7 +2961,7 @@ namespace waytk
     { _M_viewport_widget_bounds = bounds; }
 
     /// Updates the margin box sizes of the scroll bars.
-    virtual void update_scroll_bar_margin_box_sizes(Canvas *canvas, const Dimension<int> &inner_area_size);
+    virtual void update_scroll_bar_margin_box_sizes(Canvas *canvas, const Dimension<int> &inner_area_size, int &h_scroll_bar_inner_width, int &v_scroll_bar_inner_height);
 
     /// Returns the name of the horizontal scroll bar.
     virtual const char *h_scroll_bar_name() const;
